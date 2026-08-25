@@ -1,0 +1,546 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <title>🐾 รายได้ของน้ำ</title>
+  <meta name="description" content="บันทึกรายได้ทำเล็บของคุณ — รายได้ของน้ำ">
+
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23E2879B'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23E2879B'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="รายได้ของน้ำ">
+  <meta name="theme-color" content="#1C1618">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+
+</head>
+
+
+<body>
+
+
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-container">
+
+      <div class="login-logo">🐾</div>
+      <div class="login-title">รายได้ทำเล็บ</div>
+      <div class="login-subtitle" id="loginSubtitle">เลือกผู้ใช้เพื่อเข้าสู่ระบบ</div>
+
+      <!-- STEP 1: เลือกผู้ใช้ -->
+      <div id="loginStep1" class="login-step active">
+
+        <div class="user-selector">
+          <div class="user-card nam" onclick="selectLoginUser('nam')">
+            <div class="user-card-avatar">💚</div>
+            <div class="user-card-name">น้ำ</div>
+            <div class="user-card-label">เข้าสู่ระบบ</div>
+          </div>
+          <div class="user-card mook" onclick="selectLoginUser('mook')">
+            <div class="user-card-avatar">💜</div>
+            <div class="user-card-name">มุก</div>
+            <div class="user-card-label">เข้าสู่ระบบ</div>
+          </div>
+        </div>
+
+
+        <!-- DASHBOARD รวม 2 คน -->
+        <div id="combinedCard" class="card combined-card" style="margin-top:20px;">
+
+          <div class="title">
+            🏠 รายได้ร้านรวม (เดือนนี้)
+          </div>
+
+          <div class="combined-grid">
+            <div class="combined-user-box">
+              <div class="combined-user-name nam">💚 น้ำ</div>
+              <div id="combinedNamIncome" class="combined-user-value">กำลังโหลด...</div>
+              <div id="combinedNamJobs" class="settings-item-sub" style="margin-top:4px;">— งาน</div>
+            </div>
+            <div class="combined-user-box">
+              <div class="combined-user-name mook">💜 มุก</div>
+              <div id="combinedMookIncome" class="combined-user-value">กำลังโหลด...</div>
+              <div id="combinedMookJobs" class="settings-item-sub" style="margin-top:4px;">— งาน</div>
+            </div>
+          </div>
+
+          <div class="combined-total">
+            <div class="combined-total-label">💰 รวมรายได้จริงทั้งหมด</div>
+            <div id="combinedTotalIncome" class="combined-total-value">กำลังโหลด...</div>
+            <div id="combinedTotalJobs" class="settings-item-sub" style="margin-top:2px;">— งาน</div>
+          </div>
+
+        </div>
+
+
+        <!-- TOP SERVICES (รวม 2 คน) -->
+        <div class="card" id="topServicesCard" style="display:none; margin-top:14px;">
+          <div class="title">🏆 บริการยอดนิยม (เดือนนี้)</div>
+          <div id="topServicesList"></div>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 2: ใส่ PIN -->
+      <div id="loginStep2" class="login-step" style="margin-top:12px;">
+
+        <div id="pinLabel" class="pin-label">ใส่ PIN 4 หลัก</div>
+
+        <div class="pin-dots">
+          <div class="pin-dot" id="pinDot0"></div>
+          <div class="pin-dot" id="pinDot1"></div>
+          <div class="pin-dot" id="pinDot2"></div>
+          <div class="pin-dot" id="pinDot3"></div>
+        </div>
+
+        <div class="pin-pad">
+          <button class="pin-key" onclick="pinInput('1')">1</button>
+          <button class="pin-key" onclick="pinInput('2')">2</button>
+          <button class="pin-key" onclick="pinInput('3')">3</button>
+          <button class="pin-key" onclick="pinInput('4')">4</button>
+          <button class="pin-key" onclick="pinInput('5')">5</button>
+          <button class="pin-key" onclick="pinInput('6')">6</button>
+          <button class="pin-key" onclick="pinInput('7')">7</button>
+          <button class="pin-key" onclick="pinInput('8')">8</button>
+          <button class="pin-key" onclick="pinInput('9')">9</button>
+          <button class="pin-key empty"></button>
+          <button class="pin-key" onclick="pinInput('0')">0</button>
+          <button class="pin-key backspace" onclick="pinBackspace()">⌫</button>
+        </div>
+
+        <div id="pinError" class="pin-error-text"></div>
+
+        <button class="pin-back-btn" onclick="pinGoBack()">← เปลี่ยนผู้ใช้</button>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- OFFLINE INDICATOR -->
+  <div id="offlineBar" class="offline-bar">
+    📡 ไม่มีอินเทอร์เน็ต — ข้อมูลอาจไม่อัปเดต
+  </div>
+
+
+  <div class="app">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+      <div class="header-title-wrap">
+        <h1 id="headerTitle">รายได้ของน้ำ</h1>
+        <p>บันทึกรายได้ทำเล็บของคุณ</p>
+        <div id="headerUserBadge" class="header-user-badge">💚 น้ำ</div>
+      </div>
+
+    </div>
+
+    <div class="header-divider"></div>
+
+
+    <!-- INSTALL BANNER -->
+    <div id="installBanner" class="install-banner">
+      <div class="install-banner-icon">📱</div>
+      <div class="install-banner-text">
+        <div class="install-banner-title">ติดตั้งลงมือถือ</div>
+        <div class="install-banner-sub">เปิดใช้ง่ายขึ้น เหมือนแอปจริง ✨</div>
+      </div>
+      <button id="installBtn" class="install-banner-btn" onclick="installApp()">ติดตั้ง</button>
+      <button class="install-banner-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+
+
+    <!-- ==================================================
+     SAVE PAGE
+================================================== -->
+
+    <section id="savePage" class="page active">
+
+
+      <div class="card">
+
+        <div class="title">
+          💅 เลือกบริการที่ทำ
+        </div>
+
+        <div id="serviceGrid"></div>
+
+        <div id="selectedBox" class="selected-box" style="display:none;">
+          <div class="selected-label">
+            รายการที่เลือก
+          </div>
+          <div id="selectedText" class="selected-text"></div>
+        </div>
+
+        <div class="custom-service-row">
+          <div class="custom-service-label">
+            ✏️ หรือพิมพ์ชื่อบริการเอง
+          </div>
+          <input id="customServiceInput" class="add-input" placeholder="เช่น ต่อเล็บลายพิเศษ" oninput="updateSelected()"
+            style="width:100%;">
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="title">
+          💰 ราคาที่ลูกค้าจ่ายจริง
+        </div>
+
+        <div class="price-wrap">
+          <span class="price-icon">💰</span>
+          <input id="priceInput" class="price-input" type="number" inputmode="decimal" placeholder="0"
+            oninput="calculateCommission()">
+        </div>
+
+        <div id="commissionPreview" class="commission-preview">
+          🎀 Commission 10% = ฿0
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="backdate-toggle" onclick="toggleBackdate()">
+          <span>📅 ลงข้อมูลย้อนหลัง</span>
+          <span id="backdateArrow" class="backdate-arrow">▾</span>
+        </div>
+
+        <div id="backdateFields" class="backdate-fields">
+
+          <div class="thai-date-row">
+            <select id="backdateDay" class="thai-date-select"></select>
+            <select id="backdateMonth" class="thai-date-select"></select>
+            <select id="backdateYear" class="thai-date-select"></select>
+          </div>
+
+          <div class="backdate-hint">
+            💡 ถ้าไม่ระบุ จะบันทึกเป็นวันที่ปัจจุบันเหมือนเดิม
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+        <button id="saveBtn" class="save-btn" onclick="saveData()">
+          ✅ บันทึกรายการ
+        </button>
+      </div>
+
+
+      <!-- PENDING OFFLINE QUEUE -->
+      <div id="pendingBanner" class="card pending-banner">
+        <div class="pending-banner-icon">📴</div>
+        <div class="pending-banner-text">
+          <div class="pending-banner-title" id="pendingTitle">มีรายการรอส่ง</div>
+          <div class="pending-banner-sub" id="pendingSub">จะส่งอัตโนมัติเมื่อมีเน็ต</div>
+        </div>
+        <button class="pending-banner-btn" onclick="syncOfflineQueue()">ส่งตอนนี้</button>
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ==================================================
+     SUMMARY PAGE
+================================================== -->
+
+    <section id="summaryPage" class="page">
+
+
+      <!-- TODAY -->
+      <div class="card summary-main">
+
+        <div class="summary-label">
+          🪙 Commission วันนี้
+        </div>
+
+        <div id="todayCommission" class="summary-income">
+          ฿0
+        </div>
+
+        <div id="todayMood" class="summary-mood">
+          😺 วันนี้ยังไม่มีรายการ
+        </div>
+
+        <div class="summary-row">
+          <span>☀️ รายได้วันนี้</span>
+          <strong id="todayIncome">฿0</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>💅 จำนวนงาน</span>
+          <strong id="todayJobs">0 รายการ</strong>
+        </div>
+
+      </div>
+
+
+      <!-- WEEK CHART -->
+      <div class="card chart-card">
+
+        <div class="chart-title">
+          📊 รายได้สัปดาห์นี้
+        </div>
+
+        <div class="chart-subtitle">
+          ดูรายได้ของแต่ละวัน
+        </div>
+
+        <div id="weekChart" class="chart"></div>
+
+        <div class="chart-legend">
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot income"></span>
+            รายได้
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot commission"></span>
+            Commission
+          </span>
+        </div>
+
+        <div id="weekTotal" class="week-total"></div>
+
+      </div>
+
+
+      <!-- MONTH -->
+      <div class="card">
+
+        <div class="title">
+          🗓️ เดือนนี้
+        </div>
+
+        <div id="monthCompare" class="month-compare"></div>
+
+        <div class="month-card">
+
+          <div class="month-box">
+            <div class="month-icon">💰</div>
+            <div class="month-label">รายได้</div>
+            <div id="monthIncome" class="month-value">฿0</div>
+          </div>
+
+          <div class="month-box">
+            <div class="month-icon">🪙</div>
+            <div class="month-label">Commission</div>
+            <div id="monthCommission" class="month-value">฿0</div>
+          </div>
+
+          <div class="month-box">
+            <div class="month-icon">💅</div>
+            <div class="month-label">จำนวนงาน</div>
+            <div id="monthJobs" class="month-value">0</div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- INCOME CALENDAR -->
+      <div class="card" id="calendarCard" style="display:none;">
+        <div class="title">📅 ปฏิทินรายได้</div>
+        <div id="incomeCalendar"></div>
+      </div>
+
+
+      <!-- HISTORY -->
+      <div class="title" style="padding: 0 4px;">
+        📜 ประวัติรายการ
+      </div>
+
+      <div class="history-filter">
+        <button class="history-filter-btn" onclick="changeHistoryMonth(-1)">◀</button>
+        <div id="historyMonthLabel" class="history-filter-label">เดือนนี้</div>
+        <button class="history-filter-btn" onclick="changeHistoryMonth(1)">▶</button>
+      </div>
+      <div id="historyFilterHint" class="history-filter-hint"></div>
+
+      <div id="historyList"></div>
+
+
+    </section>
+
+
+
+    <!-- ==================================================
+     MANAGE PAGE
+================================================== -->
+
+    <section id="managePage" class="page">
+
+
+      <!-- SETTINGS -->
+      <div class="card">
+
+        <div class="title">
+          ⚙️ ตั้งค่า
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🌓</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">โหมดกลางคืน</div>
+              <div class="settings-item-sub">เปลี่ยนพื้นหลังเป็นสีเข้ม</div>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="darkSwitch" onchange="toggleDarkMode()">
+            <span class="switch-slider"></span>
+            <span class="switch-emoji sun">☀️</span>
+            <span class="switch-emoji moon">🌙</span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🔐</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">เปลี่ยน PIN</div>
+              <div class="settings-item-sub">เปลี่ยนรหัส PIN 4 หลัก</div>
+            </div>
+          </div>
+          <button class="settings-logout-btn" onclick="showChangePinFlow()">เปลี่ยน</button>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🔔</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">แจ้งเตือนบันทึก</div>
+              <div class="settings-item-sub">เตือนทุกวันหลัง 18:00</div>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="notifSwitch" onchange="toggleNotification()">
+            <span class="switch-slider"></span>
+            <span class="switch-emoji sun">🔕</span>
+            <span class="switch-emoji moon">🔔</span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🚪</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">ออกจากระบบ</div>
+              <div class="settings-item-sub" id="settingsUserLabel">เข้าสู่ระบบเป็น น้ำ</div>
+            </div>
+          </div>
+          <button class="settings-logout-btn" onclick="logoutUser()">ออกจากระบบ</button>
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="title">
+          ➕ เพิ่มบริการใหม่
+        </div>
+
+        <input id="newServiceName" class="add-input" placeholder="ชื่อบริการ เช่น ทาสีคริสตัล"
+          style="margin-bottom:10px;width:100%;">
+
+        <select id="newServiceCategory" class="thai-date-select" style="width:100%;"></select>
+
+        <input id="newCategoryInput" class="add-input" placeholder="ชื่อหมวดหมู่ใหม่"
+          style="display:none;margin-top:10px;width:100%;">
+
+        <button class="save-btn" style="margin-top:12px;" onclick="addServiceAction()">
+          ＋ เพิ่มบริการ
+        </button>
+
+      </div>
+
+
+      <div id="manageList"></div>
+
+
+    </section>
+
+
+
+  </div>
+
+
+
+  <!-- ==================================================
+     NAVIGATION
+================================================== -->
+
+  <nav class="bottom-nav">
+
+    <button id="navSave" class="nav-btn active" onclick="showPage('save')">
+      <span class="nav-icon">📝</span>
+      บันทึก
+      <span id="pendingBadge" class="pending-badge"></span>
+    </button>
+
+    <button id="navSummary" class="nav-btn" onclick="showPage('summary')">
+      <span class="nav-icon">📊</span>
+      สรุป
+    </button>
+
+    <button id="navManage" class="nav-btn" onclick="showPage('manage')">
+      <span class="nav-icon">⚙️</span>
+      ตั้งค่า
+    </button>
+
+  </nav>
+
+
+
+  <div id="toast" class="toast"></div>
+
+
+  <div id="modalOverlay" class="modal-overlay">
+    <div id="modalBox" class="modal-box"></div>
+  </div>
+
+
+
+  <script src="app.js"></script>
+
+
+</body>
+
+</html>
