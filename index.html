@@ -1,0 +1,5678 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <title>🐾 รายได้ของน้ำ</title>
+  <meta name="description" content="บันทึกรายได้ทำเล็บของคุณ — รายได้ของน้ำ">
+
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23EE7C95'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23EE7C95'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="รายได้ของน้ำ">
+  <meta name="theme-color" content="#EE7C95">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --cream-bg: #F7EEDD;
+      --cream-card: #FFFFFF;
+      --pink: #EE7C95;
+      --pink-dark: #A83A5C;
+      --pink-light: #FFD9E1;
+      --tan: #CC9860;
+      --tan-light: #F3DFC0;
+      --brown-dark: #40291E;
+      --brown-mid: #6B5347;
+      --shadow: rgba(64, 41, 30, .14);
+      --gold: #E3A84B;
+      --wine: #4A0F26;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 13px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Sarabun', "Noto Sans Thai", sans-serif;
+      background: var(--cream-bg);
+      color: var(--brown-dark);
+      position: relative;
+      width: 100%;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    /* subtle paw-print texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70'%3E%3Cg fill='%23D9A66C'%3E%3Cellipse cx='35' cy='44' rx='15' ry='12'/%3E%3Cellipse cx='19' cy='23' rx='6.5' ry='9'/%3E%3Cellipse cx='35' cy='16' rx='6.5' ry='9'/%3E%3Cellipse cx='51' cy='23' rx='6.5' ry='9'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 70px 70px;
+      opacity: .05;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-bottom: 110px;
+      position: relative;
+      z-index: 1;
+    }
+
+
+    /* =========================
+   HEADER
+========================= */
+
+    .header {
+      position: relative;
+      overflow: visible;
+      background: linear-gradient(135deg, #E85D82, #F2A0B8);
+      padding: 34px 20px 24px;
+      border-radius: 0 0 32px 32px;
+      color: white;
+      text-align: center;
+      box-shadow: 0 8px 22px var(--shadow);
+    }
+
+    .cat-ear {
+      position: absolute;
+      top: -16px;
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #F2879F, #E85D82);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      animation: earWiggle 4.5s ease-in-out infinite;
+    }
+
+    .cat-ear.left {
+      left: 26px;
+      transform: rotate(-18deg);
+      transform-origin: bottom center;
+    }
+
+    .cat-ear.right {
+      right: 26px;
+      transform: rotate(18deg);
+      transform-origin: bottom center;
+      animation-name: earWiggleR;
+      animation-delay: .3s;
+    }
+
+    .cat-ear-inner {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      transform: translate(-50%, -35%);
+      width: 16px;
+      height: 16px;
+      background: #fff0f5;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    @keyframes earWiggle {
+
+      0%,
+      100% {
+        transform: rotate(-18deg);
+      }
+
+      50% {
+        transform: rotate(-12deg);
+      }
+    }
+
+    @keyframes earWiggleR {
+
+      0%,
+      100% {
+        transform: rotate(18deg);
+      }
+
+      50% {
+        transform: rotate(12deg);
+      }
+    }
+
+    .header h1 {
+      margin: 4px 0 0;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      color: var(--gold);
+      text-shadow:
+        -1px -1px 0 var(--wine),
+        1px -1px 0 var(--wine),
+        -1px 1px 0 var(--wine),
+        1px 1px 0 var(--wine),
+        2px 2px 0 var(--wine),
+        3px 3px 0 var(--wine),
+        4px 4px 0 rgba(74, 15, 38, .85),
+        5px 6px 10px rgba(0, 0, 0, .35);
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold);
+      text-shadow:
+        -0.7px -0.7px 0 var(--wine),
+        0.7px -0.7px 0 var(--wine),
+        -0.7px 0.7px 0 var(--wine),
+        0.7px 0.7px 0 var(--wine),
+        1.5px 1.5px 0 var(--wine),
+        2px 3px 5px rgba(0, 0, 0, .3);
+    }
+
+    .header-sticker {
+      position: absolute;
+      top: -14px;
+      right: 18px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fff, #ffe9f0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 6px 14px rgba(64, 41, 30, .28);
+      transform: rotate(8deg);
+      animation: stickerFloat 3.4s ease-in-out infinite;
+      z-index: 3;
+    }
+
+    .sticker-sparkle {
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      font-size: 13px;
+      animation: sparkleTwinkle 1.8s ease-in-out infinite;
+    }
+
+    @keyframes stickerFloat {
+
+      0%,
+      100% {
+        transform: rotate(8deg) translateY(0);
+      }
+
+      50% {
+        transform: rotate(8deg) translateY(-4px);
+      }
+    }
+
+    @keyframes sparkleTwinkle {
+
+      0%,
+      100% {
+        opacity: .3;
+        transform: scale(.8);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    .header-divider {
+      height: 4px;
+      width: 64px;
+      margin: -12px auto 14px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--tan), var(--pink));
+      position: relative;
+      z-index: 2;
+    }
+
+
+    /* =========================
+   OFFLINE INDICATOR
+========================= */
+
+    .offline-bar {
+      display: none;
+      background: #FF6B6B;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .offline-bar.show {
+      display: block;
+      animation: slideDown .3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================
+   PAGE & TRANSITIONS
+========================= */
+
+    .page {
+      display: none;
+      padding: 14px 12px 20px;
+      animation: fadeSlideIn .3s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================
+   CARD
+========================= */
+
+    .card {
+      background: var(--cream-card);
+      border: 1.5px solid #f0e2cd;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+      box-shadow: 0 5px 18px var(--shadow);
+    }
+
+    .title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--brown-dark);
+      position: relative;
+      z-index: 1;
+    }
+
+
+    /* =========================
+   SUMMARY CARDS
+========================= */
+
+    .summary-main {
+      background: linear-gradient(135deg, #fff, #fff2f7);
+    }
+
+    .summary-label {
+      color: var(--brown-mid);
+      font-size: 14px;
+    }
+
+    .summary-mood {
+      font-size: 13px;
+      color: var(--pink-dark);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .summary-income {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      margin-top: 5px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .summary-row strong {
+      color: var(--pink-dark);
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+    }
+
+
+    /* =========================
+   WEEK CHART
+========================= */
+
+    .chart-card {
+      padding-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .chart-title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .chart-subtitle {
+      font-size: 12px;
+      color: var(--brown-mid);
+      margin-bottom: 14px;
+    }
+
+    .week-total {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brown-mid);
+      position: relative;
+      z-index: 1;
+    }
+
+    .chart {
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      gap: 4px;
+      padding: 14px 0 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chart-day {
+      height: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .bar-area {
+      height: 150px;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      position: relative;
+    }
+
+    .best-day-star {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+    }
+
+    .bar {
+      width: 60%;
+      max-width: 30px;
+      min-height: 3px;
+      border-radius: 12px 12px 5px 5px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: height .4s cubic-bezier(.4, 0, .2, 1);
+      position: relative;
+    }
+
+    .bar:hover {
+      opacity: .85;
+    }
+
+    .bar-segment-commission {
+      width: 100%;
+      background: linear-gradient(to top, var(--gold), #F3C97A);
+      flex-shrink: 0;
+    }
+
+    .bar-segment-income {
+      width: 100%;
+      background: linear-gradient(to top, #f0879c, #ffc2d1);
+      flex: 1;
+    }
+
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--brown-mid);
+      font-weight: 600;
+    }
+
+    .chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chart-legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .chart-legend-dot.income {
+      background: linear-gradient(135deg, #f0879c, #ffc2d1);
+    }
+
+    .chart-legend-dot.commission {
+      background: linear-gradient(135deg, var(--gold), #F3C97A);
+    }
+
+    .day-label {
+      font-size: 11px;
+      color: var(--brown-mid);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .day-money {
+      font-size: 9px;
+      color: var(--pink-dark);
+      height: 14px;
+    }
+
+
+    /* =========================
+   MONTH
+========================= */
+
+    .month-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .month-box {
+      background: var(--tan-light);
+      border-radius: 14px;
+      padding: 11px 4px;
+      min-width: 0;
+    }
+
+    .month-icon {
+      font-size: 19px;
+    }
+
+    .month-label {
+      font-size: 10px;
+      color: var(--brown-mid);
+      margin-top: 5px;
+    }
+
+    .month-value {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      margin-top: 3px;
+      word-break: break-word;
+    }
+
+
+    /* =========================
+   MONTH COMPARE
+========================= */
+
+    .month-compare {
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--pink-dark);
+      position: relative;
+      z-index: 1;
+    }
+
+    .month-compare.down {
+      color: #A24B3F;
+    }
+
+
+    /* =========================
+   HISTORY
+========================= */
+
+    .history-day {
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .history-day-header {
+      padding: 10px 3px;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--brown-dark);
+    }
+
+    .history-day-total {
+      font-size: 11px;
+      color: var(--brown-mid);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .history-item {
+      background: var(--cream-card);
+      border-radius: 15px;
+      border: 1.5px dashed #f0d9bf;
+      padding: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 3px 12px rgba(120, 70, 100, .05);
+      transition: transform .15s ease;
+    }
+
+    .history-item:active {
+      transform: scale(.98);
+    }
+
+    .history-time {
+      font-size: 11px;
+      color: var(--brown-mid);
+    }
+
+    .history-name {
+      font-weight: 700;
+      margin-top: 5px;
+      font-size: 14px;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    .history-money {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      font-size: 12px;
+      gap: 8px;
+    }
+
+    .history-commission {
+      color: var(--pink-dark);
+      font-weight: 700;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 9px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .history-action-btn {
+      border: none;
+      background: var(--tan-light);
+      color: var(--brown-dark);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 36px;
+      transition: transform .1s ease;
+    }
+
+    .history-action-btn:active {
+      transform: scale(.95);
+    }
+
+    .history-action-btn.delete {
+      background: var(--pink-light);
+      color: var(--pink-dark);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 34px 18px;
+    }
+
+    .empty-cat {
+      font-size: 40px;
+      margin-bottom: 8px;
+      animation: breathe 2.6s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.08);
+      }
+    }
+
+    .empty-state small {
+      color: var(--brown-mid);
+      display: block;
+      margin-top: 6px;
+    }
+
+
+    /* =========================
+   SERVICE BUTTONS
+========================= */
+
+    .service-category {
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .service-category:last-child {
+      margin-bottom: 0;
+    }
+
+    .service-category-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brown-mid);
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+
+    .service-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .service-btn {
+      border: 2px solid var(--tan-light);
+      background: var(--cream-card);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--brown-mid);
+      white-space: normal;
+      flex: 0 0 auto;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .service-btn:active {
+      transform: scale(.96);
+    }
+
+    .service-btn.selected {
+      background: linear-gradient(135deg, var(--pink-light), #ffc2d1);
+      border-color: var(--pink);
+      color: var(--pink-dark);
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(240, 135, 156, .32);
+    }
+
+    .service-btn.selected::before {
+      content: "✓ ";
+    }
+
+
+    /* =========================
+   SELECTED BOX
+========================= */
+
+    .selected-box {
+      margin-top: 12px;
+      background: var(--tan-light);
+      border-radius: 14px;
+      padding: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .selected-label {
+      color: var(--brown-mid);
+      font-size: 13px;
+    }
+
+    .selected-text {
+      font-weight: 700;
+      color: var(--pink-dark);
+      margin-top: 5px;
+      font-size: 15px;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+
+    /* =========================
+   CUSTOM SERVICE
+========================= */
+
+    .custom-service-row {
+      margin-top: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .custom-service-label {
+      font-size: 12.5px;
+      color: var(--brown-mid);
+      margin-bottom: 6px;
+    }
+
+
+    /* =========================
+   PRICE
+========================= */
+
+    .price-wrap {
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      pointer-events: none;
+    }
+
+    .price-input {
+      width: 100%;
+      border: 3px solid var(--tan);
+      border-radius: 18px;
+      padding: 14px 14px 14px 48px;
+      text-align: center;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      background: var(--cream-card);
+      color: var(--brown-dark);
+      height: 60px;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .price-input::-webkit-inner-spin-button,
+    .price-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .price-input:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    .commission-preview {
+      text-align: center;
+      margin-top: 10px;
+      color: var(--pink-dark);
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+
+    /* =========================
+   BACKDATE
+========================= */
+
+    .backdate-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--brown-dark);
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      min-height: 44px;
+    }
+
+    .backdate-arrow {
+      color: var(--pink-dark);
+      transition: transform .25s ease;
+    }
+
+    .backdate-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .backdate-fields {
+      display: none;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .backdate-fields.open {
+      display: block;
+    }
+
+    .thai-date-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .thai-date-select {
+      flex: 1;
+      min-width: 0;
+      border: 1.5px solid var(--tan-light);
+      border-radius: var(--radius-sm);
+      padding: 11px 4px;
+      background: var(--cream-card);
+      color: var(--brown-dark);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      text-align-last: center;
+      min-height: 44px;
+    }
+
+    .thai-date-select:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    .backdate-hint {
+      font-size: 12px;
+      color: var(--brown-mid);
+      margin-top: 10px;
+    }
+
+
+    /* =========================
+   BUTTONS
+========================= */
+
+    .save-btn {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 15px;
+      background: linear-gradient(135deg, #f0879c, #ffb2cd);
+      color: #2A1710;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      min-height: 54px;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .2s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .save-btn:active {
+      transform: scale(.98);
+    }
+
+    .save-btn:disabled {
+      opacity: .5;
+      pointer-events: none;
+    }
+
+
+    /* =========================
+   MANAGE
+========================= */
+
+    .add-row {
+      display: flex;
+      gap: 7px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .add-input {
+      flex: 1;
+      border: 1.5px solid var(--tan-light);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 15px;
+      min-width: 0;
+      min-height: 44px;
+      background: var(--cream-card);
+      color: var(--brown-dark);
+    }
+
+    .add-input:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    .add-btn {
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0 14px;
+      background: var(--pink);
+      color: white;
+      font-weight: 700;
+      min-height: 44px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .manage-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 4px;
+      border-bottom: 1.5px dashed #f0d9bf;
+      position: relative;
+      z-index: 1;
+      gap: 8px;
+    }
+
+    .manage-item-name {
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .manage-item-name::before {
+      content: "💅 ";
+    }
+
+    .manage-item-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+
+    /* =========================
+   NAV
+========================= */
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 10px;
+      bottom: calc(10px + env(safe-area-inset-bottom));
+      left: 10px;
+      right: 10px;
+      height: 64px;
+      max-width: 580px;
+      margin: auto;
+      background: var(--cream-card);
+      border-radius: 20px;
+      box-shadow: 0 10px 28px var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      z-index: 100;
+      padding: 6px;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      border: none;
+      background: transparent;
+      border-radius: 16px;
+      color: var(--brown-mid);
+      font-size: 11px;
+      font-family: 'Sarabun', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 0;
+      padding: 4px;
+      transition: background .25s ease, color .25s ease, transform .2s ease;
+    }
+
+    .nav-btn.active {
+      color: var(--pink-dark);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--pink-light), #ffe3ea);
+      transform: translateY(-2px);
+    }
+
+    .nav-icon {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 1px;
+    }
+
+
+    /* =========================
+   TOAST
+========================= */
+
+    .toast {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(82px + env(safe-area-inset-bottom));
+      max-width: 560px;
+      margin: auto;
+      background: var(--brown-dark);
+      color: white;
+      padding: 13px 16px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(14px);
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 7px 0 7px;
+      border-style: solid;
+      border-color: var(--brown-dark) transparent transparent transparent;
+    }
+
+
+    /* =========================
+   MODAL
+========================= */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(64, 41, 30, .4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+      padding: 14px;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--cream-card);
+      border-radius: 22px;
+      padding: 24px 18px;
+      max-width: 330px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(64, 41, 30, .32);
+      transform: scale(.85);
+      transition: transform .25s ease;
+    }
+
+    .modal-overlay.show .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      font-size: 46px;
+      margin-bottom: 8px;
+      animation: popBounce .45s ease;
+    }
+
+    @keyframes popBounce {
+      0% {
+        transform: scale(.5);
+      }
+
+      60% {
+        transform: scale(1.15);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .modal-title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--brown-dark);
+      margin-bottom: 6px;
+    }
+
+    .modal-text {
+      font-size: 13px;
+      color: var(--brown-mid);
+      margin-bottom: 16px;
+    }
+
+    .modal-input {
+      width: 100%;
+      border: 1.5px solid var(--tan-light);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 15px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-family: 'Sarabun', sans-serif;
+      color: var(--brown-dark);
+      min-height: 44px;
+      background: var(--cream-card);
+    }
+
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      border: none;
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 700;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform .1s ease;
+    }
+
+    .modal-btn:active {
+      transform: scale(.97);
+    }
+
+    .modal-btn.cancel {
+      background: var(--tan-light);
+      color: var(--brown-dark);
+    }
+
+    .modal-btn.ok {
+      background: linear-gradient(135deg, #f0879c, #ffb2cd);
+      color: #2A1710;
+    }
+
+
+    /* =========================
+   SKELETON LOADING
+========================= */
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0e2cd 25%, #f7ecd9 37%, #f0e2cd 63%);
+      background-size: 400% 100%;
+      animation: skeletonShine 1.4s ease infinite;
+      border-radius: 12px;
+    }
+
+    @keyframes skeletonShine {
+      0% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0 50%;
+      }
+    }
+
+    .skeleton-btn {
+      height: 40px;
+      width: 90px;
+      border-radius: 14px;
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-history {
+      height: 72px;
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+    }
+
+
+    /* =========================
+   PAW CONFETTI
+========================= */
+
+    .paw-confetti {
+      position: fixed;
+      top: 0;
+      font-size: 20px;
+      pointer-events: none;
+      z-index: 300;
+      animation: pawFall 1.1s ease-in forwards;
+    }
+
+    @keyframes pawFall {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(320px) rotate(180deg);
+        opacity: 0;
+      }
+    }
+
+
+    /* =========================
+   LOADING SPINNER (for API calls)
+========================= */
+
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid var(--tan-light);
+      border-top-color: var(--pink);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+
+    /* =========================
+   SMALL SCREEN
+========================= */
+
+    @media (max-width: 380px) {
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .header p {
+        font-size: 13px;
+      }
+
+      .summary-income {
+        font-size: 28px;
+      }
+
+      .service-btn {
+        font-size: 13px;
+        padding: 9px 11px;
+      }
+
+      .price-input {
+        font-size: 23px;
+        height: 56px;
+      }
+
+      .chart {
+        height: 180px;
+      }
+
+      .bar-area {
+        height: 135px;
+      }
+
+      .month-value {
+        font-size: 14px;
+      }
+    }
+
+
+    /* =========================
+   INSTALL BANNER
+========================= */
+
+    .install-banner {
+      display: none;
+      background: linear-gradient(135deg, #fff0f5, #ffe3ea);
+      border: 1.5px solid var(--pink-light);
+      border-radius: 16px;
+      margin: 10px 12px 0;
+      padding: 12px 14px;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(240, 135, 156, .15);
+      position: relative;
+      z-index: 2;
+      animation: fadeSlideIn .4s ease;
+    }
+
+    .install-banner.show {
+      display: flex;
+    }
+
+    .install-banner-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .install-banner-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .install-banner-title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pink-dark);
+    }
+
+    .install-banner-sub {
+      font-size: 11px;
+      color: var(--brown-mid);
+      margin-top: 2px;
+    }
+
+    .install-banner-btn {
+      border: none;
+      background: linear-gradient(135deg, var(--pink), #f0879c);
+      color: white;
+      border-radius: 12px;
+      padding: 9px 16px;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      min-height: 38px;
+      transition: transform .1s ease;
+      flex-shrink: 0;
+    }
+
+    .install-banner-btn:active {
+      transform: scale(.95);
+    }
+
+    .install-banner-close {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: var(--brown-mid);
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+
+    /* =========================
+   HISTORY MONTH FILTER
+========================= */
+
+    .history-filter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .history-filter-btn {
+      border: none;
+      background: var(--tan-light);
+      color: var(--brown-dark);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .1s ease, background .2s ease;
+      flex-shrink: 0;
+    }
+
+    .history-filter-btn:active {
+      transform: scale(.92);
+    }
+
+    .history-filter-btn:hover {
+      background: var(--pink-light);
+    }
+
+    .history-filter-label {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--brown-dark);
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .history-filter-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--brown-mid);
+      margin-top: -8px;
+      margin-bottom: 10px;
+    }
+
+
+    /* =========================
+   OFFLINE QUEUE BANNER
+========================= */
+
+    .pending-banner {
+      display: none;
+      background: linear-gradient(135deg, #fff8e1, #ffecb3);
+      border: 1.5px solid #ffe082;
+      border-radius: 14px;
+      padding: 12px 14px;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      animation: fadeSlideIn .3s ease;
+    }
+
+    .pending-banner.show {
+      display: flex;
+    }
+
+    .pending-banner-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .pending-banner-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pending-banner-title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6d4c00;
+    }
+
+    .pending-banner-sub {
+      font-size: 11px;
+      color: #8d6e00;
+      margin-top: 2px;
+    }
+
+    .pending-banner-btn {
+      border: none;
+      background: linear-gradient(135deg, #ffb300, #ffa000);
+      color: white;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      min-height: 36px;
+      transition: transform .1s ease;
+      flex-shrink: 0;
+    }
+
+    .pending-banner-btn:active {
+      transform: scale(.95);
+    }
+
+    .pending-badge {
+      display: none;
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #FF6B6B;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .pending-badge.show {
+      display: block;
+      animation: popBounce .4s ease;
+    }
+
+    .nav-btn {
+      position: relative;
+    }
+
+
+    /* =========================
+   DARK MODE
+========================= */
+
+    body.dark {
+      --cream-bg: #1a1218;
+      --cream-card: #2a2030;
+      --pink: #EE7C95;
+      --pink-dark: #F2A0B8;
+      --pink-light: #3d2535;
+      --tan: #CC9860;
+      --tan-light: #352a22;
+      --brown-dark: #e8ddd0;
+      --brown-mid: #a89888;
+      --shadow: rgba(0, 0, 0, .35);
+      --gold: #E3A84B;
+      --wine: #4A0F26;
+    }
+
+    body.dark::before {
+      opacity: .03;
+    }
+
+    body.dark .header {
+      background: linear-gradient(135deg, #8B2252, #A8456A);
+    }
+
+    body.dark .cat-ear {
+      background: linear-gradient(135deg, #A8456A, #8B2252);
+    }
+
+    body.dark .cat-ear-inner {
+      background: #2a2030;
+    }
+
+    body.dark .header-sticker {
+      background: linear-gradient(135deg, #2a2030, #3d2535);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .4);
+    }
+
+    body.dark .header-divider {
+      background: linear-gradient(90deg, var(--tan), var(--pink));
+      opacity: .5;
+    }
+
+
+    /* =========================
+   SETTINGS ITEMS
+========================= */
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 4px;
+      border-bottom: 1.5px dashed #f0d9bf;
+      position: relative;
+      z-index: 1;
+      gap: 12px;
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-item-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .settings-item-text {
+      min-width: 0;
+    }
+
+    .settings-item-title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--brown-dark);
+    }
+
+    .settings-item-sub {
+      font-size: 11px;
+      color: var(--brown-mid);
+      margin-top: 2px;
+    }
+
+    /* Switch Toggle */
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--tan-light);
+      border-radius: 28px;
+      cursor: pointer;
+      transition: background .3s ease;
+    }
+
+    .switch-slider::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: transform .3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+    }
+
+    .switch input:checked+.switch-slider {
+      background: linear-gradient(135deg, #4A148C, #7B1FA2);
+    }
+
+    .switch input:checked+.switch-slider::before {
+      transform: translateX(24px);
+    }
+
+    .switch-emoji {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .switch-emoji.sun {
+      left: 7px;
+    }
+
+    .switch-emoji.moon {
+      right: 7px;
+    }
+
+    .settings-logout-btn {
+      border: 2px solid var(--pink-light);
+      background: transparent;
+      border-radius: 14px;
+      padding: 8px 16px;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pink-dark);
+      cursor: pointer;
+      min-height: 40px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: transform .1s ease, background .15s ease;
+    }
+
+    .settings-logout-btn:active {
+      transform: scale(.97);
+      background: var(--pink-light);
+    }
+
+    body.dark .settings-item {
+      border-color: #3a2e3a;
+    }
+
+    body.dark .settings-logout-btn {
+      border-color: #3d2535;
+    }
+
+    body.dark .settings-logout-btn:active {
+      background: #3d2535;
+    }
+
+    body.dark .card {
+      border-color: #3a2e3a;
+    }
+
+    body.dark .summary-main {
+      background: linear-gradient(135deg, #2a2030, #2f2035);
+    }
+
+    body.dark .month-box {
+      background: var(--tan-light);
+    }
+
+    body.dark .service-btn {
+      border-color: #3a2e3a;
+      background: var(--cream-card);
+    }
+
+    body.dark .service-btn.selected {
+      background: linear-gradient(135deg, #3d2535, #4a2a40);
+      border-color: var(--pink);
+    }
+
+    body.dark .price-input {
+      background: var(--cream-card);
+      border-color: #4a3a30;
+      color: var(--brown-dark);
+    }
+
+    body.dark .price-input:focus {
+      border-color: var(--pink);
+    }
+
+    body.dark .add-input {
+      background: var(--cream-card);
+      border-color: #3a2e3a;
+      color: var(--brown-dark);
+    }
+
+    body.dark .add-input:focus {
+      border-color: var(--pink);
+    }
+
+    body.dark .thai-date-select {
+      background: var(--cream-card);
+      border-color: #3a2e3a;
+      color: var(--brown-dark);
+    }
+
+    body.dark .save-btn {
+      background: linear-gradient(135deg, #A8456A, #c9688a);
+      color: #fff;
+    }
+
+    body.dark .history-item {
+      border-color: #3a2e3a;
+    }
+
+    body.dark .history-action-btn {
+      background: var(--tan-light);
+    }
+
+    body.dark .history-action-btn.delete {
+      background: #3d2535;
+    }
+
+    body.dark .manage-item {
+      border-color: #3a2e3a;
+    }
+
+    body.dark .bottom-nav {
+      background: #2a2030;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .5);
+    }
+
+    body.dark .nav-btn.active {
+      background: linear-gradient(135deg, #3d2535, #4a2a40);
+    }
+
+    body.dark .toast {
+      background: #e8ddd0;
+      color: #1a1218;
+    }
+
+    body.dark .toast::after {
+      border-color: #e8ddd0 transparent transparent transparent;
+    }
+
+    body.dark .modal-overlay {
+      background: rgba(0, 0, 0, .6);
+    }
+
+    body.dark .modal-box {
+      background: #2a2030;
+    }
+
+    body.dark .modal-input {
+      background: #1a1218;
+      border-color: #3a2e3a;
+      color: var(--brown-dark);
+    }
+
+    body.dark .modal-btn.cancel {
+      background: #3a2e3a;
+      color: var(--brown-dark);
+    }
+
+    body.dark .modal-btn.ok {
+      background: linear-gradient(135deg, #A8456A, #c9688a);
+      color: #fff;
+    }
+
+    body.dark .offline-bar {
+      background: #B33A3A;
+    }
+
+    body.dark .install-banner {
+      background: linear-gradient(135deg, #2a2030, #3d2535);
+      border-color: #4a2a40;
+    }
+
+    body.dark .install-banner-title {
+      color: var(--pink-dark);
+    }
+
+    body.dark .install-banner-sub {
+      color: var(--brown-mid);
+    }
+
+    body.dark .pending-banner {
+      background: linear-gradient(135deg, #2a2518, #352a18);
+      border-color: #4a3a20;
+    }
+
+    body.dark .pending-banner-title {
+      color: #e3b84b;
+    }
+
+    body.dark .pending-banner-sub {
+      color: #b09050;
+    }
+
+    body.dark .skeleton {
+      background: linear-gradient(90deg, #2a2030 25%, #352a3a 37%, #2a2030 63%);
+      background-size: 400% 100%;
+    }
+
+    body.dark .bar-segment-income {
+      background: linear-gradient(to top, #A8456A, #c9688a);
+    }
+
+    body.dark .chart-legend-dot.income {
+      background: linear-gradient(135deg, #A8456A, #c9688a);
+    }
+
+    body.dark .history-filter-btn {
+      background: var(--tan-light);
+      color: var(--brown-dark);
+    }
+
+    body.dark .history-filter-btn:hover {
+      background: #3d2535;
+    }
+
+
+    /* =========================
+   LOGIN PAGE
+========================= */
+
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--cream-bg);
+      display: flex;
+      align-items: flex-start; /* fallback for browsers without 'safe' support */
+      align-items: safe center;
+      justify-content: center;
+      opacity: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transition: opacity .4s ease, transform .4s ease;
+    }
+
+    .login-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.05);
+    }
+
+    .login-screen::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70'%3E%3Cg fill='%23D9A66C'%3E%3Cellipse cx='35' cy='44' rx='15' ry='12'/%3E%3Cellipse cx='19' cy='23' rx='6.5' ry='9'/%3E%3Cellipse cx='35' cy='16' rx='6.5' ry='9'/%3E%3Cellipse cx='51' cy='23' rx='6.5' ry='9'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 70px 70px;
+      opacity: .05;
+      pointer-events: none;
+    }
+
+    .login-container {
+      max-width: 360px;
+      width: 100%;
+      padding: 40px 20px 32px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-logo {
+      font-size: 46px;
+      margin-bottom: 6px;
+      animation: breathe 2.6s ease-in-out infinite;
+    }
+
+    .login-title {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 23px;
+      font-weight: 700;
+      color: var(--pink-dark);
+      margin-bottom: 4px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--brown-mid);
+      margin-bottom: 20px;
+    }
+
+    .login-step {
+      display: none;
+      animation: fadeSlideIn .3s ease;
+    }
+
+    .login-step.active {
+      display: block;
+    }
+
+    .user-selector {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .user-card {
+      flex: 1;
+      max-width: 150px;
+      background: var(--cream-card);
+      border: 3px solid var(--tan-light);
+      border-radius: 22px;
+      padding: 22px 12px 18px;
+      cursor: pointer;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+
+    .user-card:active {
+      transform: scale(.96);
+    }
+
+    .user-card.selected {
+      border-color: var(--pink);
+      box-shadow: 0 6px 24px rgba(238, 124, 149, .35);
+      transform: translateY(-3px);
+    }
+
+    .user-card-avatar {
+      font-size: 44px;
+      margin-bottom: 8px;
+    }
+
+    .user-card-name {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brown-dark);
+    }
+
+    .user-card-label {
+      font-size: 12px;
+      color: var(--brown-mid);
+      margin-top: 4px;
+    }
+
+    .user-card.nam .user-card-name {
+      color: #2D8BC9;
+    }
+
+    .user-card.mook .user-card-name {
+      color: #9B59B6;
+    }
+
+    .user-card.nam.selected {
+      border-color: #2D8BC9;
+      background: linear-gradient(135deg, #EBF5FB, #D6EAF8);
+    }
+
+    .user-card.mook.selected {
+      border-color: #9B59B6;
+      background: linear-gradient(135deg, #F5EEF8, #E8DAEF);
+    }
+
+    /* PIN Input */
+    .pin-section {
+      margin-top: 20px;
+    }
+
+    .pin-label {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--brown-dark);
+      margin-bottom: 14px;
+    }
+
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .pin-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2.5px solid var(--tan);
+      background: transparent;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+    .pin-dot.filled {
+      background: var(--pink);
+      border-color: var(--pink);
+      transform: scale(1.15);
+    }
+
+    .pin-dot.error {
+      border-color: #E74C3C;
+      background: #E74C3C;
+      animation: pinShake .4s ease;
+    }
+
+    @keyframes pinShake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-6px);
+      }
+
+      75% {
+        transform: translateX(6px);
+      }
+    }
+
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .pin-key {
+      border: none;
+      background: var(--cream-card);
+      border-radius: 16px;
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--brown-dark);
+      padding: 16px;
+      min-height: 56px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px var(--shadow);
+      transition: transform .1s ease, background .15s ease;
+    }
+
+    .pin-key:active {
+      transform: scale(.94);
+      background: var(--pink-light);
+    }
+
+    .pin-key.empty {
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .pin-key.backspace {
+      font-size: 20px;
+    }
+
+    .pin-error-text {
+      color: #E74C3C;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 10px;
+      min-height: 20px;
+    }
+
+    .pin-back-btn {
+      margin-top: 14px;
+      border: none;
+      background: transparent;
+      color: var(--brown-mid);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 16px;
+    }
+
+    .pin-back-btn:active {
+      opacity: .6;
+    }
+
+
+    .header-user-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, .2);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 3px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+      margin-top: 6px;
+    }
+
+    body.dark .header-user-badge {
+      background: rgba(0, 0, 0, .3);
+    }
+
+
+    /* =========================
+   COMBINED SUMMARY
+========================= */
+
+    .combined-card {
+      background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+      border: 1.5px solid #FFE082;
+    }
+
+    .combined-card .title {
+      color: #6D4C00;
+    }
+
+    .combined-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .combined-user-box {
+      background: rgba(255, 255, 255, .7);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .combined-user-name {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .combined-user-name.nam {
+      color: #2D8BC9;
+    }
+
+    .combined-user-name.mook {
+      color: #9B59B6;
+    }
+
+    .combined-user-value {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--brown-dark);
+    }
+
+    .combined-total {
+      text-align: center;
+      margin-top: 12px;
+      padding: 10px;
+      background: rgba(255, 255, 255, .5);
+      border-radius: 14px;
+    }
+
+    .combined-total-label {
+      font-size: 13px;
+      color: #6D4C00;
+      font-weight: 600;
+    }
+
+    .combined-total-value {
+      font-family: 'Mitr', 'Sarabun', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #E65100;
+      margin-top: 2px;
+    }
+
+    body.dark .combined-card {
+      background: linear-gradient(135deg, #2a2518, #352a18);
+      border-color: #4a3a20;
+    }
+
+    body.dark .combined-card .title {
+      color: #e3b84b;
+    }
+
+    body.dark .combined-user-box {
+      background: rgba(0, 0, 0, .2);
+    }
+
+    body.dark .combined-total {
+      background: rgba(0, 0, 0, .2);
+    }
+
+    body.dark .combined-total-label {
+      color: #e3b84b;
+    }
+
+    body.dark .combined-total-value {
+      color: #FFB74D;
+    }
+
+
+    /* =========================
+   LOGIN DARK MODE
+========================= */
+
+    body.dark .login-screen {
+      background: var(--cream-bg);
+    }
+
+    body.dark .user-card {
+      background: var(--cream-card);
+      border-color: #3a2e3a;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+    }
+
+    body.dark .user-card.nam.selected {
+      border-color: #2D8BC9;
+      background: linear-gradient(135deg, #1a2a3a, #1f3545);
+    }
+
+    body.dark .user-card.mook.selected {
+      border-color: #9B59B6;
+      background: linear-gradient(135deg, #2a1a3a, #351f45);
+    }
+
+    body.dark .pin-key {
+      background: var(--cream-card);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, .3);
+    }
+
+    body.dark .pin-key:active {
+      background: #3d2535;
+    }
+    /* =========================
+   TOP SERVICES
+========================= */
+    .top-service-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .top-service-item:last-child {
+      margin-bottom: 0;
+    }
+    .top-service-rank {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--pink);
+      width: 24px;
+      text-align: center;
+    }
+    .top-service-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .top-service-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brown-dark);
+      display: flex;
+      justify-content: space-between;
+    }
+    .top-service-count {
+      color: var(--brown-mid);
+      font-size: 12px;
+    }
+    .top-service-bar-bg {
+      height: 8px;
+      background: var(--brown-light);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .top-service-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink-dark), var(--pink));
+      border-radius: 4px;
+      transition: width .5s ease;
+    }
+
+    body.dark .top-service-name {
+      color: var(--brown-dark);
+    }
+    body.dark .top-service-bar-bg {
+      background: #3a2e3a;
+    }
+
+    /* =========================
+   INCOME CALENDAR
+========================= */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .calendar-day-label {
+      text-align: center;
+      font-size: 10px;
+      color: var(--brown-mid);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .calendar-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: var(--brown-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      font-size: 10px;
+      color: transparent;
+      cursor: pointer;
+      transition: transform .1s ease, box-shadow .15s ease;
+      position: relative;
+      line-height: 1;
+    }
+    .calendar-cell:active {
+      transform: scale(0.9);
+    }
+    .calendar-cell.has-date {
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+    }
+    .calendar-day-num {
+      font-size: 10px;
+    }
+    .calendar-day-amount {
+      font-size: 6.5px;
+      font-weight: 600;
+      opacity: .9;
+      letter-spacing: -0.2px;
+    }
+    /* Contribution colors (Light mode) */
+    .calendar-cell.level-0 { background: #ebedf0; color: #a89888; }
+    .calendar-cell.level-1 { background: #c6e48b; color: #352a22; }
+    .calendar-cell.level-2 { background: #7bc96f; color: #352a22; }
+    .calendar-cell.level-3 { background: #239a3b; color: white; }
+    .calendar-cell.level-4 { background: #196127; color: white; }
+
+    /* Contribution colors (Dark mode) */
+    body.dark .calendar-cell.level-0 { background: #2a2030; color: #a89888; }
+    body.dark .calendar-cell.level-1 { background: #0e4429; color: white; }
+    body.dark .calendar-cell.level-2 { background: #006d32; color: white; }
+    body.dark .calendar-cell.level-3 { background: #26a641; color: white; }
+    body.dark .calendar-cell.level-4 { background: #39d353; color: #1a1218; }
+    
+    .calendar-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s;
+      z-index: 10;
+      margin-bottom: 4px;
+    }
+    .calendar-cell:hover .calendar-tooltip {
+      opacity: 1;
+    }
+
+    body.dark .pin-key.empty {
+      background: transparent;
+      box-shadow: none;
+    }
+  </style>
+
+
+</head>
+
+
+<body>
+
+
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-container">
+
+      <div class="login-logo">🐾</div>
+      <div class="login-title">รายได้ทำเล็บ</div>
+      <div class="login-subtitle" id="loginSubtitle">เลือกผู้ใช้เพื่อเข้าสู่ระบบ</div>
+
+      <!-- STEP 1: เลือกผู้ใช้ -->
+      <div id="loginStep1" class="login-step active">
+
+        <div class="user-selector">
+          <div class="user-card nam" onclick="selectLoginUser('nam')">
+            <div class="user-card-avatar">🩵</div>
+            <div class="user-card-name">น้ำ</div>
+            <div class="user-card-label">เข้าสู่ระบบ</div>
+          </div>
+          <div class="user-card mook" onclick="selectLoginUser('mook')">
+            <div class="user-card-avatar">💜</div>
+            <div class="user-card-name">มุก</div>
+            <div class="user-card-label">เข้าสู่ระบบ</div>
+          </div>
+        </div>
+
+
+        <!-- DASHBOARD รวม 2 คน -->
+        <div id="combinedCard" class="card combined-card" style="margin-top:20px;">
+
+          <div class="title">
+            🏠 รายได้ร้านรวม (เดือนนี้)
+          </div>
+
+          <div class="combined-grid">
+            <div class="combined-user-box">
+              <div class="combined-user-name nam">🩵 น้ำ</div>
+              <div id="combinedNamIncome" class="combined-user-value">กำลังโหลด...</div>
+              <div id="combinedNamJobs" class="settings-item-sub" style="margin-top:4px;">— งาน</div>
+            </div>
+            <div class="combined-user-box">
+              <div class="combined-user-name mook">💜 มุก</div>
+              <div id="combinedMookIncome" class="combined-user-value">กำลังโหลด...</div>
+              <div id="combinedMookJobs" class="settings-item-sub" style="margin-top:4px;">— งาน</div>
+            </div>
+          </div>
+
+          <div class="combined-total">
+            <div class="combined-total-label">💰 รวมรายได้จริงทั้งหมด</div>
+            <div id="combinedTotalIncome" class="combined-total-value">กำลังโหลด...</div>
+            <div id="combinedTotalJobs" class="settings-item-sub" style="margin-top:2px;">— งาน</div>
+          </div>
+
+        </div>
+
+
+        <!-- TOP SERVICES (รวม 2 คน) -->
+        <div class="card" id="topServicesCard" style="display:none; margin-top:14px;">
+          <div class="title">🏆 บริการยอดนิยม (เดือนนี้)</div>
+          <div id="topServicesList"></div>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 2: ใส่ PIN -->
+      <div id="loginStep2" class="login-step" style="margin-top:12px;">
+
+        <div id="pinLabel" class="pin-label">ใส่ PIN 4 หลัก</div>
+
+        <div class="pin-dots">
+          <div class="pin-dot" id="pinDot0"></div>
+          <div class="pin-dot" id="pinDot1"></div>
+          <div class="pin-dot" id="pinDot2"></div>
+          <div class="pin-dot" id="pinDot3"></div>
+        </div>
+
+        <div class="pin-pad">
+          <button class="pin-key" onclick="pinInput('1')">1</button>
+          <button class="pin-key" onclick="pinInput('2')">2</button>
+          <button class="pin-key" onclick="pinInput('3')">3</button>
+          <button class="pin-key" onclick="pinInput('4')">4</button>
+          <button class="pin-key" onclick="pinInput('5')">5</button>
+          <button class="pin-key" onclick="pinInput('6')">6</button>
+          <button class="pin-key" onclick="pinInput('7')">7</button>
+          <button class="pin-key" onclick="pinInput('8')">8</button>
+          <button class="pin-key" onclick="pinInput('9')">9</button>
+          <button class="pin-key empty"></button>
+          <button class="pin-key" onclick="pinInput('0')">0</button>
+          <button class="pin-key backspace" onclick="pinBackspace()">⌫</button>
+        </div>
+
+        <div id="pinError" class="pin-error-text"></div>
+
+        <button class="pin-back-btn" onclick="pinGoBack()">← เปลี่ยนผู้ใช้</button>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- OFFLINE INDICATOR -->
+  <div id="offlineBar" class="offline-bar">
+    📡 ไม่มีอินเทอร์เน็ต — ข้อมูลอาจไม่อัปเดต
+  </div>
+
+
+  <div class="app">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+      <div class="cat-ear left">
+        <div class="cat-ear-inner"></div>
+      </div>
+      <div class="cat-ear right">
+        <div class="cat-ear-inner"></div>
+      </div>
+
+      <div class="header-title-wrap">
+        <h1 id="headerTitle">รายได้ของน้ำ</h1>
+        <p>บันทึกรายได้ทำเล็บของคุณ</p>
+        <div id="headerUserBadge" class="header-user-badge">🩵 น้ำ</div>
+      </div>
+
+    </div>
+
+    <div class="header-divider"></div>
+
+
+    <!-- INSTALL BANNER -->
+    <div id="installBanner" class="install-banner">
+      <div class="install-banner-icon">📱</div>
+      <div class="install-banner-text">
+        <div class="install-banner-title">ติดตั้งลงมือถือ</div>
+        <div class="install-banner-sub">เปิดใช้ง่ายขึ้น เหมือนแอปจริง ✨</div>
+      </div>
+      <button id="installBtn" class="install-banner-btn" onclick="installApp()">ติดตั้ง</button>
+      <button class="install-banner-close" onclick="dismissInstall()">✕</button>
+    </div>
+
+
+
+    <!-- ==================================================
+     SAVE PAGE
+================================================== -->
+
+    <section id="savePage" class="page active">
+
+
+      <div class="card">
+
+        <div class="title">
+          💅 เลือกบริการที่ทำ
+        </div>
+
+        <div id="serviceGrid"></div>
+
+        <div id="selectedBox" class="selected-box" style="display:none;">
+          <div class="selected-label">
+            รายการที่เลือก
+          </div>
+          <div id="selectedText" class="selected-text"></div>
+        </div>
+
+        <div class="custom-service-row">
+          <div class="custom-service-label">
+            ✏️ หรือพิมพ์ชื่อบริการเอง
+          </div>
+          <input id="customServiceInput" class="add-input" placeholder="เช่น ต่อเล็บลายพิเศษ" oninput="updateSelected()"
+            style="width:100%;">
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="title">
+          💰 ราคาที่ลูกค้าจ่ายจริง
+        </div>
+
+        <div class="price-wrap">
+          <span class="price-icon">💰</span>
+          <input id="priceInput" class="price-input" type="number" inputmode="decimal" placeholder="0"
+            oninput="calculateCommission()">
+        </div>
+
+        <div id="commissionPreview" class="commission-preview">
+          🎀 Commission 10% = ฿0
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="backdate-toggle" onclick="toggleBackdate()">
+          <span>📅 ลงข้อมูลย้อนหลัง</span>
+          <span id="backdateArrow" class="backdate-arrow">▾</span>
+        </div>
+
+        <div id="backdateFields" class="backdate-fields">
+
+          <div class="thai-date-row">
+            <select id="backdateDay" class="thai-date-select"></select>
+            <select id="backdateMonth" class="thai-date-select"></select>
+            <select id="backdateYear" class="thai-date-select"></select>
+          </div>
+
+          <div class="backdate-hint">
+            💡 ถ้าไม่ระบุ จะบันทึกเป็นวันที่ปัจจุบันเหมือนเดิม
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+        <button id="saveBtn" class="save-btn" onclick="saveData()">
+          ✅ บันทึกรายการ
+        </button>
+      </div>
+
+
+      <!-- PENDING OFFLINE QUEUE -->
+      <div id="pendingBanner" class="card pending-banner">
+        <div class="pending-banner-icon">📴</div>
+        <div class="pending-banner-text">
+          <div class="pending-banner-title" id="pendingTitle">มีรายการรอส่ง</div>
+          <div class="pending-banner-sub" id="pendingSub">จะส่งอัตโนมัติเมื่อมีเน็ต</div>
+        </div>
+        <button class="pending-banner-btn" onclick="syncOfflineQueue()">ส่งตอนนี้</button>
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ==================================================
+     SUMMARY PAGE
+================================================== -->
+
+    <section id="summaryPage" class="page">
+
+
+      <!-- TODAY -->
+      <div class="card summary-main">
+
+        <div class="summary-label">
+          🪙 Commission วันนี้
+        </div>
+
+        <div id="todayCommission" class="summary-income">
+          ฿0
+        </div>
+
+        <div id="todayMood" class="summary-mood">
+          😺 วันนี้ยังไม่มีรายการ
+        </div>
+
+        <div class="summary-row">
+          <span>☀️ รายได้วันนี้</span>
+          <strong id="todayIncome">฿0</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>💅 จำนวนงาน</span>
+          <strong id="todayJobs">0 รายการ</strong>
+        </div>
+
+      </div>
+
+
+      <!-- WEEK CHART -->
+      <div class="card chart-card">
+
+        <div class="chart-title">
+          📊 รายได้สัปดาห์นี้
+        </div>
+
+        <div class="chart-subtitle">
+          ดูรายได้ของแต่ละวัน
+        </div>
+
+        <div id="weekChart" class="chart"></div>
+
+        <div class="chart-legend">
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot income"></span>
+            รายได้
+          </span>
+          <span class="chart-legend-item">
+            <span class="chart-legend-dot commission"></span>
+            Commission
+          </span>
+        </div>
+
+        <div id="weekTotal" class="week-total"></div>
+
+      </div>
+
+
+      <!-- MONTH -->
+      <div class="card">
+
+        <div class="title">
+          🗓️ เดือนนี้
+        </div>
+
+        <div id="monthCompare" class="month-compare"></div>
+
+        <div class="month-card">
+
+          <div class="month-box">
+            <div class="month-icon">💰</div>
+            <div class="month-label">รายได้</div>
+            <div id="monthIncome" class="month-value">฿0</div>
+          </div>
+
+          <div class="month-box">
+            <div class="month-icon">🪙</div>
+            <div class="month-label">Commission</div>
+            <div id="monthCommission" class="month-value">฿0</div>
+          </div>
+
+          <div class="month-box">
+            <div class="month-icon">💅</div>
+            <div class="month-label">จำนวนงาน</div>
+            <div id="monthJobs" class="month-value">0</div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- INCOME CALENDAR -->
+      <div class="card" id="calendarCard" style="display:none;">
+        <div class="title">📅 ปฏิทินรายได้</div>
+        <div id="incomeCalendar"></div>
+      </div>
+
+
+      <!-- HISTORY -->
+      <div class="title" style="padding: 0 4px;">
+        📜 ประวัติรายการ
+      </div>
+
+      <div class="history-filter">
+        <button class="history-filter-btn" onclick="changeHistoryMonth(-1)">◀</button>
+        <div id="historyMonthLabel" class="history-filter-label">เดือนนี้</div>
+        <button class="history-filter-btn" onclick="changeHistoryMonth(1)">▶</button>
+      </div>
+      <div id="historyFilterHint" class="history-filter-hint"></div>
+
+      <div id="historyList"></div>
+
+
+    </section>
+
+
+
+    <!-- ==================================================
+     MANAGE PAGE
+================================================== -->
+
+    <section id="managePage" class="page">
+
+
+      <!-- SETTINGS -->
+      <div class="card">
+
+        <div class="title">
+          ⚙️ ตั้งค่า
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🌓</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">โหมดกลางคืน</div>
+              <div class="settings-item-sub">เปลี่ยนพื้นหลังเป็นสีเข้ม</div>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="darkSwitch" onchange="toggleDarkMode()">
+            <span class="switch-slider"></span>
+            <span class="switch-emoji sun">☀️</span>
+            <span class="switch-emoji moon">🌙</span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🔐</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">เปลี่ยน PIN</div>
+              <div class="settings-item-sub">เปลี่ยนรหัส PIN 4 หลัก</div>
+            </div>
+          </div>
+          <button class="settings-logout-btn" onclick="showChangePinFlow()">เปลี่ยน</button>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🔔</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">แจ้งเตือนบันทึก</div>
+              <div class="settings-item-sub">เตือนทุกวันหลัง 18:00</div>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="notifSwitch" onchange="toggleNotification()">
+            <span class="switch-slider"></span>
+            <span class="switch-emoji sun">🔕</span>
+            <span class="switch-emoji moon">🔔</span>
+          </label>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🚪</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">ออกจากระบบ</div>
+              <div class="settings-item-sub" id="settingsUserLabel">เข้าสู่ระบบเป็น น้ำ</div>
+            </div>
+          </div>
+          <button class="settings-logout-btn" onclick="logoutUser()">ออกจากระบบ</button>
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="title">
+          ➕ เพิ่มบริการใหม่
+        </div>
+
+        <input id="newServiceName" class="add-input" placeholder="ชื่อบริการ เช่น ทาสีคริสตัล"
+          style="margin-bottom:10px;width:100%;">
+
+        <select id="newServiceCategory" class="thai-date-select" style="width:100%;"></select>
+
+        <input id="newCategoryInput" class="add-input" placeholder="ชื่อหมวดหมู่ใหม่"
+          style="display:none;margin-top:10px;width:100%;">
+
+        <button class="save-btn" style="margin-top:12px;" onclick="addServiceAction()">
+          ＋ เพิ่มบริการ
+        </button>
+
+      </div>
+
+
+      <div id="manageList"></div>
+
+
+    </section>
+
+
+
+  </div>
+
+
+
+  <!-- ==================================================
+     NAVIGATION
+================================================== -->
+
+  <nav class="bottom-nav">
+
+    <button id="navSave" class="nav-btn active" onclick="showPage('save')">
+      <span class="nav-icon">📝</span>
+      บันทึก
+      <span id="pendingBadge" class="pending-badge"></span>
+    </button>
+
+    <button id="navSummary" class="nav-btn" onclick="showPage('summary')">
+      <span class="nav-icon">📊</span>
+      สรุป
+    </button>
+
+    <button id="navManage" class="nav-btn" onclick="showPage('manage')">
+      <span class="nav-icon">⚙️</span>
+      ตั้งค่า
+    </button>
+
+  </nav>
+
+
+
+  <div id="toast" class="toast"></div>
+
+
+  <div id="modalOverlay" class="modal-overlay">
+    <div id="modalBox" class="modal-box"></div>
+  </div>
+
+
+
+  <script>
+
+
+    /* ==================================================
+       CONFIG
+    ================================================== */
+
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzaFbh06fHyztZPrkuKRDsNBLy_oMZdiWuDfKyybxFjEOGI1Ggj8Z8U64dlOJ0DokHU/exec';
+
+    const COMMISSION_RATE = 0.10;
+
+    // Multi-user
+    let currentUser = '';
+    const USER_NAMES = {
+      'nam': { thai: 'น้ำ', emoji: '🩵' },
+      'mook': { thai: 'มุก', emoji: '💜' }
+    };
+
+    let services = [];
+    let selectedServices = [];
+    let historyData = [];
+
+    // History month filter state
+    let historyFilterMonth = new Date().getMonth();
+    let historyFilterYear = new Date().getFullYear();
+
+    // PWA install
+    let deferredInstallPrompt = null;
+
+
+    /* ==================================================
+       API HELPER — fetch wrapper
+    ================================================== */
+
+    async function apiGet(action, extraParams) {
+
+      let url = API_URL + '?action=' + encodeURIComponent(action);
+
+      if (currentUser) {
+        url += '&user=' + encodeURIComponent(currentUser);
+      }
+
+      if (extraParams) {
+        Object.keys(extraParams).forEach(function (key) {
+          url += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(extraParams[key]);
+        });
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        redirect: 'follow'
+      });
+
+      if (!response.ok) {
+        throw new Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
+      }
+
+      return response.json();
+
+    }
+
+
+    async function apiPost(body) {
+
+      // Auto-inject current user
+      if (currentUser && !body.user) {
+        body.user = currentUser;
+      }
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
+      }
+
+      return response.json();
+
+    }
+
+
+    /* ==================================================
+       OFFLINE DETECTION
+    ================================================== */
+
+    function updateOnlineStatus() {
+
+      const bar = document.getElementById('offlineBar');
+
+      if (!navigator.onLine) {
+        bar.classList.add('show');
+      } else {
+        bar.classList.remove('show');
+        // Auto-sync offline queue when back online
+        syncOfflineQueue();
+      }
+
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+
+    /* ==================================================
+       LOAD SERVICES
+    ================================================== */
+
+    async function loadServices() {
+
+      renderServiceSkeleton();
+
+      try {
+
+        const result = await apiGet('list');
+
+        services = (result && result.data) || [];
+
+        renderServices();
+        renderManage();
+        populateCategorySelect(
+          document.getElementById('newServiceCategory')
+        );
+
+      } catch (error) {
+
+        showToast('โหลดรายการไม่สำเร็จ 🙀');
+
+      }
+
+    }
+
+
+    function renderServiceSkeleton() {
+
+      const grid = document.getElementById('serviceGrid');
+
+      grid.innerHTML = '';
+
+      for (let i = 0; i < 6; i++) {
+
+        const sk = document.createElement('div');
+        sk.className = 'skeleton skeleton-btn';
+        grid.appendChild(sk);
+
+      }
+
+    }
+
+
+    /* ==================================================
+       USAGE FREQUENCY
+    ================================================== */
+
+    function getServiceCounts() {
+
+      try {
+        return JSON.parse(
+          localStorage.getItem('serviceCounts') || '{}'
+        );
+      } catch (e) {
+        return {};
+      }
+
+    }
+
+
+    function bumpServiceCounts(items) {
+
+      const counts = getServiceCounts();
+
+      items.forEach(function (name) {
+        counts[name] = (counts[name] || 0) + 1;
+      });
+
+      try {
+        localStorage.setItem(
+          'serviceCounts',
+          JSON.stringify(counts)
+        );
+      } catch (e) { }
+
+    }
+
+
+    /* ==================================================
+       SERVICE BUTTONS
+    ================================================== */
+
+    function renderServices() {
+
+      const container = document.getElementById('serviceGrid');
+      container.innerHTML = '';
+
+      const counts = getServiceCounts();
+
+      const categoryOrder = [];
+      const grouped = {};
+
+      services.forEach(function (item) {
+        if (!grouped[item.category]) {
+          grouped[item.category] = [];
+          categoryOrder.push(item.category);
+        }
+        grouped[item.category].push(item.name);
+      });
+
+      categoryOrder.forEach(function (category) {
+
+        const names = grouped[category].slice().sort(function (a, b) {
+          return (counts[b] || 0) - (counts[a] || 0);
+        });
+
+        const group = document.createElement('div');
+        group.className = 'service-category';
+
+        const labelEl = document.createElement('div');
+        labelEl.className = 'service-category-label';
+        labelEl.innerText = category;
+        group.appendChild(labelEl);
+
+        const grid = document.createElement('div');
+        grid.className = 'service-grid';
+
+        names.forEach(function (name) {
+
+          const button = document.createElement('button');
+          button.className = 'service-btn';
+
+          if (selectedServices.includes(name)) {
+            button.classList.add('selected');
+          }
+
+          button.innerText = name;
+          button.onclick = function () {
+            toggleService(name);
+          };
+
+          grid.appendChild(button);
+
+        });
+
+        group.appendChild(grid);
+        container.appendChild(group);
+
+      });
+
+    }
+
+
+    function toggleService(service) {
+
+      const index = selectedServices.indexOf(service);
+
+      if (index === -1) {
+        selectedServices.push(service);
+      } else {
+        selectedServices.splice(index, 1);
+      }
+
+      renderServices();
+      updateSelected();
+
+    }
+
+
+    function updateSelected() {
+
+      const box = document.getElementById('selectedBox');
+      const text = document.getElementById('selectedText');
+      const effective = getEffectiveServices();
+
+      if (effective.length === 0) {
+        box.style.display = 'none';
+        return;
+      }
+
+      box.style.display = 'block';
+      text.innerText = effective.join(' + ');
+
+    }
+
+
+    function getEffectiveServices() {
+
+      const customValue = document
+        .getElementById('customServiceInput')
+        .value
+        .trim();
+
+      const combined = selectedServices.slice();
+
+      if (customValue && !combined.includes(customValue)) {
+        combined.push(customValue);
+      }
+
+      return combined;
+
+    }
+
+
+    /* ==================================================
+       COMMISSION
+    ================================================== */
+
+    function calculateCommission() {
+
+      const price = Number(
+        document.getElementById('priceInput').value
+      ) || 0;
+
+      const commission = price * COMMISSION_RATE;
+
+      document.getElementById('commissionPreview').innerText =
+        '🎀 Commission 10% = ' + money(commission);
+
+    }
+
+
+    /* ==================================================
+       SAVE
+    ================================================== */
+
+    async function saveData() {
+
+      const effectiveServices = getEffectiveServices();
+
+      if (effectiveServices.length === 0) {
+        showToast('เลือกหรือพิมพ์บริการก่อนนะ 🐱');
+        return;
+      }
+
+      const price = Number(
+        document.getElementById('priceInput').value
+      );
+
+      if (isNaN(price) || price < 0) {
+        showToast('กรุณาใส่ราคาที่ลูกค้าจ่าย 💰');
+        return;
+      }
+
+      const item = effectiveServices.join('+');
+      const backdateDate = getBackdateValue();
+
+      if (backdateDate && backdateDate > todayInputValue()) {
+        showToast('เลือกวันในอนาคตไม่ได้ 🚫');
+        return;
+      }
+
+      if (price > 2500) {
+        showConfirmDialog(
+          '⚠️ ยืนยันราคา',
+          'ราคา ' + money(price) + ' สูงกว่าปกตินะ ยืนยันบันทึกไหม?',
+          function () {
+            doActualSave(item, price, backdateDate);
+          }
+        );
+        return;
+      }
+
+      doActualSave(item, price, backdateDate);
+
+    }
+
+
+    async function doActualSave(item, price, backdateDate) {
+
+      const btn = document.getElementById('saveBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> กำลังบันทึก...';
+
+      const itemsForCounting = getEffectiveServices();
+
+      try {
+
+        const result = await apiPost({
+          action: 'save',
+          item: item,
+          price: price,
+          customDate: backdateDate || ''
+        });
+
+        btn.disabled = false;
+        btn.innerText = '✅ บันทึกรายการ';
+
+        if (result && result.success) {
+
+          bumpServiceCounts(itemsForCounting);
+
+          showSuccessPopup(
+            backdateDate
+              ? 'บันทึกย้อนหลังเรียบร้อยแล้ว ✅'
+              : 'บันทึกเรียบร้อยแล้ว ✅'
+          );
+
+          pawConfetti();
+
+          selectedServices = [];
+          document.getElementById('customServiceInput').value = '';
+          renderServices();
+          updateSelected();
+
+          document.getElementById('priceInput').value = '';
+          calculateCommission();
+          resetBackdate();
+
+        } else {
+
+          showToast(result.message || 'เกิดข้อผิดพลาด');
+
+        }
+
+      } catch (error) {
+
+        btn.disabled = false;
+        btn.innerText = '✅ บันทึกรายการ';
+
+        // ===== OFFLINE QUEUE =====
+        // If network error, save to offline queue
+        if (!navigator.onLine || error.message === 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้') {
+
+          addToOfflineQueue({
+            item: item,
+            price: price,
+            customDate: backdateDate || '',
+            savedAt: new Date().toISOString()
+          });
+
+          bumpServiceCounts(itemsForCounting);
+
+          showSuccessPopup('บันทึกไว้ในเครื่อง 📴 จะส่งเมื่อมีเน็ต');
+
+          selectedServices = [];
+          document.getElementById('customServiceInput').value = '';
+          renderServices();
+          updateSelected();
+
+          document.getElementById('priceInput').value = '';
+          calculateCommission();
+          resetBackdate();
+
+          renderPendingBanner();
+
+        } else {
+          showToast(error.message || 'บันทึกไม่สำเร็จ 🙀');
+        }
+
+      }
+
+    }
+
+
+    /* ==================================================
+       OFFLINE QUEUE
+    ================================================== */
+
+    function getOfflineQueue() {
+      try {
+        return JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+
+    function addToOfflineQueue(entry) {
+      const queue = getOfflineQueue();
+      queue.push(entry);
+      try {
+        localStorage.setItem('offlineQueue', JSON.stringify(queue));
+      } catch (e) { }
+    }
+
+
+    function renderPendingBanner() {
+
+      const queue = getOfflineQueue();
+      const banner = document.getElementById('pendingBanner');
+      const title = document.getElementById('pendingTitle');
+      const sub = document.getElementById('pendingSub');
+      const badge = document.getElementById('pendingBadge');
+
+      if (queue.length > 0) {
+        banner.classList.add('show');
+        title.innerText = '📴 มี ' + queue.length + ' รายการรอส่ง';
+        sub.innerText = navigator.onLine
+          ? 'กดปุ่มเพื่อส่งข้อมูลไป Google Sheet'
+          : 'จะส่งอัตโนมัติเมื่อมีเน็ต';
+
+        if (badge) {
+          badge.innerText = queue.length;
+          badge.classList.add('show');
+        }
+      } else {
+        banner.classList.remove('show');
+        if (badge) {
+          badge.classList.remove('show');
+        }
+      }
+
+    }
+
+
+    async function syncOfflineQueue() {
+
+      const queue = getOfflineQueue();
+      if (queue.length === 0) return;
+
+      if (!navigator.onLine) {
+        showToast('ยังไม่มีเน็ต รอสักครู่นะ 📴');
+        return;
+      }
+
+      showToast('กำลังส่งข้อมูล ' + queue.length + ' รายการ... ⏳');
+
+      let successCount = 0;
+      const failedItems = [];
+
+      for (let i = 0; i < queue.length; i++) {
+
+        const entry = queue[i];
+
+        try {
+
+          const result = await apiPost({
+            action: 'save',
+            item: entry.item,
+            price: entry.price,
+            customDate: entry.customDate || ''
+          });
+
+          if (result && result.success) {
+            successCount++;
+          } else {
+            failedItems.push(entry);
+          }
+
+        } catch (err) {
+          failedItems.push(entry);
+        }
+
+      }
+
+      // Update queue with only failed items
+      try {
+        localStorage.setItem('offlineQueue', JSON.stringify(failedItems));
+      } catch (e) { }
+
+      renderPendingBanner();
+
+      if (successCount > 0 && failedItems.length === 0) {
+        showSuccessPopup('ซิงค์ข้อมูล ' + successCount + ' รายการเรียบร้อย ✅');
+        pawConfetti();
+      } else if (successCount > 0) {
+        showToast('ส่งได้ ' + successCount + ' รายการ · เหลืออีก ' + failedItems.length + ' รายการ');
+      } else {
+        showToast('ส่งข้อมูลไม่สำเร็จ ลองใหม่อีกครั้ง 🙀');
+      }
+
+    }
+
+
+    /* ==================================================
+       BACKDATE
+    ================================================== */
+
+    const THAI_MONTHS = [
+      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+      'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+      'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+
+
+    function todayInputValue() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + d;
+    }
+
+
+    function daysInMonth(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
+
+    function initBackdateSelectors() {
+
+      const now = new Date();
+      const currentYearCE = now.getFullYear();
+
+      const daySelect = document.getElementById('backdateDay');
+      const monthSelect = document.getElementById('backdateMonth');
+      const yearSelect = document.getElementById('backdateYear');
+
+      daySelect.innerHTML = '<option value="">วัน</option>';
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.innerText = d;
+        daySelect.appendChild(opt);
+      }
+
+      monthSelect.innerHTML = '<option value="">เดือน</option>';
+      THAI_MONTHS.forEach(function (name, index) {
+        const opt = document.createElement('option');
+        opt.value = index + 1;
+        opt.innerText = name;
+        monthSelect.appendChild(opt);
+      });
+
+      yearSelect.innerHTML = '<option value="">ปี</option>';
+      for (let i = 0; i <= 2; i++) {
+        const yearCE = currentYearCE - i;
+        const opt = document.createElement('option');
+        opt.value = yearCE;
+        opt.innerText = yearCE + 543;
+        yearSelect.appendChild(opt);
+      }
+
+      daySelect.onchange = clampBackdateDay;
+      monthSelect.onchange = clampBackdateDay;
+      yearSelect.onchange = clampBackdateDay;
+
+    }
+
+
+    function clampBackdateDay() {
+
+      const daySelect = document.getElementById('backdateDay');
+      const monthSelect = document.getElementById('backdateMonth');
+      const yearSelect = document.getElementById('backdateYear');
+
+      const month = Number(monthSelect.value);
+      const year = Number(yearSelect.value) || new Date().getFullYear();
+
+      if (!month) return;
+
+      const maxDay = daysInMonth(year, month);
+      const selectedDay = Number(daySelect.value);
+
+      if (selectedDay && selectedDay > maxDay) {
+        daySelect.value = maxDay;
+      }
+
+    }
+
+
+    function getBackdateValue() {
+
+      const day = document.getElementById('backdateDay').value;
+      const month = document.getElementById('backdateMonth').value;
+      const year = document.getElementById('backdateYear').value;
+
+      if (!day || !month || !year) return '';
+
+      return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+
+    }
+
+
+    function toggleBackdate() {
+
+      const fields = document.getElementById('backdateFields');
+      const arrow = document.getElementById('backdateArrow');
+      fields.classList.toggle('open');
+      arrow.classList.toggle('open');
+
+    }
+
+
+    function resetBackdate() {
+
+      document.getElementById('backdateDay').value = '';
+      document.getElementById('backdateMonth').value = '';
+      document.getElementById('backdateYear').value = '';
+      document.getElementById('backdateFields').classList.remove('open');
+      document.getElementById('backdateArrow').classList.remove('open');
+
+    }
+
+
+    /* ==================================================
+       PAW CONFETTI
+    ================================================== */
+
+    function pawConfetti() {
+
+      const count = 10;
+
+      for (let i = 0; i < count; i++) {
+
+        const paw = document.createElement('div');
+        paw.className = 'paw-confetti';
+        paw.innerText = '🐾';
+        paw.style.left = (Math.random() * 90 + 5) + 'vw';
+        paw.style.animationDelay = (Math.random() * .3) + 's';
+        document.body.appendChild(paw);
+
+        setTimeout(function () {
+          paw.remove();
+        }, 1400);
+
+      }
+
+    }
+
+
+    /* ==================================================
+       MODAL POPUPS
+    ================================================== */
+
+    function showSuccessPopup(message) {
+
+      const overlay = document.getElementById('modalOverlay');
+      const box = document.getElementById('modalBox');
+
+      box.innerHTML =
+        '<div class="modal-icon">🐾✅</div>' +
+        '<div class="modal-title">' + escapeHtml(message) + '</div>';
+
+      overlay.classList.add('show');
+
+      clearTimeout(window._popupTimer);
+      window._popupTimer = setTimeout(function () {
+        overlay.classList.remove('show');
+      }, 1800);
+
+    }
+
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+
+    function showConfirmDialog(title, text, onConfirm) {
+
+      const overlay = document.getElementById('modalOverlay');
+      const box = document.getElementById('modalBox');
+
+      box.innerHTML =
+        '<div class="modal-icon">🤔</div>' +
+        '<div class="modal-title">' + escapeHtml(title) + '</div>' +
+        '<div class="modal-text">' + escapeHtml(text) + '</div>' +
+        '<div class="modal-actions">' +
+        '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
+        '<button class="modal-btn ok" id="modalOkBtn">ยืนยัน</button>' +
+        '</div>';
+
+      overlay.classList.add('show');
+
+      document.getElementById('modalCancelBtn').onclick = closeModal;
+      document.getElementById('modalOkBtn').onclick = function () {
+        closeModal();
+        onConfirm();
+      };
+
+    }
+
+
+    function showEditDialog(row, currentItem, currentPrice) {
+
+      const overlay = document.getElementById('modalOverlay');
+      const box = document.getElementById('modalBox');
+
+      box.innerHTML =
+        '<div class="modal-icon">✏️</div>' +
+        '<div class="modal-title">แก้ไขรายการ</div>' +
+        '<input id="editItemInput" class="modal-input" value="' + escapeHtml(currentItem) + '">' +
+        '<input id="editPriceInput" class="modal-input" type="number" inputmode="decimal" value="' + currentPrice + '">' +
+        '<div class="modal-actions">' +
+        '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
+        '<button class="modal-btn ok" id="modalOkBtn">บันทึก</button>' +
+        '</div>';
+
+      overlay.classList.add('show');
+
+      document.getElementById('modalCancelBtn').onclick = closeModal;
+
+      document.getElementById('modalOkBtn').onclick = function () {
+
+        const newItem = document.getElementById('editItemInput').value.trim();
+        const newPrice = Number(document.getElementById('editPriceInput').value);
+
+        if (!newItem) {
+          showToast('กรุณาใส่ชื่อรายการ 🐾');
+          return;
+        }
+
+        if (isNaN(newPrice) || newPrice < 0) {
+          showToast('ราคาต้องเป็นตัวเลข');
+          return;
+        }
+
+        closeModal();
+        updateHistoryRow(row, newItem, newPrice);
+
+      };
+
+    }
+
+
+    async function updateHistoryRow(row, item, price) {
+
+      try {
+
+        const result = await apiPost({
+          action: 'update',
+          rowIndex: row,
+          item: item,
+          price: price
+        });
+
+        if (result && result.success) {
+          showToast('แก้ไขรายการเรียบร้อย ✏️');
+          loadSummary();
+        } else {
+          showToast(result.message || 'แก้ไขไม่สำเร็จ');
+        }
+
+      } catch (error) {
+        showToast(error.message || 'แก้ไขไม่สำเร็จ');
+      }
+
+    }
+
+
+    function deleteHistoryRow(row) {
+
+      showConfirmDialog(
+        '🗑️ ลบรายการ',
+        'ต้องการลบรายการนี้ใช่ไหม?',
+        async function () {
+
+          try {
+
+            const result = await apiPost({
+              action: 'delete',
+              rowIndex: row
+            });
+
+            if (result && result.success) {
+              showToast('ลบรายการแล้ว 🗑️');
+              loadSummary();
+            } else {
+              showToast(result.message || 'ลบไม่สำเร็จ');
+            }
+
+          } catch (error) {
+            showToast(error.message || 'ลบไม่สำเร็จ');
+          }
+
+        }
+      );
+
+    }
+
+
+    /* ==================================================
+       LOAD HISTORY
+    ================================================== */
+
+    async function loadSummary() {
+
+      renderSummarySkeleton();
+
+      try {
+
+        const result = await apiGet('history');
+
+        if (result && result.success) {
+          historyData = result.data || [];
+          renderSummary();
+        }
+
+      } catch (error) {
+        showToast('โหลดข้อมูลไม่สำเร็จ 🙀');
+      }
+
+    }
+
+
+    function renderSummarySkeleton() {
+
+      const chart = document.getElementById('weekChart');
+      chart.innerHTML = '';
+
+      for (let i = 0; i < 7; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'skeleton';
+        bar.style.cssText = 'width:11%;height:' + (40 + Math.random() * 110) + 'px;border-radius:12px;';
+        chart.appendChild(bar);
+      }
+
+      const hist = document.getElementById('historyList');
+      hist.innerHTML =
+        '<div class="skeleton skeleton-history"></div>' +
+        '<div class="skeleton skeleton-history"></div>' +
+        '<div class="skeleton skeleton-history"></div>';
+
+    }
+
+
+    /* ==================================================
+       SUMMARY
+    ================================================== */
+
+    function renderSummary() {
+
+      const now = new Date();
+      const today = dateKey(now);
+      const currentWeek = getWeekRange(now);
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      let todayIncome = 0;
+      let todayCommission = 0;
+      let todayJobs = 0;
+
+      let monthIncome = 0;
+      let monthCommission = 0;
+      let monthJobs = 0;
+
+      historyData.forEach(function (row) {
+
+        const d = parseRowDate(row);
+        if (!d) return;
+
+        const key = dateKey(d);
+
+        if (key === today) {
+          todayIncome += Number(row.price) || 0;
+          todayCommission += Number(row.commission) || 0;
+          todayJobs++;
+        }
+
+        if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+          monthIncome += Number(row.price) || 0;
+          monthCommission += Number(row.commission) || 0;
+          monthJobs++;
+        }
+
+      });
+
+      document.getElementById('todayIncome').innerText = money(todayIncome);
+      document.getElementById('todayMood').innerText =
+        todayJobs > 0
+          ? '😻 เก่งมาก วันนี้มีลูกค้าแล้ว!'
+          : '😺 วันนี้ยังไม่มีรายการ';
+      document.getElementById('todayCommission').innerText = money(todayCommission);
+      document.getElementById('todayJobs').innerText = todayJobs + ' รายการ';
+
+      document.getElementById('monthIncome').innerText = money(monthIncome);
+      document.getElementById('monthCommission').innerText = money(monthCommission);
+      document.getElementById('monthJobs').innerText = monthJobs;
+
+      renderMonthCompare(monthIncome, currentMonth, currentYear);
+      renderWeekChart(currentWeek.start, currentWeek.end);
+      
+      // New feature renderers
+      renderIncomeCalendar(currentMonth, currentYear);
+
+      renderHistory();
+
+    }
+
+
+    /* ==================================================
+       MONTH COMPARISON
+    ================================================== */
+
+    function renderMonthCompare(monthIncome, currentMonth, currentYear) {
+
+      let prevMonth = currentMonth - 1;
+      let prevMonthYear = currentYear;
+
+      if (prevMonth < 0) {
+        prevMonth = 11;
+        prevMonthYear = currentYear - 1;
+      }
+
+      let prevMonthIncome = 0;
+
+      historyData.forEach(function (row) {
+        const d = parseRowDate(row);
+        if (!d) return;
+
+        if (d.getMonth() === prevMonth && d.getFullYear() === prevMonthYear) {
+          prevMonthIncome += Number(row.price) || 0;
+        }
+      });
+
+      const el = document.getElementById('monthCompare');
+
+      if (prevMonthIncome > 0) {
+
+        const diffPercent = ((monthIncome - prevMonthIncome) / prevMonthIncome) * 100;
+        const sign = diffPercent >= 0 ? '+' : '';
+
+        el.classList.toggle('down', diffPercent < 0);
+        el.innerText =
+          (diffPercent >= 0 ? '📈 ' : '📉 ') +
+          sign + diffPercent.toFixed(0) + '% จากเดือนที่แล้ว';
+
+      } else if (monthIncome > 0) {
+        el.classList.remove('down');
+        el.innerText = '🎉 เริ่มต้นเดือนนี้ได้ดี!';
+      } else {
+        el.classList.remove('down');
+        el.innerText = '';
+      }
+
+    }
+
+
+    /* ==================================================
+       WEEK RANGE
+    ================================================== */
+
+    function getWeekRange(date) {
+
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+
+      const start = new Date(d);
+      start.setDate(d.getDate() + diff);
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+
+      return { start: start, end: end };
+
+    }
+
+
+    /* ==================================================
+       WEEK CHART
+    ================================================== */
+
+    function renderWeekChart(start, end) {
+
+      const container = document.getElementById('weekChart');
+      container.innerHTML = '';
+
+      const days = [];
+
+      for (let i = 0; i < 7; i++) {
+
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+
+        let income = 0;
+        let commission = 0;
+
+        historyData.forEach(function (row) {
+          const rowDate = parseRowDate(row);
+          if (rowDate && dateKey(rowDate) === dateKey(d)) {
+            income += Number(row.price) || 0;
+            commission += Number(row.commission) || 0;
+          }
+        });
+
+        days.push({
+          date: d,
+          income: income,
+          commission: commission
+        });
+
+      }
+
+      const max = Math.max(
+        ...days.map(function (d) { return d.income; }),
+        1
+      );
+
+      const weekCommissionTotal = days.reduce(function (sum, day) {
+        return sum + day.commission;
+      }, 0);
+
+      days.forEach(function (day) {
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chart-day';
+
+        const barArea = document.createElement('div');
+        barArea.className = 'bar-area';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+
+        const height = day.income === 0
+          ? 3
+          : Math.max(8, (day.income / max) * 140);
+
+        bar.style.height = height + 'px';
+
+        bar.title = money(day.income) + ' (Commission ' + money(day.commission) + ')';
+
+        const commissionRatio = day.income > 0 ? day.commission / day.income : 0;
+
+        const commissionSegment = document.createElement('div');
+        commissionSegment.className = 'bar-segment-commission';
+        commissionSegment.style.height = Math.round(height * commissionRatio) + 'px';
+
+        const incomeSegment = document.createElement('div');
+        incomeSegment.className = 'bar-segment-income';
+
+        bar.appendChild(commissionSegment);
+        bar.appendChild(incomeSegment);
+        barArea.appendChild(bar);
+
+        if (day.income > 0 && day.income === max) {
+          const star = document.createElement('div');
+          star.className = 'best-day-star';
+          star.innerText = '⭐';
+          barArea.appendChild(star);
+        }
+
+        const moneyText = document.createElement('div');
+        moneyText.className = 'day-money';
+        moneyText.innerText = day.income > 0 ? moneyShort(day.income) : '';
+
+        const label = document.createElement('div');
+        label.className = 'day-label';
+        label.innerText = thaiDay(day.date);
+
+        wrapper.appendChild(barArea);
+        wrapper.appendChild(moneyText);
+        wrapper.appendChild(label);
+        container.appendChild(wrapper);
+
+      });
+
+      const total = days.reduce(function (sum, day) {
+        return sum + day.income;
+      }, 0);
+
+      document.getElementById('weekTotal').innerText =
+        '🐾 รวมสัปดาห์นี้ ' + money(total) +
+        ' · 🪙 Commission ' + money(weekCommissionTotal);
+
+    }
+
+
+    /* ==================================================
+       INCOME CALENDAR (Contribution Graph)
+    ================================================== */
+    function renderIncomeCalendar(currentMonth, currentYear) {
+      
+      const container = document.getElementById('incomeCalendar');
+      const card = document.getElementById('calendarCard');
+      
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      
+      if (historyData.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+      
+      card.style.display = 'block';
+      
+      let html = '<div class="calendar-grid">';
+      const days = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+      
+      days.forEach(function(day) {
+        html += '<div class="calendar-day-label">' + day + '</div>';
+      });
+      
+      // Pad empty cells before 1st day
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        html += '<div class="calendar-cell empty"></div>';
+      }
+      
+      // Group income by day
+      const dailyIncome = {};
+      let maxIncome = 0;
+      
+      historyData.forEach(function (row) {
+        const d = parseRowDate(row);
+        if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+          const date = d.getDate();
+          dailyIncome[date] = (dailyIncome[date] || 0) + (Number(row.price) || 0);
+          if (dailyIncome[date] > maxIncome) maxIncome = dailyIncome[date];
+        }
+      });
+      
+      // Create cells
+      for (let i = 1; i <= lastDay.getDate(); i++) {
+        const income = dailyIncome[i] || 0;
+        let level = 0;
+        
+        if (income > 0) {
+          if (income < maxIncome * 0.25) level = 1;
+          else if (income < maxIncome * 0.5) level = 2;
+          else if (income < maxIncome * 0.75) level = 3;
+          else level = 4;
+        }
+        
+        html += 
+          '<div class="calendar-cell level-' + level + (income > 0 ? ' has-date' : '') + '" ' +
+          'onclick="changeHistoryMonthTo(' + currentMonth + ',' + currentYear + '); highlightHistoryDay(' + i + ')">' +
+          '<span class="calendar-day-num">' + i + '</span>' +
+          (income > 0 ? '<span class="calendar-day-amount">' + moneyShort(income) + '</span>' : '') +
+          (income > 0 ? '<div class="calendar-tooltip">' + i + ' ' + THAI_MONTHS[currentMonth] + ': ' + money(income) + '</div>' : '') +
+          '</div>';
+      }
+      
+      html += '</div>';
+      container.innerHTML = html;
+      
+    }
+    
+    // Helper to highlight a specific day in history list
+    window.highlightHistoryDay = function(day) {
+      setTimeout(function() {
+        const dayHeaders = Array.from(document.querySelectorAll('.history-day-header'));
+        // Find header matching day (e.g. "5 กันยายน" or "15 กันยายน")
+        const dayStr = day.toString() + ' ';
+        const dayHeader = dayHeaders.find(function(el) { 
+          // Match at beginning or after a space to avoid matching 15 when looking for 5
+          return el.innerText.indexOf(dayStr) === 0 || el.innerText.indexOf(' ' + dayStr) > -1; 
+        });
+        
+        if (dayHeader) {
+          dayHeader.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const parent = dayHeader.parentElement;
+          if (parent) {
+            parent.style.transition = 'background 0.5s';
+            parent.style.background = 'rgba(238, 124, 149, 0.2)'; // pink-light with opacity
+            setTimeout(function() {
+              parent.style.background = 'transparent';
+            }, 1000);
+          }
+        }
+      }, 100);
+    };
+    
+    // Helper to jump to a specific month in history filter
+    window.changeHistoryMonthTo = function(m, y) {
+      historyFilterMonth = m;
+      historyFilterYear = y;
+      renderHistory();
+    };
+
+
+
+
+    /* ==================================================
+       HISTORY BY DAY — filtered by month
+    ================================================== */
+
+    function renderHistory() {
+
+      const container = document.getElementById('historyList');
+      container.innerHTML = '';
+
+      // Update month label
+      updateHistoryMonthLabel();
+
+      if (historyData.length === 0) {
+        container.innerHTML =
+          '<div class="card empty-state">' +
+          '<div class="empty-cat">😴🐱</div>' +
+          'ยังไม่มีรายการ' +
+          '<small>เริ่มบันทึกรายการแรกกันเถอะ 🐾</small>' +
+          '</div>';
+        return;
+      }
+
+      // Filter by selected month/year
+      const filteredData = historyData.filter(function (row) {
+        const d = parseRowDate(row);
+        if (!d) return false;
+        return d.getMonth() === historyFilterMonth && d.getFullYear() === historyFilterYear;
+      });
+
+      if (filteredData.length === 0) {
+        container.innerHTML =
+          '<div class="card empty-state">' +
+          '<div class="empty-cat">😿</div>' +
+          'เดือนนี้ยังไม่มีรายการ' +
+          '<small>ลองเลือกเดือนอื่นดูนะ 🐾</small>' +
+          '</div>';
+        return;
+      }
+
+      const groups = {};
+
+      filteredData.forEach(function (row) {
+        const d = parseRowDate(row);
+        if (!d) return;
+
+        const key = dateKey(d);
+
+        if (!groups[key]) {
+          groups[key] = { date: d, rows: [] };
+        }
+
+        groups[key].rows.push(row);
+      });
+
+      const keys = Object.keys(groups).sort().reverse();
+
+      // Show hint
+      const hintEl = document.getElementById('historyFilterHint');
+      hintEl.innerText = '🐾 ' + filteredData.length + ' รายการในเดือนนี้';
+
+      keys.forEach(function (key) {
+
+        const group = groups[key];
+
+        let totalIncome = 0;
+        let totalCommission = 0;
+
+        group.rows.forEach(function (row) {
+          totalIncome += Number(row.price) || 0;
+          totalCommission += Number(row.commission) || 0;
+        });
+
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'history-day';
+
+        const header = document.createElement('div');
+        header.className = 'history-day-header';
+
+        header.innerHTML =
+          '🐾 ' + thaiDate(group.date) +
+          '<div class="history-day-total">' +
+          group.rows.length + ' รายการ · ' +
+          'รายได้ ' + money(totalIncome) +
+          ' · Commission ' + money(totalCommission) +
+          '</div>';
+
+        dayDiv.appendChild(header);
+
+        group.rows.slice().reverse().forEach(function (row) {
+
+          const item = document.createElement('div');
+          item.className = 'history-item';
+
+          item.innerHTML =
+            '<div class="history-time">' + escapeHtml(row.time) + '</div>' +
+            '<div class="history-name">' + escapeHtml(row.item) + '</div>' +
+            '<div class="history-money">' +
+            '<span>ลูกค้าจ่าย <b>' + money(row.price) + '</b></span>' +
+            '<span class="history-commission">+' + money(row.commission) + '</span>' +
+            '</div>' +
+            '<div class="history-actions">' +
+            '<button class="history-action-btn edit">✏️ แก้ไข</button>' +
+            '<button class="history-action-btn delete">🗑️ ลบ</button>' +
+            '</div>';
+
+          if (row.row) {
+            item.querySelector('.edit').onclick = function () {
+              showEditDialog(row.row, row.item, row.price);
+            };
+            item.querySelector('.delete').onclick = function () {
+              deleteHistoryRow(row.row);
+            };
+          }
+
+          dayDiv.appendChild(item);
+
+        });
+
+        container.appendChild(dayDiv);
+
+      });
+
+    }
+
+
+    /* ==================================================
+       HISTORY MONTH NAVIGATION
+    ================================================== */
+
+    function changeHistoryMonth(direction) {
+
+      historyFilterMonth += direction;
+
+      if (historyFilterMonth > 11) {
+        historyFilterMonth = 0;
+        historyFilterYear++;
+      } else if (historyFilterMonth < 0) {
+        historyFilterMonth = 11;
+        historyFilterYear--;
+      }
+
+      // Don't allow going into the future
+      const now = new Date();
+      if (historyFilterYear > now.getFullYear() ||
+        (historyFilterYear === now.getFullYear() && historyFilterMonth > now.getMonth())) {
+        historyFilterMonth = now.getMonth();
+        historyFilterYear = now.getFullYear();
+        return;
+      }
+
+      renderHistory();
+
+    }
+
+
+    function updateHistoryMonthLabel() {
+
+      const label = document.getElementById('historyMonthLabel');
+      const now = new Date();
+
+      if (historyFilterMonth === now.getMonth() && historyFilterYear === now.getFullYear()) {
+        label.innerText = '📅 เดือนนี้ — ' + THAI_MONTHS[historyFilterMonth] + ' ' + (historyFilterYear + 543);
+      } else {
+        label.innerText = '📅 ' + THAI_MONTHS[historyFilterMonth] + ' ' + (historyFilterYear + 543);
+      }
+
+    }
+
+
+    /* ==================================================
+       CATEGORY DROPDOWN
+    ================================================== */
+
+    function populateCategorySelect(selectEl, selectedValue) {
+
+      const categories = Array.from(
+        new Set(
+          services.map(function (s) { return s.category; })
+        )
+      );
+
+      if (categories.length === 0) {
+        categories.push('อื่นๆ');
+      }
+
+      selectEl.innerHTML = '';
+
+      categories.forEach(function (cat) {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.innerText = cat;
+        selectEl.appendChild(opt);
+      });
+
+      const newOpt = document.createElement('option');
+      newOpt.value = '__new__';
+      newOpt.innerText = '➕ เพิ่มหมวดหมู่ใหม่';
+      selectEl.appendChild(newOpt);
+
+      if (selectedValue && categories.includes(selectedValue)) {
+        selectEl.value = selectedValue;
+      }
+
+      selectEl.onchange = function () {
+        const wrap =
+          selectEl.id === 'newServiceCategory'
+            ? document.getElementById('newCategoryInput')
+            : document.getElementById('editServiceNewCategory');
+        if (wrap) {
+          wrap.style.display = this.value === '__new__' ? 'block' : 'none';
+        }
+      };
+
+    }
+
+
+    /* ==================================================
+       MANAGE SERVICES
+    ================================================== */
+
+    function renderManage() {
+
+      const container = document.getElementById('manageList');
+      container.innerHTML = '';
+
+      if (services.length === 0) {
+        container.innerHTML =
+          '<div class="card empty-state">' +
+          '<div class="empty-cat">😴🐱</div>' +
+          'ยังไม่มีบริการ' +
+          '<small>เพิ่มบริการแรกกันเถอะ 🐾</small>' +
+          '</div>';
+        return;
+      }
+
+      const categoryOrder = [];
+      const grouped = {};
+
+      services.forEach(function (item) {
+        if (!grouped[item.category]) {
+          grouped[item.category] = [];
+          categoryOrder.push(item.category);
+        }
+        grouped[item.category].push(item);
+      });
+
+      categoryOrder.forEach(function (category) {
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.innerText = category;
+        card.appendChild(title);
+
+        grouped[category].forEach(function (item) {
+
+          const div = document.createElement('div');
+          div.className = 'manage-item';
+
+          div.innerHTML =
+            '<span class="manage-item-name">' + escapeHtml(item.name) + '</span>' +
+            '<div class="manage-item-actions">' +
+            '<button class="history-action-btn edit">✏️</button>' +
+            '<button class="history-action-btn delete">🗑️</button>' +
+            '</div>';
+
+          div.querySelector('.edit').onclick = function () {
+            showEditServiceDialog(item);
+          };
+
+          div.querySelector('.delete').onclick = function () {
+            deleteServiceItem(item);
+          };
+
+          card.appendChild(div);
+
+        });
+
+        container.appendChild(card);
+
+      });
+
+    }
+
+
+    async function addServiceAction() {
+
+      const nameInput = document.getElementById('newServiceName');
+      const categorySelect = document.getElementById('newServiceCategory');
+      const newCategoryInput = document.getElementById('newCategoryInput');
+
+      const name = nameInput.value.trim();
+
+      if (!name) {
+        showToast('กรุณาใส่ชื่อบริการ 🐾');
+        return;
+      }
+
+      let category = categorySelect.value;
+
+      if (category === '__new__') {
+        category = newCategoryInput.value.trim();
+        if (!category) {
+          showToast('กรุณาใส่ชื่อหมวดหมู่ใหม่ 🐾');
+          return;
+        }
+      }
+
+      try {
+
+        const result = await apiPost({
+          action: 'addService',
+          name: name,
+          category: category
+        });
+
+        if (result.success) {
+          nameInput.value = '';
+          newCategoryInput.value = '';
+          newCategoryInput.style.display = 'none';
+          showToast('เพิ่มบริการเรียบร้อย 🐾✨');
+          loadServices();
+        } else {
+          showToast(result.message);
+        }
+
+      } catch (error) {
+        showToast(error.message || 'เพิ่มบริการไม่สำเร็จ');
+      }
+
+    }
+
+
+    function showEditServiceDialog(item) {
+
+      const overlay = document.getElementById('modalOverlay');
+      const box = document.getElementById('modalBox');
+
+      const categories = Array.from(
+        new Set(
+          services.map(function (s) { return s.category; })
+        )
+      );
+
+      let optionsHtml = categories.map(function (cat) {
+        return '<option value="' + escapeHtml(cat) + '"' +
+          (cat === item.category ? ' selected' : '') +
+          '>' + escapeHtml(cat) + '</option>';
+      }).join('');
+
+      optionsHtml += '<option value="__new__">➕ เพิ่มหมวดหมู่ใหม่</option>';
+
+      box.innerHTML =
+        '<div class="modal-icon">✏️</div>' +
+        '<div class="modal-title">แก้ไขบริการ</div>' +
+        '<input id="editServiceName" class="modal-input" value="' + escapeHtml(item.name) + '">' +
+        '<select id="editServiceCategory" class="thai-date-select" style="width:100%;margin-bottom:10px;">' + optionsHtml + '</select>' +
+        '<input id="editServiceNewCategory" class="modal-input" placeholder="ชื่อหมวดหมู่ใหม่" style="display:none;">' +
+        '<div class="modal-actions">' +
+        '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
+        '<button class="modal-btn ok" id="modalOkBtn">บันทึก</button>' +
+        '</div>';
+
+      overlay.classList.add('show');
+
+      document.getElementById('editServiceCategory').onchange = function () {
+        document.getElementById('editServiceNewCategory').style.display =
+          this.value === '__new__' ? 'block' : 'none';
+      };
+
+      document.getElementById('modalCancelBtn').onclick = closeModal;
+
+      document.getElementById('modalOkBtn').onclick = async function () {
+
+        const newName = document.getElementById('editServiceName').value.trim();
+        let newCategory = document.getElementById('editServiceCategory').value;
+
+        if (newCategory === '__new__') {
+          newCategory = document.getElementById('editServiceNewCategory').value.trim();
+        }
+
+        if (!newName) {
+          showToast('กรุณาใส่ชื่อบริการ 🐾');
+          return;
+        }
+
+        if (!newCategory) {
+          showToast('กรุณาใส่ชื่อหมวดหมู่ 🐾');
+          return;
+        }
+
+        closeModal();
+
+        try {
+
+          const result = await apiPost({
+            action: 'updateService',
+            rowIndex: item.row,
+            name: newName,
+            category: newCategory
+          });
+
+          if (result.success) {
+            showToast('แก้ไขบริการเรียบร้อย ✏️');
+            loadServices();
+          } else {
+            showToast(result.message);
+          }
+
+        } catch (error) {
+          showToast(error.message || 'แก้ไขไม่สำเร็จ');
+        }
+
+      };
+
+    }
+
+
+    function deleteServiceItem(item) {
+
+      showConfirmDialog(
+        '🗑️ ลบบริการ',
+        'ต้องการลบ "' + item.name + '" ใช่ไหม?',
+        async function () {
+
+          try {
+
+            const result = await apiPost({
+              action: 'deleteService',
+              rowIndex: item.row
+            });
+
+            if (result.success) {
+              selectedServices = selectedServices.filter(function (name) {
+                return name !== item.name;
+              });
+              showToast('ลบบริการแล้ว 🐾');
+              loadServices();
+            }
+
+          } catch (error) {
+            showToast(error.message || 'ลบไม่สำเร็จ');
+          }
+
+        }
+      );
+
+    }
+
+
+    /* ==================================================
+       PAGE NAVIGATION
+    ================================================== */
+
+    function showPage(page) {
+
+      document.querySelectorAll('.page').forEach(function (p) {
+        p.classList.remove('active');
+      });
+
+      document.querySelectorAll('.nav-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+
+      if (page === 'save') {
+        document.getElementById('savePage').classList.add('active');
+        document.getElementById('navSave').classList.add('active');
+      }
+
+      if (page === 'summary') {
+        document.getElementById('summaryPage').classList.add('active');
+        document.getElementById('navSummary').classList.add('active');
+        loadSummary();
+      }
+
+      if (page === 'manage') {
+        document.getElementById('managePage').classList.add('active');
+        document.getElementById('navManage').classList.add('active');
+      }
+
+      // scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    }
+
+
+    /* ==================================================
+       DATE UTILITIES
+    ================================================== */
+
+    function parseRowDate(row) {
+
+      if (!row.date) return null;
+
+      const parts = String(row.date).split('/');
+      if (parts.length !== 3) return null;
+
+      const day = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
+      const year = Number(parts[2]);
+
+      const date = new Date(year, month, day);
+      if (isNaN(date.getTime())) return null;
+
+      return date;
+
+    }
+
+
+    function dateKey(date) {
+      return date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0');
+    }
+
+
+    function thaiDay(date) {
+      const days = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+      return days[date.getDay()];
+    }
+
+
+    function thaiDate(date) {
+      const months = [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+        'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+        'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+      ];
+      return date.getDate() + ' ' + months[date.getMonth()] + ' ' + (date.getFullYear() + 543);
+    }
+
+
+    /* ==================================================
+       MONEY FORMATTING
+    ================================================== */
+
+    function money(value) {
+      return '฿' + Number(value || 0).toLocaleString('th-TH', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+
+    function moneyShort(value) {
+      if (value >= 1000) {
+        return '฿' + (value / 1000).toFixed(value >= 10000 ? 0 : 1) + 'k';
+      }
+      return '฿' + value;
+    }
+
+
+    /* ==================================================
+       ESCAPE HTML
+    ================================================== */
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+
+    /* ==================================================
+       TOAST
+    ================================================== */
+
+    function showToast(message) {
+
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      toast.classList.add('show');
+
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function () {
+        toast.classList.remove('show');
+      }, 2500);
+
+    }
+
+
+
+    /* ==================================================
+       LOGIN / LOGOUT SYSTEM
+    ================================================== */
+
+    let loginSelectedUser = '';
+    let pinBuffer = '';
+    let pinMode = ''; // 'login', 'setNew', 'confirmNew'
+    let pinNewValue = '';
+
+    function selectLoginUser(user) {
+
+      loginSelectedUser = user;
+
+      // Highlight selected card
+      document.querySelectorAll('.user-card').forEach(function (card) {
+        card.classList.remove('selected');
+      });
+      document.querySelector('.user-card.' + user).classList.add('selected');
+
+      // Go to PIN step
+      setTimeout(function () {
+        document.getElementById('loginStep1').classList.remove('active');
+        document.getElementById('loginStep2').classList.add('active');
+        document.getElementById('loginSubtitle').style.display = 'none';
+
+        // Check if user has PIN
+        checkUserPin(user);
+      }, 300);
+
+    }
+
+
+    async function checkUserPin(user) {
+
+      pinBuffer = '';
+      updatePinDots();
+      document.getElementById('pinError').innerText = '';
+
+      try {
+
+        const url = API_URL + '?action=getPin&user=' + encodeURIComponent(user);
+        const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+        const result = await response.json();
+
+        if (result && result.success && result.hasPin) {
+          pinMode = 'login';
+          document.getElementById('pinLabel').innerText =
+            USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ใส่ PIN 4 หลัก';
+        } else {
+          // ชีตบอกว่ายังไม่มี PIN — เคลียร์ PIN เก่าที่อาจค้างอยู่ในเครื่อง (จากการทดสอบก่อนหน้า)
+          try { localStorage.removeItem('pin_' + user); } catch (e) { }
+          pinMode = 'setNew';
+          document.getElementById('pinLabel').innerText =
+            USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ตั้ง PIN ใหม่ (4 หลัก)';
+        }
+
+      } catch (err) {
+        // Offline fallback: try localStorage
+        const savedPin = localStorage.getItem('pin_' + user);
+        if (savedPin) {
+          pinMode = 'login';
+          document.getElementById('pinLabel').innerText =
+            USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ใส่ PIN 4 หลัก';
+        } else {
+          pinMode = 'setNew';
+          document.getElementById('pinLabel').innerText =
+            USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ตั้ง PIN ใหม่ (4 หลัก)';
+        }
+      }
+
+    }
+
+
+    function pinInput(digit) {
+
+      if (pinBuffer.length >= 4) return;
+
+      pinBuffer += digit;
+      updatePinDots();
+      document.getElementById('pinError').innerText = '';
+
+      if (pinBuffer.length === 4) {
+        setTimeout(function () { handlePinComplete(); }, 200);
+      }
+
+    }
+
+
+    function pinBackspace() {
+
+      if (pinBuffer.length === 0) return;
+
+      pinBuffer = pinBuffer.slice(0, -1);
+      updatePinDots();
+
+    }
+
+
+    function updatePinDots() {
+
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('pinDot' + i);
+        dot.classList.remove('filled', 'error');
+        if (i < pinBuffer.length) {
+          dot.classList.add('filled');
+        }
+      }
+
+    }
+
+
+    function showPinError(message) {
+
+      document.getElementById('pinError').innerText = message;
+
+      for (let i = 0; i < 4; i++) {
+        document.getElementById('pinDot' + i).classList.add('error');
+      }
+
+      pinBuffer = '';
+
+      setTimeout(function () {
+        updatePinDots();
+      }, 600);
+
+    }
+
+
+    async function handlePinComplete() {
+
+      const user = loginSelectedUser;
+
+      if (pinMode === 'setNew') {
+
+        // ตั้ง PIN ใหม่ — จำไว้แล้วให้ยืนยัน
+        pinNewValue = pinBuffer;
+        pinBuffer = '';
+        pinMode = 'confirmNew';
+        updatePinDots();
+        document.getElementById('pinLabel').innerText = '🔐 ยืนยัน PIN อีกครั้ง';
+        return;
+
+      }
+
+      if (pinMode === 'confirmNew') {
+
+        // ยืนยัน PIN
+        if (pinBuffer !== pinNewValue) {
+          showPinError('PIN ไม่ตรงกัน ลองใหม่');
+          pinMode = 'setNew';
+          document.getElementById('pinLabel').innerText =
+            USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ตั้ง PIN ใหม่ (4 หลัก)';
+          return;
+        }
+
+        // บันทึก PIN ลง databaselist (ผ่าน API)
+        try {
+
+          const setPinResult = await apiPostRaw({
+            action: 'setPin',
+            user: user,
+            newPin: pinBuffer
+          });
+
+          if (!setPinResult || !setPinResult.success) {
+            console.warn('บันทึก PIN ไปที่ชีตไม่สำเร็จ:', setPinResult && setPinResult.message);
+          }
+
+        } catch (err) {
+          // ออฟไลน์อยู่ — จะยังคง PIN ไว้ใน localStorage ก่อน แล้วลอง sync ใหม่ตอนออนไลน์
+          console.warn('บันทึก PIN ไปที่ชีตไม่สำเร็จ (ออฟไลน์):', err);
+        }
+
+        // เก็บใน localStorage ด้วย
+        try {
+          localStorage.setItem('pin_' + user, pinBuffer);
+        } catch (e) { }
+
+        completeLogin(user);
+        return;
+
+      }
+
+      if (pinMode === 'login') {
+
+        // ตรวจ PIN
+        let storedPin = '';
+
+        try {
+
+          const url = API_URL + '?action=getPin&user=' + encodeURIComponent(user);
+          const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+          const result = await response.json();
+
+          if (result && result.success) {
+            storedPin = String(result.pin || '');
+          }
+
+        } catch (err) {
+          // Offline: check localStorage
+          storedPin = localStorage.getItem('pin_' + user) || '';
+        }
+
+        if (pinBuffer === storedPin) {
+
+          // เก็บใน localStorage
+          try {
+            localStorage.setItem('pin_' + user, pinBuffer);
+          } catch (e) { }
+
+          completeLogin(user);
+
+        } else {
+
+          showPinError('PIN ไม่ถูกต้อง');
+
+        }
+
+      }
+
+    }
+
+
+    // Raw apiPost (ไม่ inject user)
+    async function apiPostRaw(body) {
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(body)
+      });
+
+      return response.json();
+
+    }
+
+
+    function completeLogin(user) {
+
+      currentUser = user;
+
+      // Save login state
+      try {
+        localStorage.setItem('loggedInUser', user);
+      } catch (e) { }
+
+      // Update header
+      updateHeaderForUser(user);
+
+      // Hide login screen
+      document.getElementById('loginScreen').classList.add('hidden');
+
+      // Load data
+      loadServices();
+      renderPendingBanner();
+
+    }
+
+
+    function updateHeaderForUser(user) {
+
+      const info = USER_NAMES[user];
+
+      if (!info) return;
+
+      document.getElementById('headerTitle').innerText = 'รายได้ของ' + info.thai;
+      document.getElementById('headerUserBadge').innerText = info.emoji + ' ' + info.thai;
+
+      // Update page title
+      document.title = '🐾 รายได้ของ' + info.thai;
+
+      // Update settings page label
+      const settingsLabel = document.getElementById('settingsUserLabel');
+      if (settingsLabel) {
+        settingsLabel.innerText = 'เข้าสู่ระบบเป็น ' + info.thai;
+      }
+
+    }
+
+
+    /* ==================================================
+       CHANGE PIN
+    ================================================== */
+    function showChangePinFlow() {
+      const overlay = document.getElementById('modalOverlay');
+      const box = document.getElementById('modalBox');
+
+      box.innerHTML =
+        '<div class="modal-icon">🔐</div>' +
+        '<div class="modal-title">เปลี่ยน PIN</div>' +
+        '<div class="modal-text">กรอกรหัส PIN 4 หลักเดิมและรหัสใหม่</div>' +
+        '<input id="oldPinInput" class="modal-input" type="password" inputmode="numeric" maxlength="4" placeholder="PIN เดิม" style="text-align:center; letter-spacing:10px; font-size:20px;">' +
+        '<input id="newPinInput" class="modal-input" type="password" inputmode="numeric" maxlength="4" placeholder="PIN ใหม่" style="text-align:center; letter-spacing:10px; font-size:20px; margin-top:10px;">' +
+        '<div class="modal-actions">' +
+        '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
+        '<button class="modal-btn ok" id="modalOkBtn">บันทึก</button>' +
+        '</div>';
+
+      overlay.classList.add('show');
+
+      document.getElementById('modalCancelBtn').onclick = closeModal;
+
+      document.getElementById('modalOkBtn').onclick = async function () {
+        const oldPin = document.getElementById('oldPinInput').value;
+        const newPin = document.getElementById('newPinInput').value;
+
+        if (oldPin.length !== 4 || newPin.length !== 4) {
+          showToast('กรุณากรอก PIN ให้ครบ 4 หลัก ❌');
+          return;
+        }
+
+        const btn = document.getElementById('modalOkBtn');
+        btn.innerText = 'กำลังบันทึก...';
+        btn.disabled = true;
+
+        try {
+          const result = await apiPost({
+            action: 'setPin',
+            user: currentUser,
+            oldPin: oldPin,
+            newPin: newPin
+          });
+
+          if (result && result.success) {
+            closeModal();
+            showToast('เปลี่ยน PIN สำเร็จ ✅');
+          } else {
+            btn.innerText = 'บันทึก';
+            btn.disabled = false;
+            showToast(result.message || 'รหัสผ่านเดิมไม่ถูกต้อง ❌');
+          }
+        } catch (error) {
+          btn.innerText = 'บันทึก';
+          btn.disabled = false;
+          showToast('เปลี่ยน PIN ไม่สำเร็จ ❌');
+        }
+      };
+    }
+
+
+    /* ==================================================
+       NOTIFICATIONS
+    ================================================== */
+    function toggleNotification() {
+      const sw = document.getElementById('notifSwitch');
+      
+      if (sw.checked) {
+        if ('Notification' in window) {
+          Notification.requestPermission().then(function (permission) {
+            if (permission === 'granted') {
+              localStorage.setItem('notifEnabled', 'true');
+              showToast('เปิดการแจ้งเตือนแล้ว 🔔');
+            } else {
+              sw.checked = false;
+              localStorage.setItem('notifEnabled', 'false');
+              showToast('ต้องอนุญาตการแจ้งเตือนในเบราว์เซอร์ ❌');
+            }
+          });
+        } else {
+          sw.checked = false;
+          showToast('เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน ❌');
+        }
+      } else {
+        localStorage.setItem('notifEnabled', 'false');
+        showToast('ปิดการแจ้งเตือนแล้ว 🔕');
+      }
+    }
+    
+    function initNotification() {
+      const isEnabled = localStorage.getItem('notifEnabled') === 'true';
+      document.getElementById('notifSwitch').checked = isEnabled;
+      
+      if (isEnabled && 'Notification' in window && Notification.permission === 'granted') {
+        checkDailyReminder();
+        // Check every hour
+        setInterval(checkDailyReminder, 60 * 60 * 1000);
+      }
+    }
+    
+    function checkDailyReminder() {
+      const now = new Date();
+      // Remind after 18:00
+      if (now.getHours() >= 18) {
+        const lastReminded = localStorage.getItem('lastRemindedDate');
+        const todayStr = dateKey(now);
+        
+        if (lastReminded !== todayStr) {
+          // Check if they already recorded today
+          let hasRecordedToday = false;
+          const today = dateKey(new Date());
+          
+          if (historyData) {
+            hasRecordedToday = historyData.some(function(row) {
+              const d = parseRowDate(row);
+              return d && dateKey(d) === today;
+            });
+          }
+          
+          if (!hasRecordedToday) {
+            try {
+              new Notification('🐾 อย่าลืมบันทึกรายได้!', {
+                body: 'วันนี้คุณยังไม่ได้บันทึกรายได้เลยนะ แวะมาบันทึกกันเถอะ 💰',
+                icon: 'https://cdn-icons-png.flaticon.com/512/1046/1046374.png' // Cat paw icon
+              });
+              localStorage.setItem('lastRemindedDate', todayStr);
+            } catch(e) {}
+          }
+        }
+      }
+    }
+
+
+    function logoutUser() {
+
+      showConfirmDialog(
+        '🚪 ออกจากระบบ',
+        'ต้องการออกจากระบบใช่ไหม?',
+        function () {
+
+          currentUser = '';
+
+          try {
+            localStorage.removeItem('loggedInUser');
+          } catch (e) { }
+
+          // Reset login screen
+          document.getElementById('loginStep1').classList.add('active');
+          document.getElementById('loginStep2').classList.remove('active');
+          document.querySelectorAll('.user-card').forEach(function (card) {
+            card.classList.remove('selected');
+          });
+          pinBuffer = '';
+          updatePinDots();
+
+          // Show login screen
+          document.getElementById('loginScreen').classList.remove('hidden');
+
+          // Reset to save page
+          showPage('save');
+
+        }
+      );
+
+    }
+
+
+    function pinGoBack() {
+
+      pinBuffer = '';
+      pinMode = '';
+      loginSelectedUser = '';
+      updatePinDots();
+      document.getElementById('pinError').innerText = '';
+
+      document.getElementById('loginStep2').classList.remove('active');
+      document.getElementById('loginStep1').classList.add('active');
+      document.getElementById('loginSubtitle').style.display = '';
+
+      document.querySelectorAll('.user-card').forEach(function (card) {
+        card.classList.remove('selected');
+      });
+
+    }
+
+
+    /* ==================================================
+       COMBINED SUMMARY (สรุปรวม 2 คน)
+    ================================================== */
+
+    async function loadCombinedSummary() {
+
+      const card = document.getElementById('combinedCard');
+
+      try {
+
+        const url = API_URL + '?action=historyAll';
+        const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+        const result = await response.json();
+
+        if (result && result.success && result.data) {
+
+          const now = new Date();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+
+          let namIncome = 0, namJobs = 0;
+          let mookIncome = 0, mookJobs = 0;
+
+          const serviceCounts = {};
+          let totalJobsAll = 0;
+
+          function tallyRow(row) {
+            const d = parseRowDate(row);
+            if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+              const item = row.item;
+              serviceCounts[item] = (serviceCounts[item] || 0) + 1;
+              totalJobsAll++;
+            }
+          }
+
+          // คำนวณรายได้จริง (price - commission) + จำนวนงาน เดือนนี้
+          if (result.data.nam) {
+            result.data.nam.forEach(function (row) {
+              const d = parseRowDate(row);
+              if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+                const price = Number(row.price) || 0;
+                const commission = Number(row.commission) || 0;
+                namIncome += (price - commission);
+                namJobs++;
+              }
+              tallyRow(row);
+            });
+          }
+
+          if (result.data.mook) {
+            result.data.mook.forEach(function (row) {
+              const d = parseRowDate(row);
+              if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+                const price = Number(row.price) || 0;
+                const commission = Number(row.commission) || 0;
+                mookIncome += (price - commission);
+                mookJobs++;
+              }
+              tallyRow(row);
+            });
+          }
+
+          document.getElementById('combinedNamIncome').innerText = money(namIncome);
+          document.getElementById('combinedNamJobs').innerText = namJobs + ' งาน';
+          document.getElementById('combinedMookIncome').innerText = money(mookIncome);
+          document.getElementById('combinedMookJobs').innerText = mookJobs + ' งาน';
+          document.getElementById('combinedTotalIncome').innerText = money(namIncome + mookIncome);
+          document.getElementById('combinedTotalJobs').innerText = 'รวม ' + (namJobs + mookJobs) + ' งาน';
+
+          renderCombinedTopServices(serviceCounts, totalJobsAll);
+
+          card.style.display = 'block';
+
+        }
+
+      } catch (err) {
+        // ถ้า error ไม่แสดง combined card
+        card.style.display = 'none';
+        const topCard = document.getElementById('topServicesCard');
+        if (topCard) topCard.style.display = 'none';
+      }
+
+    }
+
+
+    /* ==================================================
+       COMBINED TOP SERVICES (รวม น้ำ + มุก, หน้า Login)
+    ================================================== */
+    function renderCombinedTopServices(counts, totalJobs) {
+
+      const sorted = Object.keys(counts)
+        .map(function (key) { return { name: key, count: counts[key] }; })
+        .sort(function (a, b) { return b.count - a.count; })
+        .slice(0, 5);
+
+      const container = document.getElementById('topServicesList');
+      const card = document.getElementById('topServicesCard');
+
+      if (!container || !card) return;
+
+      if (sorted.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+
+      card.style.display = 'block';
+      container.innerHTML = '';
+
+      sorted.forEach(function (srv, index) {
+        const percent = Math.round((srv.count / totalJobs) * 100) || 0;
+
+        const el = document.createElement('div');
+        el.className = 'top-service-item';
+        el.innerHTML =
+          '<div class="top-service-rank">#' + (index + 1) + '</div>' +
+          '<div class="top-service-info">' +
+            '<div class="top-service-name">' +
+              '<span>' + escapeHtml(srv.name) + '</span>' +
+              '<span class="top-service-count">' + srv.count + ' ครั้ง (' + percent + '%)</span>' +
+            '</div>' +
+            '<div class="top-service-bar-bg">' +
+              '<div class="top-service-bar-fill" style="width: 0%"></div>' +
+            '</div>' +
+          '</div>';
+
+        container.appendChild(el);
+
+        // Animate bar
+        setTimeout(function () {
+          const bar = el.querySelector('.top-service-bar-fill');
+          if (bar) bar.style.width = percent + '%';
+        }, 100 + (index * 100));
+      });
+
+    }
+
+
+    /* ==================================================
+       START
+    ================================================== */
+
+    initBackdateSelectors();
+    updateOnlineStatus();
+
+    // โหลดสรุปรวมสำหรับหน้า Login
+    loadCombinedSummary();
+
+    // Check if already logged in
+    (function () {
+
+      const savedUser = localStorage.getItem('loggedInUser');
+
+      if (savedUser && USER_NAMES[savedUser]) {
+        // Auto-login
+        currentUser = savedUser;
+        updateHeaderForUser(savedUser);
+        document.getElementById('loginScreen').classList.add('hidden');
+        loadServices();
+        renderPendingBanner();
+      }
+      // ถ้ายังไม่ได้ login จะแสดง login screen อยู่แล้ว
+
+    })();
+
+
+    /* ==================================================
+       PWA — SERVICE WORKER REGISTRATION
+    ================================================== */
+
+    if ('serviceWorker' in navigator) {
+
+      navigator.serviceWorker
+        .register('./sw.js')
+        .then(function (reg) {
+          console.log('✅ Service Worker registered');
+        })
+        .catch(function (err) {
+          console.log('❌ SW registration failed:', err);
+        });
+
+    }
+
+
+    /* ==================================================
+       PWA — INSTALL PROMPT
+    ================================================== */
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+
+      e.preventDefault();
+      deferredInstallPrompt = e;
+
+      // Don't show if user dismissed before
+      if (localStorage.getItem('installDismissed')) return;
+
+      // Don't show if already installed (standalone mode)
+      if (window.matchMedia('(display-mode: standalone)').matches) return;
+
+      document.getElementById('installBanner').classList.add('show');
+
+    });
+
+
+    // Hide banner if already in standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      // already installed
+    }
+
+
+    function installApp() {
+
+      if (!deferredInstallPrompt) return;
+
+      deferredInstallPrompt.prompt();
+
+      deferredInstallPrompt.userChoice.then(function (choice) {
+
+        if (choice.outcome === 'accepted') {
+          showToast('ติดตั้งแอปเรียบร้อย 📱✨');
+        }
+
+        deferredInstallPrompt = null;
+        document.getElementById('installBanner').classList.remove('show');
+
+      });
+
+    }
+
+
+    function dismissInstall() {
+
+      document.getElementById('installBanner').classList.remove('show');
+
+      try {
+        localStorage.setItem('installDismissed', '1');
+      } catch (e) { }
+
+    }
+
+
+    /* ==================================================
+       DARK MODE
+    ================================================== */
+
+    function initDarkMode() {
+
+      let darkMode = false;
+
+      try {
+        const saved = localStorage.getItem('darkMode');
+        if (saved !== null) {
+          darkMode = saved === '1';
+        } else {
+          // Auto-detect system preference
+          darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+      } catch (e) { }
+
+      applyDarkMode(darkMode);
+
+    }
+
+
+    function toggleDarkMode() {
+
+      const sw = document.getElementById('darkSwitch');
+      const isDark = sw ? sw.checked : !document.body.classList.contains('dark');
+      applyDarkMode(isDark);
+
+      try {
+        localStorage.setItem('darkMode', isDark ? '1' : '0');
+      } catch (e) { }
+
+    }
+
+
+    function applyDarkMode(isDark) {
+
+      const sw = document.getElementById('darkSwitch');
+
+      if (isDark) {
+        document.body.classList.add('dark');
+        document.querySelector('meta[name="theme-color"]').content = '#1a1218';
+      } else {
+        document.body.classList.remove('dark');
+        document.querySelector('meta[name="theme-color"]').content = '#EE7C95';
+      }
+
+      // Sync switch state
+      if (sw) {
+        sw.checked = isDark;
+      }
+
+    }
+
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+
+      try {
+        // Only auto-switch if user hasn't manually set a preference
+        if (localStorage.getItem('darkMode') === null) {
+          applyDarkMode(e.matches);
+        }
+      } catch (err) {
+        applyDarkMode(e.matches);
+      }
+
+    });
+
+
+    initDarkMode();
+    initNotification();
+
+  </script>
+
+
+</body>
+
+</html>
