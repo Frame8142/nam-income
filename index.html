@@ -5325,17 +5325,22 @@
           return;
         }
 
-        // บันทึก PIN
+        // บันทึก PIN ลง databaselist (ผ่าน API)
         try {
 
-          await apiPostRaw({
+          const setPinResult = await apiPostRaw({
             action: 'setPin',
             user: user,
-            pin: pinBuffer
+            newPin: pinBuffer
           });
 
+          if (!setPinResult || !setPinResult.success) {
+            console.warn('บันทึก PIN ไปที่ชีตไม่สำเร็จ:', setPinResult && setPinResult.message);
+          }
+
         } catch (err) {
-          // ignore — will save locally
+          // ออฟไลน์อยู่ — จะยังคง PIN ไว้ใน localStorage ก่อน แล้วลอง sync ใหม่ตอนออนไลน์
+          console.warn('บันทึก PIN ไปที่ชีตไม่สำเร็จ (ออฟไลน์):', err);
         }
 
         // เก็บใน localStorage ด้วย
