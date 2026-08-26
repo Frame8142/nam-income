@@ -2325,7 +2325,7 @@ async function loadCombinedSummary() {
   try {
 
     const url = API_URL + '?action=historyAll&_t=' + Date.now();
-    const response = await fetch(url, { method: 'GET', redirect: 'follow', headers: { 'Cache-Control': 'no-cache' } });
+    const response = await fetch(url, { method: 'GET', redirect: 'follow' });
     const result = await response.json();
 
     if (result && result.success && result.data) {
