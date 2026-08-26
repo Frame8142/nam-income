@@ -2355,8 +2355,7 @@ async function loadCombinedSummary() {
           const d = parseRowDate(row);
           if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
             const price = Number(row.price) || 0;
-            const commission = Number(row.commission) || 0;
-            namIncome += (price - commission);
+            namIncome += price;
             namJobs++;
           }
           tallyRow(row);
@@ -2368,8 +2367,7 @@ async function loadCombinedSummary() {
           const d = parseRowDate(row);
           if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
             const price = Number(row.price) || 0;
-            const commission = Number(row.commission) || 0;
-            mookIncome += (price - commission);
+            mookIncome += price;
             mookJobs++;
           }
           tallyRow(row);
