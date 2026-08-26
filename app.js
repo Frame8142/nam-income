@@ -31,7 +31,7 @@ let deferredInstallPrompt = null;
 
 async function apiGet(action, extraParams) {
 
-  let url = API_URL + '?action=' + encodeURIComponent(action);
+  let url = API_URL + '?action=' + encodeURIComponent(action) + '&_t=' + Date.now();
 
   if (currentUser) {
     url += '&user=' + encodeURIComponent(currentUser);
@@ -2324,8 +2324,8 @@ async function loadCombinedSummary() {
 
   try {
 
-    const url = API_URL + '?action=historyAll';
-    const response = await fetch(url, { method: 'GET', redirect: 'follow' });
+    const url = API_URL + '?action=historyAll&_t=' + Date.now();
+    const response = await fetch(url, { method: 'GET', redirect: 'follow', headers: { 'Cache-Control': 'no-cache' } });
     const result = await response.json();
 
     if (result && result.success && result.data) {
