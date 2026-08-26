@@ -1,4 +1,4 @@
-﻿/* ==================================================
+/* ==================================================
        CONFIG
     ================================================== */
 
@@ -407,6 +407,9 @@ async function doActualSave(item, price, backdateDate) {
       calculateCommission();
       resetBackdate();
 
+      // อัปเดตรายได้ร้านรวมหน้า Login
+      loadCombinedSummary();
+
     } else {
 
       showToast(result.message || 'เกิดข้อผิดพลาด');
@@ -554,8 +557,10 @@ async function syncOfflineQueue() {
   if (successCount > 0 && failedItems.length === 0) {
     showSuccessPopup('ซิงค์ข้อมูล ' + successCount + ' รายการเรียบร้อย ✅');
     pawConfetti();
+    loadCombinedSummary();
   } else if (successCount > 0) {
     showToast('ส่งได้ ' + successCount + ' รายการ · เหลืออีก ' + failedItems.length + ' รายการ');
+    loadCombinedSummary();
   } else {
     showToast('ส่งข้อมูลไม่สำเร็จ ลองใหม่อีกครั้ง 🙀');
   }
@@ -2277,6 +2282,9 @@ function logoutUser() {
 
       // Show login screen
       document.getElementById('loginScreen').classList.remove('hidden');
+
+      // อัปเดตรายได้ร้านรวมหน้า Login
+      loadCombinedSummary();
 
       // Reset to save page
       showPage('save');
