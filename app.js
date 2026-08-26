@@ -2612,3 +2612,36 @@ function applyDarkMode(isDark) {
 
 initDarkMode();
 initNotification();
+
+/* ==================================================
+   FORCE REFRESH (CLEAR CACHE)
+================================================== */
+async function forceRefreshApp() {
+  const btn = document.querySelector('button[onclick="forceRefreshApp()"]');
+  if (btn) btn.innerText = 'กำลังล้าง...';
+  
+  try {
+    // 1. Unregister Service Workers
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let reg of registrations) {
+        await reg.unregister();
+      }
+    }
+    // 2. Clear Caches API
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (let name of cacheNames) {
+        await caches.delete(name);
+      }
+    }
+    showToast('ล้างแคชสำเร็จ กำลังรีโหลด... 🔄');
+  } catch (err) {
+    showToast('ล้างแคชเสร็จสิ้น 🔄');
+  }
+  
+  // 3. Reload from server
+  setTimeout(function() {
+    window.location.reload(true);
+  }, 1000);
+}
