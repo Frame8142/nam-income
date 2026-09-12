@@ -67,7 +67,13 @@
         <div id="combinedCard" class="card combined-card" style="margin-top:20px;">
 
           <div class="title">
-            🏠 รายได้ร้านรวม (เดือนนี้)
+            🏠 รายได้ร้านรวม
+          </div>
+
+          <div class="history-filter" style="margin:-2px 0 12px;">
+            <button class="history-filter-btn" onclick="changeCombinedMonth(-1)">◀</button>
+            <div id="combinedMonthLabel" class="history-filter-label">เดือนนี้</div>
+            <button class="history-filter-btn" onclick="changeCombinedMonth(1)">▶</button>
           </div>
 
           <div class="combined-grid">
@@ -142,6 +148,10 @@
   <div id="offlineBar" class="offline-bar">
     📡 ไม่มีอินเทอร์เน็ต — ข้อมูลอาจไม่อัปเดต
   </div>
+
+
+  <!-- THEME BACKGROUND (วอลเปเปอร์เฉพาะผู้ใช้, อยู่ใต้ .app) -->
+  <div id="themeBg" class="theme-bg"></div>
 
 
   <div class="app">
@@ -430,6 +440,20 @@
           </label>
         </div>
 
+        <div class="settings-item" onclick="openThemeMenu()">
+          <div class="settings-item-left">
+            <div class="settings-item-icon">🎨</div>
+            <div class="settings-item-text">
+              <div class="settings-item-title">ธีมของฉัน</div>
+              <div class="settings-item-sub" id="themeSettingSub">เลือกภาพวอลเปเปอร์เฉพาะคุณ</div>
+            </div>
+          </div>
+          <div id="themeThumbWrap" class="theme-thumb-wrap">
+            <img id="themeThumb" class="theme-thumb" alt="">
+          </div>
+          <button class="settings-logout-btn" onclick="event.stopPropagation();openThemeMenu()">ธีม</button>
+        </div>
+
         <div class="settings-item">
           <div class="settings-item-left">
             <div class="settings-item-icon">🔐</div>
@@ -541,6 +565,10 @@
 
 
   <div id="toast" class="toast"></div>
+
+  <!-- Hidden file input สำหรับวอลเปเปอร์ธีม (รับเฉพาะภาพ) -->
+  <input type="file" id="themeFileInput" accept="image/*" style="display:none;"
+    onchange="handleThemeFile()">
 
 
   <div id="modalOverlay" class="modal-overlay">
