@@ -21,6 +21,12 @@ let historyData = [];
 let historyFilterMonth = new Date().getMonth();
 let historyFilterYear = new Date().getFullYear();
 
+// Combined summary month filter state (หน้า Login)
+let combinedMonth = new Date().getMonth();
+let combinedYear = new Date().getFullYear();
+let combinedNavTimer = null;
+const COMBINED_RESET_MS = 10 * 60 * 1000;
+
 // PWA install
 let deferredInstallPrompt = null;
 
@@ -1055,6 +1061,8 @@ function renderWeekChart(start, end) {
   const container = document.getElementById('weekChart');
   container.innerHTML = '';
 
+  const todayKeyStr = dateKey(new Date());
+
   const days = [];
 
   for (let i = 0; i < 7; i++) {
@@ -1081,10 +1089,14 @@ function renderWeekChart(start, end) {
 
   }
 
-  const max = Math.max(
+  const maxIncome = Math.max(
     ...days.map(function (d) { return d.income; }),
     1
   );
+
+  const weekIncomeTotal = days.reduce(function (sum, day) {
+    return sum + day.income;
+  }, 0);
 
   const weekCommissionTotal = days.reduce(function (sum, day) {
     return sum + day.commission;
@@ -1095,62 +1107,70 @@ function renderWeekChart(start, end) {
     const wrapper = document.createElement('div');
     wrapper.className = 'chart-day';
 
+    const isToday = dateKey(day.date) === todayKeyStr;
+    if (isToday) {
+      wrapper.classList.add('today');
+    }
+
+    // ตัวเลขยอดเงิน — เหนือแท่ง
+    const moneyText = document.createElement('div');
+    moneyText.className = 'day-money';
+    moneyText.innerText = day.income > 0 ? moneyShort(day.income) : '';
+
+    // พื้นที่แท่ง
     const barArea = document.createElement('div');
     barArea.className = 'bar-area';
 
     const bar = document.createElement('div');
     bar.className = 'bar';
 
-    const height = day.income === 0
-      ? 3
-      : Math.max(8, (day.income / max) * 140);
+    if (day.income > 0) {
 
-    bar.style.height = height + 'px';
+      // สเกลสูงสุด ~92px พอดีพื้นที่ bar-area (100px) ไม่ล้นขอบอีกต่อไป
+      const barHeight = Math.max(12, Math.round((day.income / maxIncome) * 92));
+      const commissionRatio = day.commission / day.income;
+      const barCommissionPx = Math.round(barHeight * commissionRatio);
+      const commissionHeight = Math.max(barCommissionPx, 1);
 
-    bar.title = money(day.income) + ' (Commission ' + money(day.commission) + ')';
+      bar.style.height = barHeight + 'px';
+      bar.title = money(day.income) + ' (Commission ' + money(day.commission) + ')';
 
-    const commissionRatio = day.income > 0 ? day.commission / day.income : 0;
+      const commissionSegment = document.createElement('div');
+      commissionSegment.className = 'bar-segment-commission';
+      commissionSegment.style.height = commissionHeight + 'px';
 
-    const commissionSegment = document.createElement('div');
-    commissionSegment.className = 'bar-segment-commission';
-    commissionSegment.style.height = Math.round(height * commissionRatio) + 'px';
+      const incomeSegment = document.createElement('div');
+      incomeSegment.className = 'bar-segment-income';
+      incomeSegment.style.height = (barHeight - commissionHeight) + 'px';
 
-    const incomeSegment = document.createElement('div');
-    incomeSegment.className = 'bar-segment-income';
+      // commission ฝา pink อยู่บนสุดของแท่ง, เนื้อรายได้ tan อยู่ข้างล่าง
+      bar.appendChild(commissionSegment);
+      bar.appendChild(incomeSegment);
 
-    bar.appendChild(commissionSegment);
-    bar.appendChild(incomeSegment);
-    barArea.appendChild(bar);
-
-    if (day.income > 0 && day.income === max) {
-      const star = document.createElement('div');
-      star.className = 'best-day-star';
-      star.innerText = '⭐';
-      barArea.appendChild(star);
+    } else {
+      bar.style.height = '3px';
+      bar.title = 'ไม่มีรายได้';
     }
 
-    const moneyText = document.createElement('div');
-    moneyText.className = 'day-money';
-    moneyText.innerText = day.income > 0 ? moneyShort(day.income) : '';
+    barArea.appendChild(bar);
 
+    // วัน + วันที่ (หรือ "วันนี้")
     const label = document.createElement('div');
     label.className = 'day-label';
-    label.innerText = thaiDay(day.date);
+    label.innerText = isToday
+      ? 'วันนี้'
+      : thaiDay(day.date) + ' ' + day.date.getDate();
 
-    wrapper.appendChild(barArea);
     wrapper.appendChild(moneyText);
+    wrapper.appendChild(barArea);
     wrapper.appendChild(label);
     container.appendChild(wrapper);
 
   });
 
-  const total = days.reduce(function (sum, day) {
-    return sum + day.income;
-  }, 0);
-
-  document.getElementById('weekTotal').innerText =
-    '🐾 รวมสัปดาห์นี้ ' + money(total) +
-    ' · 🪙 Commission ' + money(weekCommissionTotal);
+  document.getElementById('weekTotal').innerHTML =
+    '🐾 รวมสัปดาห์นี้ ' + money(weekIncomeTotal) +
+    '<div class="week-total-sub">🪙 Commission ' + money(weekCommissionTotal) + '</div>';
 
 }
 
@@ -2095,8 +2115,15 @@ function completeLogin(user) {
   // Update header
   updateHeaderForUser(user);
 
+  // Apply user theme wallpaper
+  applyTheme(user);
+  renderThemeSetting();
+
   // Hide login screen
   document.getElementById('loginScreen').classList.add('hidden');
+
+  // เริ่มไทม์ไลน์เดือนบนหน้า Login ให้เป็นเดือนปัจจุบันเสมอตอนล็อกอิน
+  resetCombinedMonthToNow(false);
 
   // Load data
   loadServices();
@@ -2271,6 +2298,10 @@ function logoutUser() {
         localStorage.removeItem('loggedInUser');
       } catch (e) { }
 
+      // ยกเลิกธีม (หน้าจอ Login กลับเป็นธีมปกติ)
+      applyTheme('');
+      renderThemeSetting();
+
       // Reset login screen
       document.getElementById('loginStep1').classList.add('active');
       document.getElementById('loginStep2').classList.remove('active');
@@ -2283,7 +2314,8 @@ function logoutUser() {
       // Show login screen
       document.getElementById('loginScreen').classList.remove('hidden');
 
-      // อัปเดตรายได้ร้านรวมหน้า Login
+      // อัปเดตรายได้ร้านรวมหน้า Login — กลับเดือนปัจจุบันเสมอตอน logout
+      resetCombinedMonthToNow(false);
       loadCombinedSummary();
 
       // Reset to save page
@@ -2324,6 +2356,9 @@ async function loadCombinedSummary() {
 
   try {
 
+    // กันการแสดงผลเดือนเก่าๆ ค้างไว้นานเกิน: เช็ค/สตาร์ท timer รีเซ็ตกลับเดือนปัจจุบัน
+    syncCombinedMonthTimer();
+
     const url = API_URL + '?action=historyAll&_t=' + Date.now();
     const response = await fetch(url, { method: 'GET', redirect: 'follow' });
     const result = await response.json();
@@ -2334,12 +2369,17 @@ async function loadCombinedSummary() {
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
+      // เดือนที่ผู้ใช้เลือกดู (ค่าเริ่มต้น = เดือนปัจจุบัน)
+      const viewMonth = combinedMonth;
+      const viewYear = combinedYear;
+
       let namIncome = 0, namJobs = 0;
       let mookIncome = 0, mookJobs = 0;
 
       const serviceCounts = {};
       let totalJobsAll = 0;
 
+      // บริการยอดนิยมคงเป็นเดือนปัจจุบันเสมอ (ไม่ตามเดือนที่เลือกดู)
       function tallyRow(row) {
         const d = parseRowDate(row);
         if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
@@ -2349,13 +2389,16 @@ async function loadCombinedSummary() {
         }
       }
 
-      // คำนวณรายได้จริง (price - commission) + จำนวนงาน เดือนนี้
+      function isInViewMonth(d) {
+        return d && d.getMonth() === viewMonth && d.getFullYear() === viewYear;
+      }
+
+      // คำนวณรายได้ + จำนวนงาน ตามเดือนที่เลือกดู
       if (result.data.nam) {
         result.data.nam.forEach(function (row) {
           const d = parseRowDate(row);
-          if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-            const price = Number(row.price) || 0;
-            namIncome += price;
+          if (isInViewMonth(d)) {
+            namIncome += Number(row.price) || 0;
             namJobs++;
           }
           tallyRow(row);
@@ -2365,9 +2408,8 @@ async function loadCombinedSummary() {
       if (result.data.mook) {
         result.data.mook.forEach(function (row) {
           const d = parseRowDate(row);
-          if (d && d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-            const price = Number(row.price) || 0;
-            mookIncome += price;
+          if (isInViewMonth(d)) {
+            mookIncome += Number(row.price) || 0;
             mookJobs++;
           }
           tallyRow(row);
@@ -2381,6 +2423,8 @@ async function loadCombinedSummary() {
       document.getElementById('combinedTotalIncome').innerText = money(namIncome + mookIncome);
       document.getElementById('combinedTotalJobs').innerText = 'รวม ' + (namJobs + mookJobs) + ' งาน';
 
+      updateCombinedMonthLabel(viewMonth, viewYear, currentMonth, currentYear);
+
       renderCombinedTopServices(serviceCounts, totalJobsAll);
 
       card.style.display = 'block';
@@ -2392,6 +2436,118 @@ async function loadCombinedSummary() {
     card.style.display = 'none';
     const topCard = document.getElementById('topServicesCard');
     if (topCard) topCard.style.display = 'none';
+  }
+
+}
+
+
+/* ==================================================
+   COMBINED MONTH NAVIGATION (เลื่อนเดือนดูย้อนหลัง)
+================================================== */
+
+function changeCombinedMonth(direction) {
+
+  combinedMonth += direction;
+
+  if (combinedMonth > 11) {
+    combinedMonth = 0;
+    combinedYear++;
+  } else if (combinedMonth < 0) {
+    combinedMonth = 11;
+    combinedYear--;
+  }
+
+  // กันไม่ให้ไปเดือนในอนาคต
+  const now = new Date();
+  if (combinedYear > now.getFullYear() ||
+    (combinedYear === now.getFullYear() && combinedMonth > now.getMonth())) {
+    combinedMonth = now.getMonth();
+    combinedYear = now.getFullYear();
+    return;
+  }
+
+  // จำเวลาที่แตะล่าสุด เผื่อเยียวย่ากรณีปิดแอป timer หาย
+  try { localStorage.setItem('combinedNavAt', String(Date.now())); } catch (e) { }
+
+  scheduleCombinedReset();
+  loadCombinedSummary();
+
+}
+
+
+function updateCombinedMonthLabel(viewMonth, viewYear, currentMonth, currentYear) {
+
+  const label = document.getElementById('combinedMonthLabel');
+  if (!label) return;
+
+  if (viewMonth === currentMonth && viewYear === currentYear) {
+    label.innerText = 'เดือนนี้ — ' + THAI_MONTHS[viewMonth] + ' ' + (viewYear + 543);
+  } else {
+    label.innerText = THAI_MONTHS[viewMonth] + ' ' + (viewYear + 543);
+  }
+
+}
+
+
+/* ==================================================
+   COMBINED AUTO-RESET (เลื่อนไปเดือนอื่นแล้วลืม
+   ให้กลับเดือนปัจจุบันเองภายใน 10 นาที)
+================================================== */
+
+function scheduleCombinedReset() {
+
+  clearTimeout(combinedNavTimer);
+
+  const now = new Date();
+  if (combinedMonth === now.getMonth() && combinedYear === now.getFullYear()) return;
+
+  combinedNavTimer = setTimeout(function () {
+    resetCombinedMonthToNow();
+  }, COMBINED_RESET_MS);
+
+}
+
+
+function resetCombinedMonthToNow(shouldReload) {
+
+  const now = new Date();
+  combinedMonth = now.getMonth();
+  combinedYear = now.getFullYear();
+
+  clearTimeout(combinedNavTimer);
+
+  try { localStorage.removeItem('combinedNavAt'); } catch (e) { }
+
+  if (shouldReload !== false) {
+    loadCombinedSummary();
+  }
+
+}
+
+
+function syncCombinedMonthTimer() {
+
+  const now = new Date();
+
+  // อยู่เดือนปัจจุบันอยู่แล้ว — ไม่ต้องนับเวลา
+  if (combinedMonth === now.getMonth() && combinedYear === now.getFullYear()) {
+    clearTimeout(combinedNavTimer);
+    return;
+  }
+
+  // ดูจากเวลาที่กด ◀▶ ล่าสุด (รอดผ่านการปิด/เปิดแอป)
+  let lastNav = 0;
+  try { lastNav = Number(localStorage.getItem('combinedNavAt') || 0); } catch (e) { }
+
+  if (Date.now() - lastNav > COMBINED_RESET_MS) {
+    // ค้างมาแล้วเกิน 10 นาที — กลับเดือนปัจจุบัน
+    resetCombinedMonthToNow(false);
+  } else {
+    // ยังไม่เกิน — นับเวลาที่เหลือต่อ
+    clearTimeout(combinedNavTimer);
+    combinedNavTimer = setTimeout(function () {
+      resetCombinedMonthToNow();
+    }, COMBINED_RESET_MS - (Date.now() - lastNav));
   }
 
 }
@@ -2450,6 +2606,205 @@ function renderCombinedTopServices(counts, totalJobs) {
 
 
 /* ==================================================
+   THEME WALLPAPER (วอลเปเปอร์เฉพาะผู้ใช้)
+================================================== */
+
+function themeStorageKey() {
+  return 'theme_' + (currentUser || '');
+}
+
+
+function getSavedTheme() {
+  try {
+    return localStorage.getItem(themeStorageKey()) || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+
+function applyTheme(user) {
+
+  const bg = document.getElementById('themeBg');
+  if (!bg) return;
+
+  const key = 'theme_' + (user || '');
+  let dataUrl = '';
+  try { dataUrl = localStorage.getItem(key) || ''; } catch (e) { }
+
+  bg.style.backgroundImage = dataUrl
+    ? 'url("' + dataUrl + '")'
+    : '';
+
+}
+
+
+function renderThemeSetting() {
+
+  const sub = document.getElementById('themeSettingSub');
+  const thumb = document.getElementById('themeThumb');
+  if (!sub || !thumb) return;
+
+  const name = (USER_NAMES[currentUser] || {}).thai || currentUser;
+  const dataUrl = getSavedTheme();
+
+  if (dataUrl) {
+    sub.innerText = 'วอลเปเปอร์เฉพาะ ' + name + ' ถูกตั้งไว้แล้ว ✓';
+    thumb.src = dataUrl;
+    thumb.classList.add('show');
+  } else {
+    sub.innerText = 'เลือกรูปวอลเปเปอร์เฉพาะคุณ';
+    thumb.removeAttribute('src');
+    thumb.classList.remove('show');
+  }
+
+}
+
+
+function openThemeMenu() {
+
+  const dataUrl = getSavedTheme();
+  const name = (USER_NAMES[currentUser] || {}).thai || currentUser;
+
+  const overlay = document.getElementById('modalOverlay');
+  const box = document.getElementById('modalBox');
+
+  box.innerHTML =
+    '<div class="modal-icon">🎨</div>' +
+    '<div class="modal-title">ธีมของฉัน</div>' +
+    (dataUrl ? '<img class="modal-theme-preview" src="' + dataUrl + '" alt="วอลเปเปอร์">' : '') +
+    '<div class="modal-text">เลือกรูปวอลเปเปอร์สำหรับ ' + escapeHtml(name) + '<br>' +
+    'จะแสดงเฉพาะบนหน้าแอป ไม่โชว์หน้า Login</div>' +
+    '<div class="modal-actions">' +
+    (dataUrl ? '<button class="modal-btn cancel" id="modalThemeResetBtn">ใช้ธีมเดิม</button>' : '') +
+    '<button class="modal-btn ok" id="modalOkBtn">เลือกรูป</button>' +
+    '</div>';
+
+  overlay.classList.add('show');
+
+  document.getElementById('modalOkBtn').onclick = function () {
+    closeModal();
+    triggerThemePick();
+  };
+
+  const resetBtn = document.getElementById('modalThemeResetBtn');
+  if (resetBtn) {
+    resetBtn.onclick = function () {
+      closeModal();
+      clearTheme();
+    };
+  }
+
+}
+
+
+function triggerThemePick() {
+
+  const input = document.getElementById('themeFileInput');
+  if (!input) return;
+  input.value = '';
+  input.click();
+
+}
+
+
+function handleThemeFile() {
+
+  const input = document.getElementById('themeFileInput');
+  const file = input && input.files && input.files[0];
+  if (!file) return;
+
+  compressThemeImage(file).then(function (dataUrl) {
+
+    if (!dataUrl) {
+      showToast('รูปนี้ใช้ไม่ได้ ลองเลือกรูปอื่น 🐾');
+      return;
+    }
+
+    try {
+      localStorage.setItem(themeStorageKey(), dataUrl);
+    } catch (e) {
+      showToast('พื้นที่เก็บเต็ม ลองใช้รูปเล็กกว่านี้');
+      return;
+    }
+
+    applyTheme(currentUser);
+    renderThemeSetting();
+    showToast('เปลี่ยนธีมแล้ว 🎨');
+
+  });
+
+}
+
+
+function compressThemeImage(file) {
+
+  return new Promise(function (resolve) {
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = function () {
+
+      const MAX_W = 1080;
+      let w = img.width;
+      let h = img.height;
+
+      if (w > MAX_W) {
+        h = Math.round((h * MAX_W) / w);
+        w = MAX_W;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      URL.revokeObjectURL(url);
+
+      let dataUrl = '';
+      try { dataUrl = canvas.toDataURL('image/jpeg', 0.72); } catch (e) { }
+
+      if (!dataUrl || dataUrl.length < 50) {
+        resolve('');
+        return;
+      }
+
+      // ถ้ายังใหญ่เกิน ให้ลดคุณภาพลงอีก
+      if (dataUrl.length > 900000) {
+        try { dataUrl = canvas.toDataURL('image/jpeg', 0.5); } catch (e) { }
+      }
+
+      resolve(dataUrl);
+
+    };
+
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      resolve('');
+    };
+
+    img.src = url;
+
+  });
+
+}
+
+
+function clearTheme() {
+
+  try {
+    localStorage.removeItem(themeStorageKey());
+  } catch (e) { }
+
+  applyTheme(currentUser);
+  renderThemeSetting();
+  showToast('ใช้ธีมเดิมแล้ว 🧡');
+
+}
+
+
+/* ==================================================
    START
 ================================================== */
 
@@ -2466,9 +2821,11 @@ loadCombinedSummary();
 
   if (savedUser && USER_NAMES[savedUser]) {
     // Auto-login
-    currentUser = savedUser;
-    updateHeaderForUser(savedUser);
-    document.getElementById('loginScreen').classList.add('hidden');
+currentUser = savedUser;
+      updateHeaderForUser(savedUser);
+      applyTheme(savedUser);
+      renderThemeSetting();
+      document.getElementById('loginScreen').classList.add('hidden');
     loadServices();
     renderPendingBanner();
   }
