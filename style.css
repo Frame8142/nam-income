@@ -1,4 +1,4 @@
-﻿/* ==================================================
+/* ==================================================
    รายได้ของน้ำ — Minimal Cream / Brown / Pink Theme
 ================================================== */
 
@@ -84,6 +84,60 @@ body {
   padding-bottom: 108px;
   position: relative;
   z-index: 1;
+}
+
+
+/* =========================
+   THEME BACKGROUND (วอลเปเปอร์เฉพาะผู้ใช้)
+========================= */
+
+.theme-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.theme-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.76;
+}
+
+body.dark .theme-bg::after {
+  opacity: 0.86;
+}
+
+.theme-thumb-wrap {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.theme-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.theme-thumb.show {
+  display: block;
+}
+
+.modal-theme-preview {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 
@@ -307,10 +361,18 @@ body.dark .header-user-badge {
 
 .week-total {
   text-align: center;
-  margin-top: 14px;
-  font-size: 12.5px;
-  color: var(--ink-soft);
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.week-total-sub {
+  text-align: center;
+  margin-top: 3px;
+  font-size: 12px;
   font-weight: 500;
+  color: var(--ink-soft);
 }
 
 .chart {
@@ -318,7 +380,7 @@ body.dark .header-user-badge {
   align-items: flex-end;
   justify-content: space-between;
   gap: 6px;
-  height: 140px;
+  height: 150px;
   padding: 0 2px;
 }
 
@@ -327,7 +389,7 @@ body.dark .header-user-badge {
   flex-direction: column;
   align-items: center;
   flex: 1;
-  gap: 6px;
+  gap: 5px;
   height: 100%;
   justify-content: flex-end;
 }
@@ -338,22 +400,17 @@ body.dark .header-user-badge {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  height: 92px;
-}
-
-.best-day-star {
-  position: absolute;
-  top: -16px;
-  font-size: 12px;
+  height: 100px;
 }
 
 .bar {
-  width: 60%;
+  width: 42%;
   max-width: 26px;
-  border-radius: 7px 7px 3px 3px;
+  max-height: 100%;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   min-height: 3px;
   background: var(--border-soft);
 }
@@ -366,6 +423,21 @@ body.dark .header-user-badge {
 .bar-segment-commission {
   background: var(--pink);
   width: 100%;
+}
+
+/* ไฮไลต์คอลัมน์ "วันนี้" */
+.chart-day.today .bar {
+  box-shadow: 0 0 0 2px var(--pink);
+}
+
+.chart-day.today .day-money {
+  color: var(--pink-deep);
+  font-weight: 700;
+}
+
+.chart-day.today .day-label {
+  color: var(--pink-deep);
+  font-weight: 700;
 }
 
 .chart-legend {
@@ -405,8 +477,9 @@ body.dark .header-user-badge {
 }
 
 .day-money {
-  font-size: 9.5px;
-  color: var(--ink-faint);
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 600;
 }
 
 
