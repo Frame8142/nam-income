@@ -2,7 +2,7 @@
        CONFIG
     ================================================== */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzaFbh06fHyztZPrkuKRDsNBLy_oMZdiWuDfKyybxFjEOGI1Ggj8Z8U64dlOJ0DokHU/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyITcTybV3D6Ag7gp77So7MMCLWcBG835-7CmvHD5m_wqfry8D3a_7GisCN-NR9yw-p/exec';
 
 const COMMISSION_RATE = 0.10;
 
