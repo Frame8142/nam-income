@@ -1761,10 +1761,793 @@ function showPage(page) {
     document.getElementById('navManage').classList.add('active');
   }
 
+  if (page === 'send') {
+    document.getElementById('sendPage').classList.add('active');
+    document.getElementById('navSend').classList.add('active');
+    prefillSendTimes();
+    updateSendCharCount();
+    renderAttendanceList();
+    // ถ้ายังไม่มีข้อมูลรายได้ ให้โหลดไว้ก่อน (สำหรับปุ่มสรุปยอด)
+    if (!historyData || historyData.length === 0) {
+      loadSummary();
+    }
+  }
+
   // scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
 }
+
+
+/* ==================================================
+   SEND PAGE — ส่งยอด + เวลาเข้าออกงาน
+================================================== */
+
+// เวลาเข้างานประจำ (24 ชม. ไม่มี AM/PM — prefill ให้แก้เองได้)
+const WORK_SCHEDULE = {
+  'nam': { in: '10.00', out: '20.00' },
+  'mook': { in: '10.30', out: '20.30' }
+};
+
+const LATE_GRACE_MIN = 15;
+const LATE_FINE_PER_MIN = 5;
+
+// เดือนที่กำลังดูในแท็บประวัติเข้าออกงาน
+let attFilterMonth = new Date().getMonth();
+let attFilterYear = new Date().getFullYear();
+
+
+function switchSendTab(tab) {
+  const sendPane = document.getElementById('sendTabPane');
+  const histPane = document.getElementById('sendHistoryPane');
+  const btnSend = document.getElementById('tabSendBtn');
+  const btnHist = document.getElementById('tabHistoryBtn');
+  if (!sendPane || !histPane) return;
+
+  if (tab === 'history') {
+    sendPane.style.display = 'none';
+    histPane.style.display = 'block';
+    btnSend.classList.remove('active');
+    btnHist.classList.add('active');
+    renderAttendanceList();
+  } else {
+    sendPane.style.display = 'block';
+    histPane.style.display = 'none';
+    btnSend.classList.add('active');
+    btnHist.classList.remove('active');
+  }
+}
+
+
+function prefillSendTimes() {
+  const sched = WORK_SCHEDULE[currentUser] || WORK_SCHEDULE['nam'];
+  const defEl = document.getElementById('sendTimeDefault');
+  if (!document.getElementById('checkInHour')) return;
+
+  // เติมเฉพาะช่องที่ยังว่าง (ไม่ทับค่าที่เลือกไว้)
+  if (!getSendTime('In')) setSendTime('In', sched.in);
+  if (!getSendTime('Out')) setSendTime('Out', sched.out);
+
+  if (defEl) {
+    const info = USER_NAMES[currentUser];
+    const who = info ? info.thai : '';
+    defEl.innerText = who
+      ? 'ค่าเริ่มต้นของ' + who + ' ' + sched.in + ' น.–' + sched.out + ' น. (เปลี่ยนได้เลย)'
+      : 'ค่าเริ่มต้น ' + sched.in + ' น.–' + sched.out + ' น. (เปลี่ยนได้เลย)';
+  }
+}
+
+
+// เติมตัวเลือกชั่วโมง 00–23 / นาที 00–59 ลงดรอปดาวน์
+function populateTimeSelects() {
+  const hours = ['checkInHour', 'checkOutHour', 'editAttInHour', 'editAttOutHour'];
+  const mins = ['checkInMin', 'checkOutMin', 'editAttInMin', 'editAttOutMin'];
+
+  hours.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el || el.options.length > 0) return;
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.innerText = '--';
+    el.appendChild(empty);
+    for (let h = 0; h <= 23; h++) {
+      const opt = document.createElement('option');
+      opt.value = String(h).padStart(2, '0');
+      opt.innerText = String(h).padStart(2, '0');
+      el.appendChild(opt);
+    }
+  });
+
+  mins.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el || el.options.length > 0) return;
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.innerText = '--';
+    el.appendChild(empty);
+    for (let m = 0; m <= 59; m++) {
+      const opt = document.createElement('option');
+      opt.value = String(m).padStart(2, '0');
+      opt.innerText = String(m).padStart(2, '0');
+      el.appendChild(opt);
+    }
+  });
+}
+
+
+// อ่านค่าจากดรอปดาวน์ คืน "HH.MM" หรือ "" ถ้ายังเลือกไม่ครบ
+function getSendTime(which) {
+  const h = document.getElementById(which === 'In' ? 'checkInHour' : 'checkOutHour');
+  const m = document.getElementById(which === 'In' ? 'checkInMin' : 'checkOutMin');
+  if (!h || !m || !h.value || !m.value) return '';
+  return h.value + '.' + m.value;
+}
+
+
+function setSendTime(which, timeStr) {
+  const norm = normalizeTimeStr(timeStr);
+  if (!norm) return;
+  const parts = norm.split('.');
+  const h = document.getElementById(which === 'In' ? 'checkInHour' : 'checkOutHour');
+  const m = document.getElementById(which === 'In' ? 'checkInMin' : 'checkOutMin');
+  if (h) h.value = parts[0];
+  if (m) m.value = parts[1];
+}
+
+
+function onSendTimeChange() {
+  // เก็บดราฟต์เวลาไว้กันรีเฟรชแล้วหาย
+  try {
+    localStorage.setItem('sendDraft_' + (currentUser || 'nouser'), JSON.stringify({
+      checkIn: getSendTime('In'),
+      checkOut: getSendTime('Out')
+    }));
+  } catch (e) { }
+}
+
+
+// รับได้ทั้ง 10.00 / 10:00 / 1000 / 10 → คืน "HH.MM" 24 ชม. เสมอ
+function normalizeTimeStr(str) {
+  if (str === null || str === undefined) return '';
+  let s = String(str).trim().replace(',', '.').replace(':', '.').replace(' ', '.').replace('น', '').trim();
+  if (!s) return '';
+
+  // "1000" หรือ "1030" (4 หลักติดกัน)
+  if (/^\d{3,4}$/.test(s)) {
+    const padded = s.length === 3 ? '0' + s : s;
+    const h = Number(padded.slice(0, 2));
+    const m = Number(padded.slice(2, 4));
+    if (h < 0 || h > 23 || m < 0 || m > 59) return '';
+    return String(h).padStart(2, '0') + '.' + String(m).padStart(2, '0');
+  }
+
+  // "10" (ชั่วโมงอย่างเดียว) → "10.00"
+  if (/^\d{1,2}$/.test(s)) {
+    const h = Number(s);
+    if (h < 0 || h > 23) return '';
+    return String(h).padStart(2, '0') + '.00';
+  }
+
+  // "10.00" / "10.30"
+  const parts = s.split('.');
+  if (parts.length !== 2) return '';
+  const h = Number(parts[0]);
+  const m = Number(parts[1]);
+  if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return '';
+  return String(h).padStart(2, '0') + '.' + String(m).padStart(2, '0');
+}
+
+
+// แสดงผลแบบ "10.00 น." — รับทั้งค่าที่มี : หรือ . (ข้อมูลเก่าใช้ :)
+function formatTimeTH(str) {
+  const norm = normalizeTimeStr(str);
+  return norm ? norm + ' น.' : '';
+}
+
+
+function normalizeSendTimeInput(el) {
+  if (!el) return;
+  const norm = normalizeTimeStr(el.value);
+  if (norm) {
+    el.value = norm;
+    onSendTimeChange();
+  } else if (el.value.trim() !== '') {
+    showToast('พิมพ์เวลาแบบ 24 ชม. เช่น 10.00 หรือ 20.00 🕒');
+    el.value = '';
+    onSendTimeChange();
+  }
+}
+
+
+function restoreSendDraft() {
+  try {
+    const raw = localStorage.getItem('sendDraft_' + (currentUser || 'nouser'));
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.checkIn) setSendTime('In', d.checkIn);
+    if (d.checkOut) setSendTime('Out', d.checkOut);
+  } catch (e) { }
+}
+
+
+function timeToMinutes(str) {
+  const norm = normalizeTimeStr(str);
+  if (!norm) return null;
+  const parts = norm.split('.');
+  const h = Number(parts[0]);
+  const m = Number(parts[1]);
+  if (isNaN(h) || isNaN(m)) return null;
+  return h * 60 + m;
+}
+
+
+// คำนวณสาย/ค่าปรับแบบเงียบ (ไม่โชว์ในข้อความส่งยอด)
+function calcLate(checkInStr, user) {
+  const sched = WORK_SCHEDULE[user] || WORK_SCHEDULE['nam'];
+  const schedMin = timeToMinutes(sched.in);
+  const actualMin = timeToMinutes(checkInStr);
+  if (schedMin === null || actualMin === null) {
+    return { lateMin: 0, fine: 0 };
+  }
+  const late = actualMin - schedMin;
+  if (late <= LATE_GRACE_MIN) {
+    return { lateMin: Math.max(late, 0), fine: 0 };
+  }
+  return { lateMin: late, fine: (late - LATE_GRACE_MIN) * LATE_FINE_PER_MIN };
+}
+
+
+function thaiDateShort(date) {
+  const shortMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  return date.getDate() + ' ' + shortMonths[date.getMonth()] + ' ' + String(date.getFullYear() + 543).slice(-2);
+}
+
+
+function getTodayIncomeRows() {
+  const today = dateKey(new Date());
+  return (historyData || []).filter(function (row) {
+    const d = parseRowDate(row);
+    return d && dateKey(d) === today;
+  }).sort(function (a, b) {
+    return String(a.time || '').localeCompare(String(b.time || ''));
+  });
+}
+
+
+function buildSendText() {
+  const now = new Date();
+  const info = USER_NAMES[currentUser] || { thai: '', emoji: '🐾' };
+  const checkIn = formatTimeTH(getSendTime('In'));
+  const checkOut = formatTimeTH(getSendTime('Out'));
+  const rows = getTodayIncomeRows();
+
+  const lines = [];
+  lines.push('🐾 ส่งยอด ' + thaiDateShort(now));
+  lines.push(info.emoji + ' ' + info.thai);
+  lines.push('');
+  lines.push('⏰ เวลาเข้างาน : ' + (checkIn || ''));
+  lines.push('⏰ เวลาออกงาน : ' + (checkOut || ''));
+  lines.push('');
+
+  if (rows.length === 0) {
+    lines.push('😺 วันนี้ยังไม่มีรายการ');
+  } else {
+    rows.forEach(function (row, idx) {
+      lines.push((idx + 1) + '. ' + (row.item || '-') + ' — ' + money(row.price));
+    });
+    lines.push('');
+    lines.push('————————');
+
+    let total = 0;
+    rows.forEach(function (row) { total += Number(row.price) || 0; });
+    lines.push('💅 รวม ' + rows.length + ' งาน');
+    lines.push('💰 รายได้รวม ' + money(total));
+  }
+
+  return lines.join('\n');
+}
+
+
+function buildSendPreview() {
+  if (!historyData || historyData.length === 0) {
+    // โหลดก่อน 1 รอบแล้วค่อยสร้าง (กันกดตอนเพิ่งล็อกอิน)
+    loadSummary();
+    setTimeout(buildSendPreview, 1200);
+    showToast('กำลังโหลดรายการวันนี้... ⏳');
+    return;
+  }
+  const text = buildSendText();
+  const box = document.getElementById('sendPreviewBox');
+  box.value = text;
+  updateSendCharCount();
+  box.focus();
+  showToast('สรุปยอดแล้ว ✨ ตรวจ/แก้ได้เลย');
+}
+
+
+function updateSendCharCount() {
+  const box = document.getElementById('sendPreviewBox');
+  const count = document.getElementById('sendCharCount');
+  if (!box || !count) return;
+  count.innerText = String((box.value || '').length);
+}
+
+
+async function copyTextToClipboard(text) {
+  // วิธีหลัก
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) { }
+  // fallback สำหรับ iOS / WebView เก่า
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+
+/* ---------- Attendance storage (local + API) ---------- */
+
+function attStoreKey() {
+  return 'attendance';
+}
+
+function getAttendanceStore() {
+  try {
+    return JSON.parse(localStorage.getItem(attStoreKey()) || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+
+function setAttendanceStore(obj) {
+  try {
+    localStorage.setItem(attStoreKey(), JSON.stringify(obj));
+  } catch (e) { }
+}
+
+function attKeyFor(user, dateKeyStr) {
+  return user + '_' + dateKeyStr;
+}
+
+
+async function saveAttendanceEntry(entry) {
+  // 1) เก็บในเครื่องก่อนเสมอ (กันเน็ตหลุด)
+  const store = getAttendanceStore();
+  store[attKeyFor(entry.user, entry.dateKey)] = entry;
+  setAttendanceStore(store);
+
+  // 2) พยายามส่งขึ้นชีต (ถ้า GAS ยังไม่มี action นี้จะ fallback เงียบๆ)
+  try {
+    const result = await apiPost({
+      action: 'saveAttendance',
+      date: entry.dateKey,
+      checkIn: entry.checkIn,
+      checkOut: entry.checkOut,
+      note: entry.note,
+      fullText: entry.fullText,
+      lateMin: entry.lateMin,
+      fine: entry.fine,
+      jobs: entry.jobs,
+      income: entry.income
+    });
+    if (result && result.success) {
+      renderAttendanceList();
+      return true;
+    }
+  } catch (e) { }
+  renderAttendanceList();
+  return true;
+}
+
+
+function collectAttendanceEntry() {
+  const now = new Date();
+  const key = dateKey(now);
+  const checkIn = getSendTime('In');
+  const checkOut = getSendTime('Out');
+  const boxText = (document.getElementById('sendPreviewBox').value || '').trim();
+  const rows = getTodayIncomeRows();
+
+  let total = 0;
+  rows.forEach(function (row) { total += Number(row.price) || 0; });
+
+  const late = calcLate(checkIn, currentUser);
+
+  return {
+    user: currentUser,
+    dateKey: key,
+    dateLabel: thaiDate(now),
+    checkIn: checkIn,
+    checkOut: checkOut,
+    note: '',
+    fullText: boxText || buildSendText(),
+    lateMin: late.lateMin,
+    fine: late.fine,
+    jobs: rows.length,
+    income: total,
+    savedAt: new Date().toISOString()
+  };
+}
+
+
+async function copyAndSaveAttendance() {
+  const box = document.getElementById('sendPreviewBox');
+  let text = (box.value || '').trim();
+  if (!text) {
+    text = buildSendText();
+    box.value = text;
+    updateSendCharCount();
+  }
+  if (!currentUser) {
+    showToast('กรุณาเข้าสู่ระบบก่อน 🐾');
+    return;
+  }
+
+  const ok = await copyTextToClipboard(text);
+  if (ok) {
+    showToast('คัดลอกแล้ว ✅ + บันทึกเวลาแล้ว');
+  } else {
+    showToast('ก๊อปไม่สำเร็จ ลองเลือกข้อความเองนะ 🙀');
+  }
+
+  const entry = collectAttendanceEntry();
+  await saveAttendanceEntry(entry);
+}
+
+
+async function shareToLineAndSave() {
+  const box = document.getElementById('sendPreviewBox');
+  let text = (box.value || '').trim();
+  if (!text) {
+    text = buildSendText();
+    box.value = text;
+    updateSendCharCount();
+  }
+  if (!currentUser) {
+    showToast('กรุณาเข้าสู่ระบบก่อน 🐾');
+    return;
+  }
+
+  const entry = collectAttendanceEntry();
+  await saveAttendanceEntry(entry);
+
+  try {
+    window.open('https://line.me/R/msg/text/?' + encodeURIComponent(text), '_blank');
+  } catch (e) {
+    showToast('เปิด LINE ไม่ได้ 🙀 แต่บันทึกเวลาแล้ว');
+  }
+}
+
+
+/* ---------- ประวัติเข้าออกงาน ---------- */
+
+function changeAttMonth(direction) {
+  attFilterMonth += direction;
+  if (attFilterMonth > 11) { attFilterMonth = 0; attFilterYear++; }
+  else if (attFilterMonth < 0) { attFilterMonth = 11; attFilterYear--; }
+
+  const now = new Date();
+  if (attFilterYear > now.getFullYear() ||
+    (attFilterYear === now.getFullYear() && attFilterMonth > now.getMonth())) {
+    attFilterMonth = now.getMonth();
+    attFilterYear = now.getFullYear();
+    return;
+  }
+  renderAttendanceList();
+  // ลองดึงจาก server ด้วย (ถ้ามี action นี้)
+  loadAttendanceFromServer();
+}
+
+
+function updateAttMonthLabel() {
+  const label = document.getElementById('attMonthLabel');
+  if (!label) return;
+  const now = new Date();
+  if (attFilterMonth === now.getMonth() && attFilterYear === now.getFullYear()) {
+    label.innerText = '📅 เดือนนี้ — ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
+  } else {
+    label.innerText = '📅 ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
+  }
+}
+
+
+async function loadAttendanceFromServer() {
+  if (!currentUser) return;
+  try {
+    const result = await apiGet('historyAttendance', {
+      month: attFilterMonth + 1,
+      year: attFilterYear
+    });
+    if (result && result.success && result.data) {
+      const store = getAttendanceStore();
+      const arr = Array.isArray(result.data) ? result.data : [result.data];
+      arr.forEach(function (row) {
+        if (!row.dateKey && row.date) {
+          // แปลง dd/mm/yyyy -> yyyy-mm-dd
+          const d = parseRowDate({ date: row.date });
+          if (d) row.dateKey = dateKey(d);
+        }
+        if (row.dateKey) {
+          store[attKeyFor(row.user || currentUser, row.dateKey)] = Object.assign(
+            {}, store[attKeyFor(row.user || currentUser, row.dateKey)], row
+          );
+        }
+      });
+      setAttendanceStore(store);
+      renderAttendanceList();
+    }
+  } catch (e) { /* เงียบไว้ — ใช้ข้อมูลในเครื่อง */ }
+}
+
+
+function getAttendanceForMonth(user, month, year) {
+  const store = getAttendanceStore();
+  const out = [];
+  Object.keys(store).forEach(function (key) {
+    const e = store[key];
+    if (!e || e.user !== user || !e.dateKey) return;
+    const parts = String(e.dateKey).split('-');
+    if (parts.length !== 3) return;
+    const y = Number(parts[0]);
+    const m = Number(parts[1]) - 1;
+    if (m === month && y === year) out.push(e);
+  });
+  out.sort(function (a, b) {
+    return String(b.dateKey).localeCompare(String(a.dateKey));
+  });
+  return out;
+}
+
+
+function getIncomeStatsForDate(dateKeyStr) {
+  let jobs = 0;
+  let total = 0;
+  (historyData || []).forEach(function (row) {
+    const d = parseRowDate(row);
+    if (d && dateKey(d) === dateKeyStr) {
+      jobs++;
+      total += Number(row.price) || 0;
+    }
+  });
+  return { jobs: jobs, total: total };
+}
+
+
+// สรุปเดือน: จำนวนวัน + ชั่วโมงทำงานรวม (ออก − เข้า)
+function renderAttMonthSummary(list) {
+  const daysEl = document.getElementById('attSummaryDays');
+  const hoursEl = document.getElementById('attSummaryHours');
+  const titleEl = document.getElementById('attSummaryTitle');
+  if (!daysEl || !hoursEl) return;
+
+  if (titleEl) {
+    titleEl.innerText = '🗓️ สรุป ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
+  }
+
+  let totalMin = 0;
+  (list || []).forEach(function (entry) {
+    const inMin = timeToMinutes(entry.checkIn);
+    const outMin = timeToMinutes(entry.checkOut);
+    if (inMin !== null && outMin !== null && outMin > inMin) {
+      totalMin += outMin - inMin;
+    }
+  });
+
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+
+  daysEl.innerText = (list || []).length + ' วัน';
+  hoursEl.innerText = m > 0 ? h + ' ชม. ' + m + ' นาที' : h + ' ชม.';
+}
+
+
+function renderAttendanceList() {
+  const container = document.getElementById('attendanceList');
+  if (!container) return;
+  updateAttMonthLabel();
+
+  if (!currentUser) {
+    container.innerHTML = '<div class="card empty-state"><div class="empty-cat">🔐</div>กรุณาเข้าสู่ระบบก่อน</div>';
+    return;
+  }
+
+  const list = getAttendanceForMonth(currentUser, attFilterMonth, attFilterYear);
+  const hint = document.getElementById('attFilterHint');
+  renderAttMonthSummary(list);
+
+  if (list.length === 0) {
+    if (hint) hint.innerText = '🐾 เดือนนี้ยังไม่มีบันทึกเวลา';
+    container.innerHTML =
+      '<div class="card empty-state">' +
+      '<div class="empty-cat">😴🐱</div>' +
+      'เดือนนี้ยังไม่มีบันทึกเวลา' +
+      '<small>กดแท็บส่งยอดเพื่อบันทึกวันแรกกันเถอะ 🐾</small>' +
+      '</div>';
+    return;
+  }
+
+  if (hint) hint.innerText = '🐾 ' + list.length + ' วันในเดือนนี้';
+  container.innerHTML = '';
+
+  list.forEach(function (entry) {
+    const stats = entry.jobs !== undefined
+      ? { jobs: entry.jobs, total: entry.income || 0 }
+      : getIncomeStatsForDate(entry.dateKey);
+
+    // แปลง dateKey -> Date สำหรับหัวข้อไทย
+    const p = String(entry.dateKey).split('-');
+    const dObj = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'history-day';
+
+    const header = document.createElement('div');
+    header.className = 'history-day-header';
+    header.innerHTML =
+      '🐾 ' + thaiDate(dObj) +
+      '<div class="history-day-total">' +
+      stats.jobs + ' งาน · ' + money(stats.total) +
+      '</div>';
+    dayDiv.appendChild(header);
+
+    const card = document.createElement('div');
+    card.className = 'att-item';
+
+    const statusHtml = (entry.fine > 0)
+      ? '<div class="att-status late">สาย ' + entry.lateMin + ' นาที · หัก ' + money(entry.fine) + '</div>'
+      : '<div class="att-status ok">ตรงเวลา ✓' +
+        (entry.lateMin > 0 ? ' (สาย ' + entry.lateMin + ' นาที ไม่หัก)' : '') + '</div>';
+
+    card.innerHTML =
+      '<div class="att-time">⏰ ' + escapeHtml(formatTimeTH(entry.checkIn) || '--.-- น.') +
+      ' – ' + escapeHtml(formatTimeTH(entry.checkOut) || '--.-- น.') + '</div>' +
+      statusHtml +
+      '<div class="history-actions" style="margin-top:8px;">' +
+      '<button class="history-action-btn edit">✏️ แก้ไข</button>' +
+      '<button class="history-action-btn delete">🗑️ ลบ</button>' +
+      '</div>';
+
+    card.querySelector('.edit').onclick = function () {
+      showEditAttendanceDialog(entry.dateKey);
+    };
+    card.querySelector('.delete').onclick = function () {
+      deleteAttendanceEntry(entry.dateKey);
+    };
+
+    dayDiv.appendChild(card);
+    container.appendChild(dayDiv);
+  });
+}
+
+
+function showEditAttendanceDialog(dateKeyStr) {
+  const store = getAttendanceStore();
+  const entry = store[attKeyFor(currentUser, dateKeyStr)];
+  if (!entry) return;
+
+  const overlay = document.getElementById('modalOverlay');
+  const box = document.getElementById('modalBox');
+
+  const inNorm = normalizeTimeStr(entry.checkIn) || '';
+  const outNorm = normalizeTimeStr(entry.checkOut) || '';
+  const inH = inNorm ? inNorm.split('.')[0] : '';
+  const inM = inNorm ? inNorm.split('.')[1] : '';
+  const outH = outNorm ? outNorm.split('.')[0] : '';
+  const outM = outNorm ? outNorm.split('.')[1] : '';
+
+  function hourOptions(selected) {
+    let html = '<option value="">--</option>';
+    for (let h = 0; h <= 23; h++) {
+      const v = String(h).padStart(2, '0');
+      html += '<option value="' + v + '"' + (v === selected ? ' selected' : '') + '>' + v + '</option>';
+    }
+    return html;
+  }
+
+  function minOptions(selected) {
+    let html = '<option value="">--</option>';
+    for (let m = 0; m <= 59; m++) {
+      const v = String(m).padStart(2, '0');
+      html += '<option value="' + v + '"' + (v === selected ? ' selected' : '') + '>' + v + '</option>';
+    }
+    return html;
+  }
+
+  box.innerHTML =
+    '<div class="modal-icon">⏰</div>' +
+    '<div class="modal-title">แก้ไข ' + escapeHtml(entry.dateLabel || dateKeyStr) + '</div>' +
+    '<div class="modal-text">เวลาเข้างาน (24 ชม.)</div>' +
+    '<div class="send-time-selects">' +
+    '<select id="editAttInHour" class="send-time-select">' + hourOptions(inH) + '</select>' +
+    '<span class="send-time-sep">.</span>' +
+    '<select id="editAttInMin" class="send-time-select">' + minOptions(inM) + '</select>' +
+    '<span class="send-time-unit">น.</span>' +
+    '</div>' +
+    '<div class="modal-text" style="margin-top:8px;">เวลาออกงาน (24 ชม.)</div>' +
+    '<div class="send-time-selects">' +
+    '<select id="editAttOutHour" class="send-time-select">' + hourOptions(outH) + '</select>' +
+    '<span class="send-time-sep">.</span>' +
+    '<select id="editAttOutMin" class="send-time-select">' + minOptions(outM) + '</select>' +
+    '<span class="send-time-unit">น.</span>' +
+    '</div>' +
+    '<div class="modal-actions">' +
+    '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
+    '<button class="modal-btn ok" id="modalOkBtn">บันทึก</button>' +
+    '</div>';
+
+  overlay.classList.add('show');
+  document.getElementById('modalCancelBtn').onclick = closeModal;
+  document.getElementById('modalOkBtn').onclick = async function () {
+    const inHv = document.getElementById('editAttInHour').value || '';
+    const inMv = document.getElementById('editAttInMin').value || '';
+    const outHv = document.getElementById('editAttOutHour').value || '';
+    const outMv = document.getElementById('editAttOutMin').value || '';
+    const newIn = (inHv && inMv) ? inHv + '.' + inMv : '';
+    const newOut = (outHv && outMv) ? outHv + '.' + outMv : '';
+    const late = calcLate(newIn, currentUser);
+
+    entry.checkIn = newIn;
+    entry.checkOut = newOut;
+    entry.note = '';
+    entry.lateMin = late.lateMin;
+    entry.fine = late.fine;
+    entry.savedAt = new Date().toISOString();
+
+    const s = getAttendanceStore();
+    s[attKeyFor(currentUser, dateKeyStr)] = entry;
+    setAttendanceStore(s);
+
+    closeModal();
+
+    try {
+      await apiPost({
+        action: 'updateAttendance',
+        date: dateKeyStr,
+        checkIn: newIn,
+        checkOut: newOut,
+        note: '',
+        lateMin: late.lateMin,
+        fine: late.fine
+      });
+    } catch (e) { }
+
+    showToast('แก้ไขเวลาแล้ว ✏️');
+    renderAttendanceList();
+  };
+}
+
+
+function deleteAttendanceEntry(dateKeyStr) {
+  showConfirmDialog(
+    '🗑️ ลบบันทึกเวลา',
+    'ต้องการลบบันทึกเวลาวันนี้ใช่ไหม?',
+    async function () {
+      const s = getAttendanceStore();
+      delete s[attKeyFor(currentUser, dateKeyStr)];
+      setAttendanceStore(s);
+      try {
+        await apiPost({ action: 'deleteAttendance', date: dateKeyStr });
+      } catch (e) { }
+      showToast('ลบแล้ว 🗑️');
+      renderAttendanceList();
+    }
+  );
+}
+
 
 
 /* ==================================================
@@ -2128,6 +2911,23 @@ function completeLogin(user) {
   // Load data
   loadServices();
   renderPendingBanner();
+
+  // เตรียมหน้าส่งยอดสำหรับ user นี้
+  try {
+    ['checkInHour', 'checkInMin', 'checkOutHour', 'checkOutMin'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('sendPreviewBox').value = '';
+    updateSendCharCount();
+  } catch (e) { }
+  prefillSendTimes();
+  restoreSendDraft();
+  // รีเซ็ตเดือนประวัติเข้าออกงานเป็นเดือนปัจจุบัน
+  attFilterMonth = new Date().getMonth();
+  attFilterYear = new Date().getFullYear();
+  loadSummary();
+  loadAttendanceFromServer();
 
 }
 
@@ -2809,6 +3609,7 @@ function clearTheme() {
 ================================================== */
 
 initBackdateSelectors();
+populateTimeSelects();
 updateOnlineStatus();
 
 // โหลดสรุปรวมสำหรับหน้า Login
@@ -2828,6 +3629,10 @@ currentUser = savedUser;
       document.getElementById('loginScreen').classList.add('hidden');
     loadServices();
     renderPendingBanner();
+    prefillSendTimes();
+    restoreSendDraft();
+    loadSummary();
+    loadAttendanceFromServer();
   }
   // ถ้ายังไม่ได้ login จะแสดง login screen อยู่แล้ว
 

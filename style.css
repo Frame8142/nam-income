@@ -2031,3 +2031,289 @@ body.dark .calendar-cell.level-4 {
 .calendar-cell:hover .calendar-tooltip {
   opacity: 1;
 }
+
+/* =========================
+   SEND PAGE (ส่งยอด)
+======================== */
+
+.send-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.send-tab-btn {
+  flex: 1;
+  border: 1.5px solid var(--border-soft);
+  background: var(--card);
+  color: var(--ink-soft);
+  font-family: 'Mitr', 'Sarabun', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 11px 6px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.send-tab-btn.active {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #fff;
+}
+
+.send-textbox-wrap {
+  position: relative;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius-md);
+  background: var(--card-soft);
+  overflow: hidden;
+}
+
+.send-textbox {
+  width: 100%;
+  min-height: 190px;
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: vertical;
+  padding: 12px 12px 26px;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.send-textbox::placeholder {
+  color: var(--ink-faint);
+}
+
+.send-char-count {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+
+.send-actions {
+  margin-top: 12px;
+}
+
+.send-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.send-copy-btn,
+.send-line-btn {
+  flex: 1;
+  border: none;
+  font-family: 'Mitr', 'Sarabun', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 13px 6px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.send-copy-btn {
+  background: var(--ink-solid);
+  color: #fff;
+}
+
+.send-line-btn {
+  background: #06C755;
+  color: #fff;
+}
+
+.send-copy-btn:active,
+.send-line-btn:active {
+  transform: scale(.98);
+  opacity: .9;
+}
+
+.send-hint {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.send-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.send-time-field {
+  background: var(--card-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+
+.send-time-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.send-time-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 8px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 15px;
+  outline: none;
+  color-scheme: light;
+}
+
+.send-time-selects {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.send-time-select {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 4px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+
+.send-time-select:focus {
+  border-color: var(--pink);
+}
+
+.send-time-sep {
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.send-time-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.send-time-format-hint {
+  display: none;
+}
+
+body.dark .send-time-input {
+  color-scheme: dark;
+}
+
+.send-time-default {
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.send-textbox-wrap:focus-within {
+  border-color: var(--pink);
+}
+
+/* สรุปเดือนในแท็บประวัติเข้าออกงาน */
+.att-month-summary {
+  background: linear-gradient(160deg, var(--card), var(--pink-tint) 220%);
+}
+
+.att-month-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.att-month-box {
+  background: var(--card-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 6px;
+  text-align: center;
+}
+
+.att-month-value {
+  font-family: 'Mitr', 'Sarabun', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.att-month-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+/* ประวัติเข้าออกงาน — reuse การ์ดสไตล์ history */
+.att-item {
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.att-time {
+  font-family: 'Mitr', 'Sarabun', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.att-status {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.att-status.ok {
+  color: var(--ok);
+}
+
+.att-status.late {
+  color: var(--danger);
+}
+
+.att-note {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+.att-money {
+  font-size: 12.5px;
+  color: var(--pink-deep);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+@media (max-width: 360px) {
+  .nav-btn {
+    font-size: 10px;
+    padding: 7px 1px;
+  }
+
+  .send-time-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+}

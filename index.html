@@ -534,6 +534,91 @@
 
 
 
+    <!-- ==================================================
+     SEND PAGE (ส่งยอด)
+================================================== -->
+
+    <section id="sendPage" class="page">
+
+      <!-- TABS: ส่งยอด | ประวัติ -->
+      <div class="send-tabs">
+        <button id="tabSendBtn" class="send-tab-btn active" onclick="switchSendTab('send')">💸 ส่งยอด</button>
+        <button id="tabHistoryBtn" class="send-tab-btn" onclick="switchSendTab('history')">🕒 ประวัติเข้าออกงาน</button>
+      </div>
+
+      <!-- TAB 1: ส่งยอด -->
+      <div id="sendTabPane">
+        <div class="card">
+          <div class="title">📝 ข้อความส่งยอด</div>
+          <div class="send-textbox-wrap">
+            <textarea id="sendPreviewBox" class="send-textbox" rows="10"
+              placeholder="กดปุ่ม ✨ สรุปยอด เพื่อสร้างข้อความที่นี่ แล้วแก้ไขเพิ่มได้เลย"
+              oninput="updateSendCharCount()"></textarea>
+            <div id="sendCharCount" class="send-char-count">0</div>
+          </div>
+          <div class="send-actions">
+            <button class="save-btn" onclick="buildSendPreview()">✨ สรุปยอด</button>
+            <div class="send-actions-row">
+              <button class="send-copy-btn" onclick="copyAndSaveAttendance()">📋 คัดลอก</button>
+              <button class="send-line-btn" onclick="shareToLineAndSave()">💬 แชร์ไป LINE</button>
+            </div>
+            <div class="send-hint">💡 กดคัดลอก = คัดลอกข้อความ + บันทึกเวลาเข้าออกงานพร้อมกัน</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="title">⏰ เวลาเข้าออกงาน</div>
+          <div class="send-time-row">
+            <div class="send-time-field">
+              <div class="send-time-label">⏰ เวลาเข้างาน</div>
+              <div class="send-time-selects">
+                <select id="checkInHour" class="send-time-select" onchange="onSendTimeChange()"></select>
+                <span class="send-time-sep">.</span>
+                <select id="checkInMin" class="send-time-select" onchange="onSendTimeChange()"></select>
+                <span class="send-time-unit">น.</span>
+              </div>
+            </div>
+            <div class="send-time-field">
+              <div class="send-time-label">⏰ เวลาออกงาน</div>
+              <div class="send-time-selects">
+                <select id="checkOutHour" class="send-time-select" onchange="onSendTimeChange()"></select>
+                <span class="send-time-sep">.</span>
+                <select id="checkOutMin" class="send-time-select" onchange="onSendTimeChange()"></select>
+                <span class="send-time-unit">น.</span>
+              </div>
+            </div>
+          </div>
+          <div class="send-time-default" id="sendTimeDefault"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2: ประวัติเข้าออกงาน -->
+      <div id="sendHistoryPane" style="display:none;">
+        <div class="card att-month-summary">
+          <div class="title" id="attSummaryTitle">🗓️ สรุปเดือนนี้</div>
+          <div class="att-month-grid">
+            <div class="att-month-box">
+              <div class="att-month-value" id="attSummaryDays">0 วัน</div>
+              <div class="att-month-label">วันที่บันทึก</div>
+            </div>
+            <div class="att-month-box">
+              <div class="att-month-value" id="attSummaryHours">0 ชม.</div>
+              <div class="att-month-label">ชั่วโมงทำงานรวม</div>
+            </div>
+          </div>
+        </div>
+        <div class="history-filter">
+          <button class="history-filter-btn" onclick="changeAttMonth(-1)">◀</button>
+          <div id="attMonthLabel" class="history-filter-label">เดือนนี้</div>
+          <button class="history-filter-btn" onclick="changeAttMonth(1)">▶</button>
+        </div>
+        <div id="attFilterHint" class="history-filter-hint"></div>
+        <div id="attendanceList"></div>
+      </div>
+
+    </section>
+
+
   </div>
 
 
@@ -552,7 +637,12 @@
 
     <button id="navSummary" class="nav-btn" onclick="showPage('summary')">
       <span class="nav-icon">📊</span>
-      สรุป
+      สรุปรายได้
+    </button>
+
+    <button id="navSend" class="nav-btn" onclick="showPage('send')">
+      <span class="nav-icon">📤</span>
+      ส่งงาน
     </button>
 
     <button id="navManage" class="nav-btn" onclick="showPage('manage')">
