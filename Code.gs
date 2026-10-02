@@ -1155,6 +1155,23 @@ function jsonResponse(data) {
 const SHEET_ATTENDANCE = 'attendance';
 
 
+// Google Sheets อาจ auto-convert "yyyy-mm-dd" เป็น Date object
+// ฟังก์ชันนี้แปลงทั้ง Date object และ string กลับเป็น "yyyy-mm-dd" อย่างปลอดภัย
+// ⚠️ ใช้ 'Asia/Bangkok' เสมอ เพราะ Session.getScriptTimeZone() อาจเป็น US timezone
+var ATT_TZ = 'Asia/Bangkok';
+
+function cellToDateKey(val) {
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    return Utilities.formatDate(val, ATT_TZ, 'yyyy-MM-dd');
+  }
+  var s = String(val || '').trim();
+  // ถ้าเป็น yyyy-mm-dd อยู่แล้ว ใช้เลย
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ❌ ห้ามใช้ new Date(s) กับ dd/mm/yyyy เพราะ JS จะตีความเป็น mm/dd/yyyy
+  return s; // fallback คืนค่าเดิม
+}
+
+
 function getAttendanceSheet() {
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1212,7 +1229,7 @@ function findAttendanceRow(sheet, values, user, dateKey) {
 
   for (let i = 0; i < values.length; i++) {
     if (String(values[i][0]).trim() === user &&
-        String(values[i][1]).trim() === dateKey) {
+        cellToDateKey(values[i][1]) === dateKey) {
       return i + 2; // +1 หัวตาราง, +1 zero-index
     }
   }
@@ -1229,8 +1246,8 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
   dateKey = String(dateKey || '').trim();
   const dateText = attDisplayDate(dateKey);
 
-  // กันบันทึกวันในอนาคต (เทียบวันที่ใน timezone ของสคริปต์)
-  const todayKey = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  // กันบันทึกวันในอนาคต (เทียบวันที่ใน timezone ไทย)
+  const todayKey = Utilities.formatDate(new Date(), ATT_TZ, 'yyyy-MM-dd');
   if (dateKey > todayKey) {
     throw new Error('บันทึกวันในอนาคตไม่ได้');
   }
@@ -1261,8 +1278,13 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
   if (existingRow > 0) {
     // ส่งซ้ำวันเดียวกัน = อัปเดตทับ (ไม่เบิ้ลแถว)
     sheet.getRange(existingRow, 1, 1, 11).setValues([rowData]);
+    // Force คอลัมน์ B เป็น Plain Text กัน Sheets auto-convert เป็น Date
+    sheet.getRange(existingRow, 2).setNumberFormat('@');
   } else {
     sheet.appendRow(rowData);
+    // Force คอลัมน์ B เป็น Plain Text กัน Sheets auto-convert เป็น Date
+    var newRow = sheet.getLastRow();
+    sheet.getRange(newRow, 2).setNumberFormat('@').setValue(dateKey);
   }
 
   return {
@@ -1365,7 +1387,9 @@ function getAttendanceHistory(user, month, year) {
     if (String(r[0]).trim() !== user) return;
 
     // กรองตามเดือน/ปี จากคีย์วันที่ (yyyy-mm-dd)
-    const parts = String(r[1]).trim().split('-');
+    // ⚠️ Google Sheets อาจ auto-convert เป็น Date object — ใช้ cellToDateKey แปลงกลับ
+    const dk = cellToDateKey(r[1]);
+    const parts = dk.split('-');
     if (parts.length === 3 && (month || year)) {
       if ((month && Number(parts[1]) !== month) ||
           (year && Number(parts[0]) !== year)) {
@@ -1373,12 +1397,22 @@ function getAttendanceHistory(user, month, year) {
       }
     }
 
+    // r[2] = dd/mm/yyyy display date — อาจเป็น Date object เหมือนกัน → derive จาก dk
+    var displayDate = String(r[2] || '').trim();
+    if (r[2] instanceof Date && !isNaN(r[2].getTime())) {
+      displayDate = Utilities.formatDate(r[2], ATT_TZ, 'dd/MM/yyyy');
+    } else if (!/^\d{2}\/\d{2}\/\d{4}$/.test(displayDate) && dk) {
+      // derive from dk (yyyy-mm-dd → dd/mm/yyyy)
+      var dp = dk.split('-');
+      if (dp.length === 3) displayDate = dp[2] + '/' + dp[1] + '/' + dp[0];
+    }
+
     data.push({
       user: String(r[0]).trim(),
-      dateKey: String(r[1]).trim(),
-      date: String(r[2]).trim(),
-      checkIn: String(r[3]).trim(),
-      checkOut: String(r[4]).trim(),
+      dateKey: dk,
+      date: displayDate,
+      checkIn: String(r[3] != null ? r[3] : '').trim(),
+      checkOut: String(r[4] != null ? r[4] : '').trim(),
       lateMin: Number(r[5]) || 0,
       fine: Number(r[6]) || 0,
       jobs: Number(r[7]) || 0,

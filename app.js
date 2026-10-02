@@ -2,7 +2,7 @@
        CONFIG
     ================================================== */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbz1XAT-96TlGHwuwDY67HGyrEnJx5edQm0ZnTa1NQzdgNS50SiFDuVYTdocg3TY9csu/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzVgTrAVEHX9I0TQgNT6QAehMLTEmdPd1no_ngXu-Jo6pRUkOZ1_j9G4o6T-mtTcBKJ/exec';
 
 const COMMISSION_RATE = 0.10;
 
@@ -2371,13 +2371,22 @@ async function loadAttendanceFromServer() {
       const arr = Array.isArray(result.data) ? result.data : [result.data];
       arr.forEach(function (row) {
         if (!row || typeof row !== 'object') return;
-        if (!row.dateKey && row.date) {
-          // แปลง dd/mm/yyyy -> yyyy-mm-dd
-          const d = parseRowDate({ date: row.date });
-          if (d) row.dateKey = dateKey(d);
+        // แปลง dateKey ที่อาจเป็น Date string (เช่น "Thu Oct 01 2026...") เป็น yyyy-mm-dd
+        var dk = String(row.dateKey || '').trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) {
+          // เซิร์ฟเวอร์อาจคืน Date string — ลองพาร์สเป็น Date
+          var parsed = dk ? new Date(dk) : null;
+          if (parsed && !isNaN(parsed.getTime())) {
+            dk = dateKey(parsed);
+          } else if (row.date) {
+            // fallback: ลองแปลงจาก dd/mm/yyyy
+            var d = parseRowDate({ date: row.date });
+            if (d) dk = dateKey(d);
+          }
         }
         // กันข้อมูลเสีย: ต้องเป็น yyyy-mm-dd จริงถึงเก็บ
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(row.dateKey || ''))) return;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) return;
+        row.dateKey = dk;
         const key = attKeyFor(row.user || currentUser, row.dateKey);
         // server เป็นหลัก — ทับค่าเก่าในเครื่อง (ยกเว้นเก็บ note ในเครื่องไว้ถ้า server ไม่มี)
         const prev = store[key] || {};
