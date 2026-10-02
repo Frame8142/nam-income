@@ -1764,9 +1764,12 @@ function showPage(page) {
   if (page === 'send') {
     document.getElementById('sendPage').classList.add('active');
     document.getElementById('navSend').classList.add('active');
+    initSendDateInput();
     prefillSendTimes();
     updateSendCharCount();
     renderAttendanceList();
+    // ดึงประวัติเวลางานจาก server ทุกครั้งที่เข้า (กันข้อมูลในเครื่องว่าง/เครื่องใหม่)
+    refreshAttendanceList();
     // ถ้ายังไม่มีข้อมูลรายได้ ให้โหลดไว้ก่อน (สำหรับปุ่มสรุปยอด)
     if (!historyData || historyData.length === 0) {
       loadSummary();
@@ -1810,6 +1813,7 @@ function switchSendTab(tab) {
     btnSend.classList.remove('active');
     btnHist.classList.add('active');
     renderAttendanceList();
+    refreshAttendanceList();
   } else {
     sendPane.style.display = 'block';
     histPane.style.display = 'none';
@@ -1820,6 +1824,7 @@ function switchSendTab(tab) {
 
 
 function prefillSendTimes() {
+  initSendDateInput();
   const sched = WORK_SCHEDULE[currentUser] || WORK_SCHEDULE['nam'];
   const defEl = document.getElementById('sendTimeDefault');
   if (!document.getElementById('checkInHour')) return;
@@ -2003,23 +2008,79 @@ function thaiDateShort(date) {
 }
 
 
-function getTodayIncomeRows() {
-  const today = dateKey(new Date());
+/* ---------- วันที่ส่งยอด (วันนี้ / ย้อนหลังได้ 1 วัน) ---------- */
+
+function initSendDateInput() {
+  const el = document.getElementById('sendDateInput');
+  if (!el) return;
+  const now = new Date();
+  const todayStr = dateKey(now);
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayStr = dateKey(yesterday);
+  el.min = yesterdayStr;
+  el.max = todayStr;
+  if (!el.value) el.value = todayStr;
+  // กันค่าเก่าค้าง (เช่น ข้ามวันแล้วเปิดใหม่)
+  if (el.value < yesterdayStr || el.value > todayStr) el.value = todayStr;
+}
+
+
+function getSendTargetDate() {
+  const now = new Date();
+  const todayStr = dateKey(now);
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayStr = dateKey(yesterday);
+  const el = document.getElementById('sendDateInput');
+  const raw = el && el.value ? el.value : todayStr;
+  // clamp: ย้อนได้แค่ 1 วัน และห้ามอนาคต
+  if (raw < yesterdayStr || raw > todayStr) return new Date(now);
+  const parts = String(raw).split('-');
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+}
+
+
+function onSendDateChange() {
+  const el = document.getElementById('sendDateInput');
+  if (!el) return;
+  const now = new Date();
+  const todayStr = dateKey(now);
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayStr = dateKey(yesterday);
+  if (el.value < yesterdayStr) {
+    el.value = yesterdayStr;
+    showToast('ย้อนหลังได้แค่ 1 วันนะ 🐾');
+  } else if (el.value > todayStr) {
+    el.value = todayStr;
+    showToast('เลือกวันในอนาคตไม่ได้ 🚫');
+  }
+}
+
+
+function getIncomeRowsForDate(targetDate) {
+  const key = dateKey(targetDate || new Date());
   return (historyData || []).filter(function (row) {
     const d = parseRowDate(row);
-    return d && dateKey(d) === today;
+    return d && dateKey(d) === key;
   }).sort(function (a, b) {
     return String(a.time || '').localeCompare(String(b.time || ''));
   });
 }
 
 
-function buildSendText() {
-  const now = new Date();
+function getTodayIncomeRows() {
+  return getIncomeRowsForDate(new Date());
+}
+
+
+function buildSendText(targetDate) {
+  const now = targetDate || getSendTargetDate();
   const info = USER_NAMES[currentUser] || { thai: '', emoji: '🐾' };
   const checkIn = formatTimeTH(getSendTime('In'));
   const checkOut = formatTimeTH(getSendTime('Out'));
-  const rows = getTodayIncomeRows();
+  const rows = getIncomeRowsForDate(now);
 
   const lines = [];
   lines.push('🐾 ส่งยอด ' + thaiDateShort(now));
@@ -2030,7 +2091,7 @@ function buildSendText() {
   lines.push('');
 
   if (rows.length === 0) {
-    lines.push('😺 วันนี้ยังไม่มีรายการ');
+    lines.push('😺 ' + thaiDateShort(now) + ' ยังไม่มีรายการ');
   } else {
     rows.forEach(function (row, idx) {
       lines.push((idx + 1) + '. ' + (row.item || '-') + ' — ' + money(row.price));
@@ -2053,10 +2114,11 @@ function buildSendPreview() {
     // โหลดก่อน 1 รอบแล้วค่อยสร้าง (กันกดตอนเพิ่งล็อกอิน)
     loadSummary();
     setTimeout(buildSendPreview, 1200);
-    showToast('กำลังโหลดรายการวันนี้... ⏳');
+    showToast('กำลังโหลดรายการ... ⏳');
     return;
   }
-  const text = buildSendText();
+  const target = getSendTargetDate();
+  const text = buildSendText(target);
   const box = document.getElementById('sendPreviewBox');
   box.value = text;
   updateSendCharCount();
@@ -2145,22 +2207,39 @@ async function saveAttendanceEntry(entry) {
       income: entry.income
     });
     if (result && result.success) {
-      renderAttendanceList();
+      syncAttFilterToEntry(entry);
+      await refreshAttendanceList();
       return true;
     }
   } catch (e) { }
+  syncAttFilterToEntry(entry);
   renderAttendanceList();
   return true;
 }
 
 
+// ถ้าบันทึกย้อนหลังข้ามเดือน ให้เลื่อนตัวกรองเดือนตามไปด้วยจะได้เห็นทันที
+function syncAttFilterToEntry(entry) {
+  if (!entry || !entry.dateKey) return;
+  const parts = String(entry.dateKey).split('-');
+  if (parts.length !== 3) return;
+  const y = Number(parts[0]);
+  const m = Number(parts[1]) - 1;
+  if (isNaN(y) || isNaN(m) || m < 0 || m > 11) return;
+  if (m !== attFilterMonth || y !== attFilterYear) {
+    attFilterMonth = m;
+    attFilterYear = y;
+  }
+}
+
+
 function collectAttendanceEntry() {
-  const now = new Date();
-  const key = dateKey(now);
+  const target = getSendTargetDate();
+  const key = dateKey(target);
   const checkIn = getSendTime('In');
   const checkOut = getSendTime('Out');
   const boxText = (document.getElementById('sendPreviewBox').value || '').trim();
-  const rows = getTodayIncomeRows();
+  const rows = getIncomeRowsForDate(target);
 
   let total = 0;
   rows.forEach(function (row) { total += Number(row.price) || 0; });
@@ -2170,11 +2249,11 @@ function collectAttendanceEntry() {
   return {
     user: currentUser,
     dateKey: key,
-    dateLabel: thaiDate(now),
+    dateLabel: thaiDate(target),
     checkIn: checkIn,
     checkOut: checkOut,
     note: '',
-    fullText: boxText || buildSendText(),
+    fullText: boxText || buildSendText(target),
     lateMin: late.lateMin,
     fine: late.fine,
     jobs: rows.length,
@@ -2188,7 +2267,7 @@ async function copyAndSaveAttendance() {
   const box = document.getElementById('sendPreviewBox');
   let text = (box.value || '').trim();
   if (!text) {
-    text = buildSendText();
+    text = buildSendText(getSendTargetDate());
     box.value = text;
     updateSendCharCount();
   }
@@ -2213,7 +2292,7 @@ async function shareToLineAndSave() {
   const box = document.getElementById('sendPreviewBox');
   let text = (box.value || '').trim();
   if (!text) {
-    text = buildSendText();
+    text = buildSendText(getSendTargetDate());
     box.value = text;
     updateSendCharCount();
   }
@@ -2235,38 +2314,53 @@ async function shareToLineAndSave() {
 
 /* ---------- ประวัติเข้าออกงาน ---------- */
 
-function changeAttMonth(direction) {
+async function changeAttMonth(direction) {
   attFilterMonth += direction;
   if (attFilterMonth > 11) { attFilterMonth = 0; attFilterYear++; }
   else if (attFilterMonth < 0) { attFilterMonth = 11; attFilterYear--; }
 
+  // กันไม่ให้ไปเดือนในอนาคต — clamp แล้ว render ต่อเสมอ (อย่า return เปล่า)
   const now = new Date();
   if (attFilterYear > now.getFullYear() ||
     (attFilterYear === now.getFullYear() && attFilterMonth > now.getMonth())) {
     attFilterMonth = now.getMonth();
     attFilterYear = now.getFullYear();
-    return;
+    showToast('ดูได้ถึงแค่เดือนปัจจุบันนะ 🐾');
   }
   renderAttendanceList();
-  // ลองดึงจาก server ด้วย (ถ้ามี action นี้)
-  loadAttendanceFromServer();
+  // ดึงจาก server ทุกครั้งที่เปลี่ยนเดือน แล้ว render ซ้ำเมื่อข้อมูลมา
+  await refreshAttendanceList();
 }
 
 
 function updateAttMonthLabel() {
   const label = document.getElementById('attMonthLabel');
-  if (!label) return;
+  const nextBtn = document.getElementById('attNextBtn');
   const now = new Date();
-  if (attFilterMonth === now.getMonth() && attFilterYear === now.getFullYear()) {
-    label.innerText = '📅 เดือนนี้ — ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
-  } else {
-    label.innerText = '📅 ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
+  const isCurrent = (attFilterMonth === now.getMonth() && attFilterYear === now.getFullYear());
+  if (label) {
+    if (isCurrent) {
+      label.innerText = '📅 เดือนนี้ — ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
+    } else {
+      label.innerText = '📅 ' + THAI_MONTHS[attFilterMonth] + ' ' + (attFilterYear + 543);
+    }
   }
+  // อยู่เดือนปัจจุบันแล้ว ปุ่ม ▶ กดต่อไม่ได้
+  if (nextBtn) nextBtn.disabled = isCurrent;
+}
+
+
+// ดึงประวัติเดือนที่กำลังดูจาก server มา merge ลง store แล้ว render ใหม่
+// คืน list ของเดือนนั้น (server เป็นหลัก, local เป็น fallback)
+async function refreshAttendanceList() {
+  await loadAttendanceFromServer();
+  renderAttendanceList();
+  return getAttendanceForMonth(currentUser, attFilterMonth, attFilterYear);
 }
 
 
 async function loadAttendanceFromServer() {
-  if (!currentUser) return;
+  if (!currentUser) return [];
   try {
     const result = await apiGet('historyAttendance', {
       month: attFilterMonth + 1,
@@ -2276,21 +2370,29 @@ async function loadAttendanceFromServer() {
       const store = getAttendanceStore();
       const arr = Array.isArray(result.data) ? result.data : [result.data];
       arr.forEach(function (row) {
+        if (!row || typeof row !== 'object') return;
         if (!row.dateKey && row.date) {
           // แปลง dd/mm/yyyy -> yyyy-mm-dd
           const d = parseRowDate({ date: row.date });
           if (d) row.dateKey = dateKey(d);
         }
-        if (row.dateKey) {
-          store[attKeyFor(row.user || currentUser, row.dateKey)] = Object.assign(
-            {}, store[attKeyFor(row.user || currentUser, row.dateKey)], row
-          );
-        }
+        // กันข้อมูลเสีย: ต้องเป็น yyyy-mm-dd จริงถึงเก็บ
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(row.dateKey || ''))) return;
+        const key = attKeyFor(row.user || currentUser, row.dateKey);
+        // server เป็นหลัก — ทับค่าเก่าในเครื่อง (ยกเว้นเก็บ note ในเครื่องไว้ถ้า server ไม่มี)
+        const prev = store[key] || {};
+        store[key] = Object.assign({}, prev, row, {
+          user: row.user || prev.user || currentUser
+        });
       });
       setAttendanceStore(store);
-      renderAttendanceList();
+    } else if (result && !result.success) {
+      showToast(result.message || 'โหลดประวัติเวลาไม่สำเร็จ 🙀');
     }
-  } catch (e) { /* เงียบไว้ — ใช้ข้อมูลในเครื่อง */ }
+  } catch (e) {
+    // ออฟไลน์/เน็ตล่ม — ใช้ข้อมูลในเครื่องไปก่อน เงียบไว้ไม่ขัดจังหวะ
+  }
+  return getAttendanceForMonth(currentUser, attFilterMonth, attFilterYear);
 }
 
 
@@ -2919,6 +3021,8 @@ function completeLogin(user) {
       if (el) el.value = '';
     });
     document.getElementById('sendPreviewBox').value = '';
+    const sendDateEl = document.getElementById('sendDateInput');
+    if (sendDateEl) sendDateEl.value = '';
     updateSendCharCount();
   } catch (e) { }
   prefillSendTimes();
@@ -2927,7 +3031,7 @@ function completeLogin(user) {
   attFilterMonth = new Date().getMonth();
   attFilterYear = new Date().getFullYear();
   loadSummary();
-  loadAttendanceFromServer();
+  refreshAttendanceList();
 
 }
 
@@ -3610,6 +3714,7 @@ function clearTheme() {
 
 initBackdateSelectors();
 populateTimeSelects();
+initSendDateInput();
 updateOnlineStatus();
 
 // โหลดสรุปรวมสำหรับหน้า Login
@@ -3632,7 +3737,7 @@ currentUser = savedUser;
     prefillSendTimes();
     restoreSendDraft();
     loadSummary();
-    loadAttendanceFromServer();
+    refreshAttendanceList();
   }
   // ถ้ายังไม่ได้ login จะแสดง login screen อยู่แล้ว
 

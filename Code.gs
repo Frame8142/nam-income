@@ -94,11 +94,20 @@ function doGet(e) {
   if (action === 'historyAttendance') {
 
     try {
+      const monthNum = Number(e.parameter.month);
+      const yearNum = Number(e.parameter.year);
+      // กันค่าผิดแล้วคืนข้อมูลทั้งหมดแบบเงียบๆ — ให้ error ชัดเจนแทน
+      if (e.parameter.month && (isNaN(monthNum) || monthNum < 1 || monthNum > 12)) {
+        throw new Error('ระบุเดือนไม่ถูกต้อง');
+      }
+      if (e.parameter.year && (isNaN(yearNum) || yearNum < 2000 || yearNum > 2100)) {
+        throw new Error('ระบุปีไม่ถูกต้อง');
+      }
       return jsonResponse(
         getAttendanceHistory(
           user,
-          Number(e.parameter.month),
-          Number(e.parameter.year)
+          e.parameter.month ? monthNum : 0,
+          e.parameter.year ? yearNum : 0
         )
       );
     } catch (err) {
@@ -1219,6 +1228,12 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
 
   dateKey = String(dateKey || '').trim();
   const dateText = attDisplayDate(dateKey);
+
+  // กันบันทึกวันในอนาคต (เทียบวันที่ใน timezone ของสคริปต์)
+  const todayKey = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  if (dateKey > todayKey) {
+    throw new Error('บันทึกวันในอนาคตไม่ได้');
+  }
   const sheet = getAttendanceSheet();
   const lastRow = sheet.getLastRow();
 
@@ -1326,6 +1341,14 @@ function deleteAttendanceData(user, dateKey) {
 function getAttendanceHistory(user, month, year) {
 
   checkAttUser(user);
+
+  // month/year ที่ใช้กรองต้อง valid เท่านั้น (0/ว่าง = ไม่กรอง)
+  if (month && (isNaN(month) || month < 1 || month > 12)) {
+    throw new Error('ระบุเดือนไม่ถูกต้อง');
+  }
+  if (year && (isNaN(year) || year < 2000 || year > 2100)) {
+    throw new Error('ระบุปีไม่ถูกต้อง');
+  }
 
   const sheet = getAttendanceSheet();
   const lastRow = sheet.getLastRow();

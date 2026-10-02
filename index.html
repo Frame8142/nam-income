@@ -549,6 +549,12 @@
       <!-- TAB 1: ส่งยอด -->
       <div id="sendTabPane">
         <div class="card">
+          <div class="title">📅 วันที่ส่งยอด</div>
+          <input id="sendDateInput" type="date" class="thai-date-select" style="width:100%;"
+            onchange="onSendDateChange()">
+          <div class="send-hint">💡 ปกติเป็นวันนี้ — กดสรุปย้อนหลังได้ 1 วัน (เมื่อวาน)</div>
+        </div>
+        <div class="card">
           <div class="title">📝 ข้อความส่งยอด</div>
           <div class="send-textbox-wrap">
             <textarea id="sendPreviewBox" class="send-textbox" rows="10"
@@ -608,9 +614,9 @@
           </div>
         </div>
         <div class="history-filter">
-          <button class="history-filter-btn" onclick="changeAttMonth(-1)">◀</button>
+          <button id="attPrevBtn" class="history-filter-btn" onclick="changeAttMonth(-1)">◀</button>
           <div id="attMonthLabel" class="history-filter-label">เดือนนี้</div>
-          <button class="history-filter-btn" onclick="changeAttMonth(1)">▶</button>
+          <button id="attNextBtn" class="history-filter-btn" onclick="changeAttMonth(1)">▶</button>
         </div>
         <div id="attFilterHint" class="history-filter-hint"></div>
         <div id="attendanceList"></div>
