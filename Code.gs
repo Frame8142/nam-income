@@ -1207,6 +1207,15 @@ function getAttendanceSheet(user) {
 
 }
 
+/* =========================
+   SETUP SHEETS (สำหรับกด Run ใน Apps Script)
+========================= */
+function setupSheets() {
+  getAttendanceSheet('nam');
+  getAttendanceSheet('mook');
+  return "สร้างชีต attendance_nam และ attendance_mook เรียบร้อย";
+}
+
 
 function checkAttUser(user) {
   if (!USER_SHEETS[user]) {
