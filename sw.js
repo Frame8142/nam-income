@@ -3,7 +3,7 @@
    Cache static files for offline support
 ================================================== */
 
-const CACHE_NAME = 'nam-income-v12';
+const CACHE_NAME = 'nam-income-v13';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -93,8 +93,10 @@ self.addEventListener('fetch', function (event) {
       // not in cache — try network
       return fetch(event.request).then(function (response) {
 
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseClone = response.clone();
+        // แคชทั้ง basic (same-origin) และ cors (fonts จาก gstatic.com)
+        if (response && response.status === 200 &&
+            (response.type === 'basic' || response.type === 'cors')) {
+          var responseClone = response.clone();
           caches.open(CACHE_NAME).then(function (cache) {
             cache.put(event.request, responseClone);
           });

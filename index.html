@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -26,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=Sarabun:wght@400;600&display=swap"
     rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
@@ -93,6 +94,16 @@
             <div class="combined-total-label">💰 รวมรายได้ทั้งหมด</div>
             <div id="combinedTotalIncome" class="combined-total-value">กำลังโหลด...</div>
             <div id="combinedTotalJobs" class="settings-item-sub" style="margin-top:2px;">— งาน</div>
+            <div class="combined-pay-split">
+              <div class="combined-pay-box">
+                <div class="combined-pay-label">🏦 โอน</div>
+                <div id="combinedTransferIncome" class="combined-pay-value">—</div>
+              </div>
+              <div class="combined-pay-box">
+                <div class="combined-pay-label">💵 เงินสด</div>
+                <div id="combinedCashIncome" class="combined-pay-value">—</div>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -161,8 +172,9 @@
 
     <div class="header">
 
-      <div class="header-title-wrap">
+      <div class="header-title-wrap" style="position:relative;">
         <h1 id="headerTitle">รายได้ของน้ำ</h1>
+        <button onclick="softRefresh()" class="header-refresh-btn" title="อัปเดตข้อมูล" style="position:absolute; right:0; top:0; background:none; border:none; font-size:22px; cursor:pointer; padding:4px; line-height:1;">🔄</button>
         <p>บันทึกรายได้ทำเล็บของคุณ</p>
         <div id="headerUserBadge" class="header-user-badge">💚 น้ำ</div>
       </div>
@@ -234,6 +246,26 @@
         <div id="commissionPreview" class="commission-preview">
           🎀 Commission 10% = ฿0
         </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="title">
+          💳 วิธีจ่ายเงิน
+        </div>
+
+        <div class="payment-grid">
+          <button id="payTransferBtn" class="payment-btn" onclick="setSelectedPayment('transfer')">
+            🏦 โอน
+          </button>
+          <button id="payCashBtn" class="payment-btn" onclick="setSelectedPayment('cash')">
+            💵 เงินสด
+          </button>
+        </div>
+        <div class="payment-hint">💡 เลือกทุกครั้งก่อนกดบันทึก</div>
 
       </div>
 

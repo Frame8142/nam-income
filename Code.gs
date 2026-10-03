@@ -159,7 +159,8 @@ function doPost(e) {
         user,
         body.item,
         body.price,
-        body.customDate || ''
+        body.customDate || '',
+        body.payment || ''
       );
       return jsonResponse(result);
     } catch (err) {
@@ -458,7 +459,15 @@ function setPin(user, oldPin, newPin) {
    SAVE FROM WEB
 ========================= */
 
-function saveFromWeb(user, item, price, customDate) {
+function normalizePaymentGS(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (v === 'transfer' || v === 'โอน') return 'transfer';
+  if (v === 'cash' || v === 'เงินสด') return 'cash';
+  return '';
+}
+
+
+function saveFromWeb(user, item, price, customDate, payment) {
 
   if (!item || String(item).trim() === '') {
     throw new Error('กรุณาเลือกรายการ');
@@ -474,6 +483,8 @@ function saveFromWeb(user, item, price, customDate) {
   if (isNaN(priceNumber) || priceNumber < 0) {
     throw new Error('ราคาต้องเป็นตัวเลข');
   }
+
+  const paymentValue = normalizePaymentGS(payment);
 
 
   const database = getUserSheet(user);
@@ -572,13 +583,14 @@ function saveFromWeb(user, item, price, customDate) {
     priceNumber * COMMISSION_RATE;
 
 
-  // บันทึกรายได้
+  // บันทึกรายได้ (F = วิธีจ่าย: transfer/cash/ว่างสำหรับแถวเก่า)
   database.appendRow([
     dateText,
     timeText,
     itemText,
     priceNumber,
-    commission
+    commission,
+    paymentValue
   ]);
 
 
@@ -598,7 +610,9 @@ function saveFromWeb(user, item, price, customDate) {
 
       price: priceNumber,
 
-      commission: commission
+      commission: commission,
+
+      payment: paymentValue
 
     }
 
@@ -1041,7 +1055,7 @@ function getHistory(user) {
         2,
         1,
         lastRow - 1,
-        5
+        6
       )
       .getDisplayValues();
 
@@ -1061,15 +1075,17 @@ function getHistory(user) {
 
         price:
           Number(
-            row[3]
+            String(row[3] || '')
               .replace(/,/g, '')
           ) || 0,
 
         commission:
           Number(
-            row[4]
+            String(row[4] || '')
               .replace(/,/g, '')
-          ) || 0
+          ) || 0,
+
+        payment: normalizePaymentGS(row[5] || '')
 
       };
 
@@ -1172,13 +1188,14 @@ function cellToDateKey(val) {
 }
 
 
-function getAttendanceSheet() {
+function getAttendanceSheet(user) {
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_ATTENDANCE);
+  const sheetName = 'attendance_' + user;
+  let sheet = ss.getSheetByName(sheetName);
 
   if (!sheet) {
-    sheet = ss.insertSheet(SHEET_ATTENDANCE);
+    sheet = ss.insertSheet(sheetName);
     sheet.appendRow([
       'ผู้ใช้', 'คีย์วันที่', 'วันที่',
       'เวลาเข้า', 'เวลาออก', 'สาย(นาที)', 'หัก(บาท)',
@@ -1251,7 +1268,7 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
   if (dateKey > todayKey) {
     throw new Error('บันทึกวันในอนาคตไม่ได้');
   }
-  const sheet = getAttendanceSheet();
+  const sheet = getAttendanceSheet(user);
   const lastRow = sheet.getLastRow();
 
   let values = [];
@@ -1300,7 +1317,7 @@ function updateAttendanceData(user, dateKey, checkIn, checkOut, note, lateMin, f
   checkAttUser(user);
 
   dateKey = String(dateKey || '').trim();
-  const sheet = getAttendanceSheet();
+  const sheet = getAttendanceSheet(user);
   const lastRow = sheet.getLastRow();
 
   if (lastRow < 2) {
@@ -1336,7 +1353,7 @@ function deleteAttendanceData(user, dateKey) {
   checkAttUser(user);
 
   dateKey = String(dateKey || '').trim();
-  const sheet = getAttendanceSheet();
+  const sheet = getAttendanceSheet(user);
   const lastRow = sheet.getLastRow();
 
   if (lastRow < 2) {
@@ -1372,7 +1389,7 @@ function getAttendanceHistory(user, month, year) {
     throw new Error('ระบุปีไม่ถูกต้อง');
   }
 
-  const sheet = getAttendanceSheet();
+  const sheet = getAttendanceSheet(user);
   const lastRow = sheet.getLastRow();
 
   if (lastRow < 2) {

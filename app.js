@@ -15,6 +15,7 @@ const USER_NAMES = {
 
 let services = [];
 let selectedServices = [];
+let selectedPayment = '';
 let historyData = [];
 
 // History month filter state
@@ -266,7 +267,12 @@ function toggleService(service) {
     selectedServices.splice(index, 1);
   }
 
-  renderServices();
+  // แค่ toggle class ของปุ่มที่กด — ไม่ต้อง re-render ทั้งหมด
+  document.querySelectorAll('.service-btn').forEach(function (btn) {
+    if (btn.innerText === service) {
+      btn.classList.toggle('selected', selectedServices.includes(service));
+    }
+  });
   updateSelected();
 
 }
@@ -304,6 +310,48 @@ function getEffectiveServices() {
 
   return combined;
 
+}
+
+
+/* ==================================================
+   PAYMENT METHOD (โอน / เงินสด)
+================================================== */
+
+function normalizePayment(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (v === 'transfer' || v === 'โอน') return 'transfer';
+  if (v === 'cash' || v === 'เงินสด') return 'cash';
+  return '';
+}
+
+
+function paymentLabelTH(payment) {
+  const p = normalizePayment(payment);
+  if (p === 'transfer') return 'โอน';
+  if (p === 'cash') return 'เงินสด';
+  return '';
+}
+
+
+function setSelectedPayment(payment) {
+
+  selectedPayment = normalizePayment(payment);
+
+  const transferBtn = document.getElementById('payTransferBtn');
+  const cashBtn = document.getElementById('payCashBtn');
+
+  if (transferBtn) {
+    transferBtn.classList.toggle('selected-transfer', selectedPayment === 'transfer');
+  }
+  if (cashBtn) {
+    cashBtn.classList.toggle('selected-cash', selectedPayment === 'cash');
+  }
+
+}
+
+
+function resetPayment() {
+  setSelectedPayment('');
 }
 
 
@@ -347,8 +395,14 @@ async function saveData() {
     return;
   }
 
+  if (!normalizePayment(selectedPayment)) {
+    showToast('เลือกวิธีจ่ายก่อนนะ โอน / เงินสด 💳');
+    return;
+  }
+
   const item = effectiveServices.join('+');
   const backdateDate = getBackdateValue();
+  const payment = normalizePayment(selectedPayment);
 
   if (backdateDate && backdateDate > todayInputValue()) {
     showToast('เลือกวันในอนาคตไม่ได้ 🚫');
@@ -360,18 +414,18 @@ async function saveData() {
       '⚠️ ยืนยันราคา',
       'ราคา ' + money(price) + ' สูงกว่าปกตินะ ยืนยันบันทึกไหม?',
       function () {
-        doActualSave(item, price, backdateDate);
+        doActualSave(item, price, backdateDate, payment);
       }
     );
     return;
   }
 
-  doActualSave(item, price, backdateDate);
+  doActualSave(item, price, backdateDate, payment);
 
 }
 
 
-async function doActualSave(item, price, backdateDate) {
+async function doActualSave(item, price, backdateDate, payment) {
 
   const btn = document.getElementById('saveBtn');
 
@@ -379,6 +433,7 @@ async function doActualSave(item, price, backdateDate) {
   btn.innerHTML = '<span class="loading-spinner"></span> กำลังบันทึก...';
 
   const itemsForCounting = getEffectiveServices();
+  const paymentValue = normalizePayment(payment || selectedPayment);
 
   try {
 
@@ -386,7 +441,8 @@ async function doActualSave(item, price, backdateDate) {
       action: 'save',
       item: item,
       price: price,
-      customDate: backdateDate || ''
+      customDate: backdateDate || '',
+      payment: paymentValue
     });
 
     btn.disabled = false;
@@ -412,6 +468,7 @@ async function doActualSave(item, price, backdateDate) {
       document.getElementById('priceInput').value = '';
       calculateCommission();
       resetBackdate();
+      resetPayment();
 
       // อัปเดตรายได้ร้านรวมหน้า Login
       loadCombinedSummary();
@@ -435,6 +492,7 @@ async function doActualSave(item, price, backdateDate) {
         item: item,
         price: price,
         customDate: backdateDate || '',
+        payment: paymentValue,
         savedAt: new Date().toISOString()
       });
 
@@ -450,6 +508,7 @@ async function doActualSave(item, price, backdateDate) {
       document.getElementById('priceInput').value = '';
       calculateCommission();
       resetBackdate();
+      resetPayment();
 
       renderPendingBanner();
 
@@ -538,7 +597,8 @@ async function syncOfflineQueue() {
         action: 'save',
         item: entry.item,
         price: entry.price,
-        customDate: entry.customDate || ''
+        customDate: entry.customDate || '',
+        payment: normalizePayment(entry.payment)
       });
 
       if (result && result.success) {
@@ -876,7 +936,17 @@ function deleteHistoryRow(row) {
    LOAD HISTORY
 ================================================== */
 
-async function loadSummary() {
+let lastSummaryFetch = 0;
+const SUMMARY_CACHE_MS = 30000; // 30 วินาที
+
+async function loadSummary(forceRefresh) {
+
+  // ถ้าข้อมูลยังสด → render จากของเดิมทันที ไม่ต้อง fetch ใหม่
+  if (!forceRefresh && historyData.length > 0 &&
+      (Date.now() - lastSummaryFetch < SUMMARY_CACHE_MS)) {
+    renderSummary();
+    return;
+  }
 
   renderSummarySkeleton();
 
@@ -886,11 +956,17 @@ async function loadSummary() {
 
     if (result && result.success) {
       historyData = result.data || [];
+      lastSummaryFetch = Date.now();
       renderSummary();
     }
 
   } catch (error) {
-    showToast('โหลดข้อมูลไม่สำเร็จ 🙀');
+    // ถ้า fetch ไม่ได้แต่มีข้อมูลเดิม → render ของเดิม
+    if (historyData.length > 0) {
+      renderSummary();
+    } else {
+      showToast('โหลดข้อมูลไม่สำเร็จ 🙀');
+    }
   }
 
 }
@@ -1372,9 +1448,16 @@ function renderHistory() {
       const item = document.createElement('div');
       item.className = 'history-item';
 
+      const pay = normalizePayment(row.payment);
+      const payBadge = pay === 'transfer'
+        ? '<span class="history-pay-badge transfer">🏦 โอน</span>'
+        : pay === 'cash'
+          ? '<span class="history-pay-badge cash">💵 เงินสด</span>'
+          : '';
+
       item.innerHTML =
-        '<div class="history-time">' + escapeHtml(row.time) + '</div>' +
-        '<div class="history-name">' + escapeHtml(row.item) + '</div>' +
+        '<div><div class="history-time">' + escapeHtml(row.time) + '</div>' +
+        '<div class="history-name">' + escapeHtml(row.item) + '</div>' + payBadge + '</div>' +
         '<div class="history-money">' +
         '<span>ลูกค้าจ่าย <b>' + money(row.price) + '</b></span>' +
         '<span class="history-commission">+' + money(row.commission) + '</span>' +
@@ -2093,16 +2176,26 @@ function buildSendText(targetDate) {
   if (rows.length === 0) {
     lines.push('😺 ' + thaiDateShort(now) + ' ยังไม่มีรายการ');
   } else {
+    let total = 0;
+    let cashTotal = 0;
+    let transferTotal = 0;
     rows.forEach(function (row, idx) {
-      lines.push((idx + 1) + '. ' + (row.item || '-') + ' — ' + money(row.price));
+      const paySuffix = paymentLabelTH(row.payment);
+      lines.push((idx + 1) + '. ' + (row.item || '-') + ' — ' + money(row.price) + (paySuffix ? ' ' + paySuffix : ''));
+      const amt = Number(row.price) || 0;
+      total += amt;
+      if (normalizePayment(row.payment) === 'cash') {
+        cashTotal += amt;
+      } else if (normalizePayment(row.payment) === 'transfer') {
+        transferTotal += amt;
+      }
     });
     lines.push('');
     lines.push('————————');
-
-    let total = 0;
-    rows.forEach(function (row) { total += Number(row.price) || 0; });
     lines.push('💅 รวม ' + rows.length + ' งาน');
     lines.push('💰 รายได้รวม ' + money(total));
+    lines.push('  - 💵 เงินสด: ' + money(cashTotal));
+    lines.push('  - 🏦 โอน: ' + money(transferTotal));
   }
 
   return lines.join('\n');
@@ -2789,42 +2882,30 @@ function selectLoginUser(user) {
 }
 
 
-async function checkUserPin(user) {
+// PIN ฝังในโค้ด (แก้ค่าตรงนี้ได้เลยถ้าต้องการเปลี่ยน)
+const HARDCODED_PINS = {
+  'nam': '1234',
+  'mook': '1234'
+};
+
+
+function checkUserPin(user) {
 
   pinBuffer = '';
   updatePinDots();
   document.getElementById('pinError').innerText = '';
 
-  try {
+  // เช็คว่ามี PIN หรือยัง: ดูจาก localStorage ก่อน แล้ว fallback ไป hardcoded
+  const savedPin = localStorage.getItem('pin_' + user) || HARDCODED_PINS[user] || '';
 
-    const url = API_URL + '?action=getPin&user=' + encodeURIComponent(user);
-    const response = await fetch(url, { method: 'GET', redirect: 'follow' });
-    const result = await response.json();
-
-    if (result && result.success && result.hasPin) {
-      pinMode = 'login';
-      document.getElementById('pinLabel').innerText =
-        USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ใส่ PIN 4 หลัก';
-    } else {
-      // ชีตบอกว่ายังไม่มี PIN — เคลียร์ PIN เก่าที่อาจค้างอยู่ในเครื่อง (จากการทดสอบก่อนหน้า)
-      try { localStorage.removeItem('pin_' + user); } catch (e) { }
-      pinMode = 'setNew';
-      document.getElementById('pinLabel').innerText =
-        USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ตั้ง PIN ใหม่ (4 หลัก)';
-    }
-
-  } catch (err) {
-    // Offline fallback: try localStorage
-    const savedPin = localStorage.getItem('pin_' + user);
-    if (savedPin) {
-      pinMode = 'login';
-      document.getElementById('pinLabel').innerText =
-        USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ใส่ PIN 4 หลัก';
-    } else {
-      pinMode = 'setNew';
-      document.getElementById('pinLabel').innerText =
-        USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ตั้ง PIN ใหม่ (4 หลัก)';
-    }
+  if (savedPin) {
+    pinMode = 'login';
+    document.getElementById('pinLabel').innerText =
+      USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ใส่ PIN 4 หลัก';
+  } else {
+    pinMode = 'setNew';
+    document.getElementById('pinLabel').innerText =
+      USER_NAMES[user].emoji + ' ' + USER_NAMES[user].thai + ' — ตั้ง PIN ใหม่ (4 หลัก)';
   }
 
 }
@@ -2839,7 +2920,7 @@ function pinInput(digit) {
   document.getElementById('pinError').innerText = '';
 
   if (pinBuffer.length === 4) {
-    setTimeout(function () { handlePinComplete(); }, 200);
+    setTimeout(function () { handlePinComplete(); }, 150);
   }
 
 }
@@ -2885,7 +2966,7 @@ function showPinError(message) {
 }
 
 
-async function handlePinComplete() {
+function handlePinComplete() {
 
   const user = loginSelectedUser;
 
@@ -2912,25 +2993,7 @@ async function handlePinComplete() {
       return;
     }
 
-    // บันทึก PIN ลง databaselist (ผ่าน API)
-    try {
-
-      const setPinResult = await apiPostRaw({
-        action: 'setPin',
-        user: user,
-        newPin: pinBuffer
-      });
-
-      if (!setPinResult || !setPinResult.success) {
-        console.warn('บันทึก PIN ไปที่ชีตไม่สำเร็จ:', setPinResult && setPinResult.message);
-      }
-
-    } catch (err) {
-      // ออฟไลน์อยู่ — จะยังคง PIN ไว้ใน localStorage ก่อน แล้วลอง sync ใหม่ตอนออนไลน์
-      console.warn('บันทึก PIN ไปที่ชีตไม่สำเร็จ (ออฟไลน์):', err);
-    }
-
-    // เก็บใน localStorage ด้วย
+    // เก็บ PIN ใน localStorage
     try {
       localStorage.setItem('pin_' + user, pinBuffer);
     } catch (e) { }
@@ -2942,27 +3005,11 @@ async function handlePinComplete() {
 
   if (pinMode === 'login') {
 
-    // ตรวจ PIN
-    let storedPin = '';
-
-    try {
-
-      const url = API_URL + '?action=getPin&user=' + encodeURIComponent(user);
-      const response = await fetch(url, { method: 'GET', redirect: 'follow' });
-      const result = await response.json();
-
-      if (result && result.success) {
-        storedPin = String(result.pin || '');
-      }
-
-    } catch (err) {
-      // Offline: check localStorage
-      storedPin = localStorage.getItem('pin_' + user) || '';
-    }
+    // ตรวจ PIN — เทียบกับ localStorage หรือ hardcoded (ไม่ต้องเรียก API)
+    const storedPin = localStorage.getItem('pin_' + user) || HARDCODED_PINS[user] || '';
 
     if (pinBuffer === storedPin) {
 
-      // เก็บใน localStorage
       try {
         localStorage.setItem('pin_' + user, pinBuffer);
       } catch (e) { }
@@ -3022,6 +3069,7 @@ function completeLogin(user) {
   // Load data
   loadServices();
   renderPendingBanner();
+  resetPayment();
 
   // เตรียมหน้าส่งยอดสำหรับ user นี้
   try {
@@ -3288,6 +3336,7 @@ async function loadCombinedSummary() {
 
       let namIncome = 0, namJobs = 0;
       let mookIncome = 0, mookJobs = 0;
+      let transferIncome = 0, cashIncome = 0;
 
       const serviceCounts = {};
       let totalJobsAll = 0;
@@ -3306,6 +3355,13 @@ async function loadCombinedSummary() {
         return d && d.getMonth() === viewMonth && d.getFullYear() === viewYear;
       }
 
+      function tallyPayment(row) {
+        const p = normalizePayment(row.payment);
+        const amt = Number(row.price) || 0;
+        if (p === 'transfer') transferIncome += amt;
+        else if (p === 'cash') cashIncome += amt;
+      }
+
       // คำนวณรายได้ + จำนวนงาน ตามเดือนที่เลือกดู
       if (result.data.nam) {
         result.data.nam.forEach(function (row) {
@@ -3313,6 +3369,7 @@ async function loadCombinedSummary() {
           if (isInViewMonth(d)) {
             namIncome += Number(row.price) || 0;
             namJobs++;
+            tallyPayment(row);
           }
           tallyRow(row);
         });
@@ -3324,6 +3381,7 @@ async function loadCombinedSummary() {
           if (isInViewMonth(d)) {
             mookIncome += Number(row.price) || 0;
             mookJobs++;
+            tallyPayment(row);
           }
           tallyRow(row);
         });
@@ -3335,6 +3393,10 @@ async function loadCombinedSummary() {
       document.getElementById('combinedMookJobs').innerText = mookJobs + ' งาน';
       document.getElementById('combinedTotalIncome').innerText = money(namIncome + mookIncome);
       document.getElementById('combinedTotalJobs').innerText = 'รวม ' + (namJobs + mookJobs) + ' งาน';
+      const transferEl = document.getElementById('combinedTransferIncome');
+      const cashEl = document.getElementById('combinedCashIncome');
+      if (transferEl) transferEl.innerText = money(transferIncome);
+      if (cashEl) cashEl.innerText = money(cashIncome);
 
       updateCombinedMonthLabel(viewMonth, viewYear, currentMonth, currentYear);
 
@@ -3726,29 +3788,28 @@ populateTimeSelects();
 initSendDateInput();
 updateOnlineStatus();
 
-// โหลดสรุปรวมสำหรับหน้า Login
-loadCombinedSummary();
-
 // Check if already logged in
 (function () {
 
   const savedUser = localStorage.getItem('loggedInUser');
 
   if (savedUser && USER_NAMES[savedUser]) {
-    // Auto-login
-currentUser = savedUser;
-      updateHeaderForUser(savedUser);
-      applyTheme(savedUser);
-      renderThemeSetting();
-      document.getElementById('loginScreen').classList.add('hidden');
-    loadServices();
+    // Auto-login — โหลดเฉพาะสิ่งที่หน้าแรก (บันทึก) ต้องใช้
+    currentUser = savedUser;
+    updateHeaderForUser(savedUser);
+    applyTheme(savedUser);
+    renderThemeSetting();
+    document.getElementById('loginScreen').classList.add('hidden');
+    loadServices();  // แค่นี้พอสำหรับหน้าแรก!
     renderPendingBanner();
+    resetPayment();
     prefillSendTimes();
     restoreSendDraft();
-    loadSummary();
-    refreshAttendanceList();
+    // loadSummary() และ refreshAttendanceList() จะถูกเรียกตอนกดเข้าแท็บนั้นเอง (lazy-load)
+  } else {
+    // ยังไม่ได้ login — โหลดสรุปรวมสำหรับหน้า Login
+    loadCombinedSummary();
   }
-  // ถ้ายังไม่ได้ login จะแสดง login screen อยู่แล้ว
 
 })();
 
@@ -3886,6 +3947,26 @@ function applyDarkMode(isDark) {
 
 initDarkMode();
 initNotification();
+
+/* ==================================================
+   SOFT REFRESH (ดึงข้อมูลใหม่ ไม่ reload หน้า)
+================================================== */
+async function softRefresh() {
+  const btn = document.querySelector('.header-refresh-btn');
+  if (btn) btn.style.animation = 'spin 1s linear infinite';
+  showToast('กำลังอัปเดตข้อมูล... 🔄');
+  try {
+    await Promise.all([
+      loadServices(),
+      loadSummary(true),
+      refreshAttendanceList()
+    ]);
+    showToast('อัปเดตข้อมูลเรียบร้อย ✅');
+  } catch (e) {
+    showToast('อัปเดตไม่สำเร็จ 🙀');
+  }
+  if (btn) btn.style.animation = '';
+}
 
 /* ==================================================
    FORCE REFRESH (CLEAR CACHE)
