@@ -2021,7 +2021,10 @@ function normalizeTimeStr(str) {
   const parts = s.split('.');
   if (parts.length !== 2) return '';
   const h = Number(parts[0]);
-  const m = Number(parts[1]);
+  let mStr = parts[1];
+  // ถ้า Google Sheets คืนค่า 10.2 (ตัดเลขศูนย์ทิ้ง) ต้องแปลงเป็น 10.20
+  if (mStr.length === 1) mStr += '0';
+  const m = Number(mStr);
   if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return '';
   return String(h).padStart(2, '0') + '.' + String(m).padStart(2, '0');
 }
