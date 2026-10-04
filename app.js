@@ -2,7 +2,7 @@
        CONFIG
     ================================================== */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbz_RZJZq9MGSrTy7FkT2o3gjSdc0lyFPPXLXu4ILosXZVC06A6dn6Bh7Lhs35xLIUso/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbx2sNHJtKC5s7AtWeRxbDAETu7vL3PQleSRdPe_eNuPkHR1_1dVIN4DuwPDREP21fz6/exec';
 
 const COMMISSION_RATE = 0.10;
 
@@ -29,7 +29,8 @@ let combinedNavTimer = null;
 const COMBINED_RESET_MS = 10 * 60 * 1000;
 
 // PWA install
-let deferredInstallPrompt = null;
+
+
 
 
 /* ==================================================
@@ -3318,6 +3319,10 @@ function pinGoBack() {
    COMBINED SUMMARY (สรุปรวม 2 คน)
 ================================================== */
 
+// เก็บข้อมูลรวม 2 คน ไว้ให้ daily navigator ใช้
+let combinedAllData = null;
+let combinedDailyDate = new Date(); // วันที่ที่กำลังดูอยู่ (เริ่มจากวันนี้)
+
 async function loadCombinedSummary() {
 
   const card = document.getElementById('combinedCard');
@@ -3333,6 +3338,9 @@ async function loadCombinedSummary() {
 
     if (result && result.success && result.data) {
 
+      // เก็บไว้ใช้กับ daily navigator
+      combinedAllData = result.data;
+
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
@@ -3343,7 +3351,6 @@ async function loadCombinedSummary() {
 
       let namIncome = 0, namJobs = 0;
       let mookIncome = 0, mookJobs = 0;
-      let transferIncome = 0, cashIncome = 0;
 
       const serviceCounts = {};
       let totalJobsAll = 0;
@@ -3362,13 +3369,6 @@ async function loadCombinedSummary() {
         return d && d.getMonth() === viewMonth && d.getFullYear() === viewYear;
       }
 
-      function tallyPayment(row) {
-        const p = normalizePayment(row.payment);
-        const amt = Number(row.price) || 0;
-        if (p === 'transfer') transferIncome += amt;
-        else if (p === 'cash') cashIncome += amt;
-      }
-
       // คำนวณรายได้ + จำนวนงาน ตามเดือนที่เลือกดู
       if (result.data.nam) {
         result.data.nam.forEach(function (row) {
@@ -3376,7 +3376,6 @@ async function loadCombinedSummary() {
           if (isInViewMonth(d)) {
             namIncome += Number(row.price) || 0;
             namJobs++;
-            tallyPayment(row);
           }
           tallyRow(row);
         });
@@ -3388,7 +3387,6 @@ async function loadCombinedSummary() {
           if (isInViewMonth(d)) {
             mookIncome += Number(row.price) || 0;
             mookJobs++;
-            tallyPayment(row);
           }
           tallyRow(row);
         });
@@ -3400,14 +3398,13 @@ async function loadCombinedSummary() {
       document.getElementById('combinedMookJobs').innerText = mookJobs + ' งาน';
       document.getElementById('combinedTotalIncome').innerText = money(namIncome + mookIncome);
       document.getElementById('combinedTotalJobs').innerText = 'รวม ' + (namJobs + mookJobs) + ' งาน';
-      const transferEl = document.getElementById('combinedTransferIncome');
-      const cashEl = document.getElementById('combinedCashIncome');
-      if (transferEl) transferEl.innerText = money(transferIncome);
-      if (cashEl) cashEl.innerText = money(cashIncome);
 
       updateCombinedMonthLabel(viewMonth, viewYear, currentMonth, currentYear);
 
       renderCombinedTopServices(serviceCounts, totalJobsAll);
+
+      // อัปเดตยอดโอน/เงินสด รายวัน
+      updateCombinedDailySplit();
 
       card.style.display = 'block';
 
@@ -3420,6 +3417,66 @@ async function loadCombinedSummary() {
     if (topCard) topCard.style.display = 'none';
   }
 
+}
+
+
+/* ==================================================
+   COMBINED DAILY TRANSFER/CASH NAVIGATOR
+================================================== */
+
+function changeCombinedDaily(direction) {
+  combinedDailyDate.setDate(combinedDailyDate.getDate() + direction);
+  // ไม่ให้เลื่อนเกินวันนี้
+  const today = new Date();
+  if (combinedDailyDate > today) {
+    combinedDailyDate = new Date();
+  }
+  updateCombinedDailySplit();
+}
+
+function updateCombinedDailySplit() {
+  if (!combinedAllData) return;
+
+  const targetKey = dateKey(combinedDailyDate);
+  let transferTotal = 0, cashTotal = 0;
+
+  function tallyDay(rows) {
+    if (!rows) return;
+    rows.forEach(function (row) {
+      const d = parseRowDate(row);
+      if (d && dateKey(d) === targetKey) {
+        const p = normalizePayment(row.payment);
+        const amt = Number(row.price) || 0;
+        if (p === 'transfer') transferTotal += amt;
+        else if (p === 'cash') cashTotal += amt;
+      }
+    });
+  }
+
+  tallyDay(combinedAllData.nam);
+  tallyDay(combinedAllData.mook);
+
+  const transferEl = document.getElementById('combinedDailyTransfer');
+  const cashEl = document.getElementById('combinedDailyCash');
+  if (transferEl) transferEl.innerText = money(transferTotal);
+  if (cashEl) cashEl.innerText = money(cashTotal);
+
+  // อัปเดต label วันที่
+  const labelEl = document.getElementById('combinedDailyLabel');
+  if (labelEl) {
+    const todayKey = dateKey(new Date());
+    if (targetKey === todayKey) {
+      labelEl.innerText = '📅 วันนี้ (' + formatThaiDateShort(combinedDailyDate) + ')';
+    } else {
+      labelEl.innerText = '📅 ' + formatThaiDateShort(combinedDailyDate);
+    }
+  }
+}
+
+function formatThaiDateShort(d) {
+  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                   'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  return d.getDate() + ' ' + months[d.getMonth()];
 }
 
 
@@ -3835,63 +3892,6 @@ if ('serviceWorker' in navigator) {
     .catch(function (err) {
       console.log('❌ SW registration failed:', err);
     });
-
-}
-
-
-/* ==================================================
-   PWA — INSTALL PROMPT
-================================================== */
-
-window.addEventListener('beforeinstallprompt', function (e) {
-
-  e.preventDefault();
-  deferredInstallPrompt = e;
-
-  // Don't show if user dismissed before
-  if (localStorage.getItem('installDismissed')) return;
-
-  // Don't show if already installed (standalone mode)
-  if (window.matchMedia('(display-mode: standalone)').matches) return;
-
-  document.getElementById('installBanner').classList.add('show');
-
-});
-
-
-// Hide banner if already in standalone mode
-if (window.matchMedia('(display-mode: standalone)').matches) {
-  // already installed
-}
-
-
-function installApp() {
-
-  if (!deferredInstallPrompt) return;
-
-  deferredInstallPrompt.prompt();
-
-  deferredInstallPrompt.userChoice.then(function (choice) {
-
-    if (choice.outcome === 'accepted') {
-      showToast('ติดตั้งแอปเรียบร้อย 📱✨');
-    }
-
-    deferredInstallPrompt = null;
-    document.getElementById('installBanner').classList.remove('show');
-
-  });
-
-}
-
-
-function dismissInstall() {
-
-  document.getElementById('installBanner').classList.remove('show');
-
-  try {
-    localStorage.setItem('installDismissed', '1');
-  } catch (e) { }
 
 }
 

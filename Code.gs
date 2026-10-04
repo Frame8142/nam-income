@@ -489,14 +489,7 @@ function saveFromWeb(user, item, price, customDate, payment) {
 
   const database = getUserSheet(user);
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const databaselist =
-    ss.getSheetByName(SHEET_LIST);
-
-  if (!databaselist) {
-    throw new Error('ไม่พบชีต databaselist');
-  }
 
 
   const now = new Date();
@@ -1057,19 +1050,34 @@ function getHistory(user) {
         lastRow - 1,
         6
       )
-      .getDisplayValues();
+      .getValues();
 
+  const timeZone = Session.getScriptTimeZone();
 
   const data =
     values.map(function(row, i) {
+
+      let dateVal = row[0];
+      if (dateVal instanceof Date && !isNaN(dateVal.getTime())) {
+        dateVal = Utilities.formatDate(dateVal, timeZone, 'dd/MM/yyyy');
+      } else {
+        dateVal = String(dateVal || '').trim();
+      }
+
+      let timeVal = row[1];
+      if (timeVal instanceof Date && !isNaN(timeVal.getTime())) {
+        timeVal = Utilities.formatDate(timeVal, timeZone, 'HH:mm:ss');
+      } else {
+        timeVal = String(timeVal || '').trim();
+      }
 
       return {
 
         row: i + 2,
 
-        date: row[0],
+        date: dateVal,
 
-        time: row[1],
+        time: timeVal,
 
         item: row[2],
 
@@ -1167,8 +1175,6 @@ function jsonResponse(data) {
    D=เวลาเข้า | E=เวลาออก | F=สาย(นาที) | G=หัก(บาท)
    H=จำนวนงาน | I=รายได้ | J=โน้ต | K=ข้อความส่งยอด
 ========================= */
-
-const SHEET_ATTENDANCE = 'attendance';
 
 
 // Google Sheets อาจ auto-convert "yyyy-mm-dd" เป็น Date object

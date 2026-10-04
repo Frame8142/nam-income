@@ -90,20 +90,29 @@
             </div>
           </div>
 
+          <!-- ยอดโอน/เงินสด ประจำวัน (รวม 2 คน) — เลื่อนวันแยกอิสระ -->
+          <div class="combined-daily-split" style="margin-bottom:10px; padding:12px; background:var(--card-inner-bg, rgba(0,0,0,0.15)); border-radius:12px;">
+            <div class="history-filter" style="margin:0 0 10px;">
+              <button class="history-filter-btn" onclick="changeCombinedDaily(-1)">◀</button>
+              <div id="combinedDailyLabel" class="history-filter-label" style="font-size:13px;">📅 วันนี้</div>
+              <button class="history-filter-btn" onclick="changeCombinedDaily(1)">▶</button>
+            </div>
+            <div class="combined-pay-split">
+              <div class="combined-pay-box">
+                <div class="combined-pay-label">🏦 โอน (รวม 2 คน)</div>
+                <div id="combinedDailyTransfer" class="combined-pay-value">—</div>
+              </div>
+              <div class="combined-pay-box">
+                <div class="combined-pay-label">💵 เงินสด (รวม 2 คน)</div>
+                <div id="combinedDailyCash" class="combined-pay-value">—</div>
+              </div>
+            </div>
+          </div>
+
           <div class="combined-total">
             <div class="combined-total-label">💰 รวมรายได้ทั้งหมด</div>
             <div id="combinedTotalIncome" class="combined-total-value">กำลังโหลด...</div>
             <div id="combinedTotalJobs" class="settings-item-sub" style="margin-top:2px;">— งาน</div>
-            <div class="combined-pay-split">
-              <div class="combined-pay-box">
-                <div class="combined-pay-label">🏦 โอน</div>
-                <div id="combinedTransferIncome" class="combined-pay-value">—</div>
-              </div>
-              <div class="combined-pay-box">
-                <div class="combined-pay-label">💵 เงินสด</div>
-                <div id="combinedCashIncome" class="combined-pay-value">—</div>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -174,7 +183,7 @@
 
       <div class="header-title-wrap" style="position:relative;">
         <h1 id="headerTitle">รายได้ของน้ำ</h1>
-        <button onclick="softRefresh()" class="header-refresh-btn" title="อัปเดตข้อมูล" style="position:absolute; right:0; top:0; background:none; border:none; font-size:22px; cursor:pointer; padding:4px; line-height:1;">🔄</button>
+        <button onclick="softRefresh()" class="header-refresh-btn" title="อัปเดตข้อมูล" style="position:absolute; right:8px; top:8px; background:none; border:none; font-size:22px; cursor:pointer; padding:4px; line-height:1;">🔄</button>
         <p>บันทึกรายได้ทำเล็บของคุณ</p>
         <div id="headerUserBadge" class="header-user-badge">💚 น้ำ</div>
       </div>
@@ -182,19 +191,6 @@
     </div>
 
     <div class="header-divider"></div>
-
-
-    <!-- INSTALL BANNER -->
-    <div id="installBanner" class="install-banner">
-      <div class="install-banner-icon">📱</div>
-      <div class="install-banner-text">
-        <div class="install-banner-title">ติดตั้งลงมือถือ</div>
-        <div class="install-banner-sub">เปิดใช้ง่ายขึ้น เหมือนแอปจริง ✨</div>
-      </div>
-      <button id="installBtn" class="install-banner-btn" onclick="installApp()">ติดตั้ง</button>
-      <button class="install-banner-close" onclick="dismissInstall()">✕</button>
-    </div>
-
 
 
     <!-- ==================================================
