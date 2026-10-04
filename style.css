@@ -37,8 +37,8 @@
   /* --- identity accents (kept inside the same palette family) --- */
   --nam: #2F7052;
   --nam-tint: #E3F0E8;
-  --mook: #A98457;
-  --mook-tint: #EFE3CD;
+  --mook: #FF7A00;
+  --mook-tint: #FFF0E0;
 
   /* --- solid surface (fixed dark chip for filled buttons/toasts; stays legible with white text in both themes) --- */
   --ink-solid: #3B2B22;
@@ -1529,8 +1529,8 @@ body.dark {
   /* --- identity accents --- */
   --nam: #8FD1AC;
   --nam-tint: rgba(143, 209, 172, .16);
-  --mook: #D2AC79;
-  --mook-tint: rgba(210, 172, 121, .18);
+  --mook: #FF9B42;
+  --mook-tint: rgba(255, 122, 0, .18);
 
   /* solid dark chip stays fixed so white text on it never washes out */
   --ink-solid: #16100F;
@@ -2415,3 +2415,134 @@ body.dark .combined-pay-box {
     gap: 6px;
   }
 }
+
+/* ==================================================
+   FINAL REDESIGN CLASSES (IDEA 6 & CONCEPT 5)
+================================================== */
+.banner-wrap {
+  display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;
+}
+.banner-btn {
+  background: var(--card); border: 2px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px 20px; cursor: pointer; display: flex; align-items: center; position: relative;
+  overflow: hidden; transition: all 0.2s; box-shadow: var(--shadow-sm);
+}
+.banner-btn::before {
+  content: ''; position: absolute; right: -20px; top: -30px; width: 120px; height: 120px;
+  border-radius: 50%; opacity: 0.15; transition: transform 0.3s;
+}
+.banner-btn.nam::before { background: var(--nam); }
+.banner-btn.mook::before { background: var(--mook); }
+.banner-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); border-color: var(--pink-tint); }
+.banner-btn:active { transform: scale(0.98); }
+.banner-btn.nam:hover::before { transform: scale(1.2); opacity: 0.25; }
+.banner-btn.mook:hover::before { transform: scale(1.2); opacity: 0.25; }
+
+.banner-content { display: flex; align-items: center; gap: 16px; width: 100%; position: relative; z-index: 2; }
+.banner-emoji { font-size: 32px; background: var(--border-soft); width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.banner-btn.nam .banner-emoji { background: var(--nam-tint); color: var(--nam); }
+.banner-btn.mook .banner-emoji { background: var(--mook-tint); color: var(--mook); }
+
+.banner-text { flex: 1; }
+.banner-name { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.banner-sub { font-size: 13px; color: var(--ink-soft); }
+.banner-arrow { font-size: 18px; color: var(--ink-faint); font-weight: 600; }
+
+/* Concept 5 - Bank Wallet */
+.c5-wrapper {
+  background: var(--card); border-radius: var(--radius-lg); padding: 18px;
+  box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+}
+.c5-wallet {
+  background: #111; border-radius: var(--radius-md); padding: 20px; color: #fff;
+  margin-bottom: 20px; position: relative; overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+.c5-wallet::after {
+  content: ''; position: absolute; right: -30px; bottom: -30px; width: 150px; height: 150px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  border-radius: 50%; pointer-events: none;
+}
+.c5-wallet-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; color: #aaa; margin-bottom: 12px;
+}
+.c5-wallet-total {
+  font-size: 36px; font-weight: 600; font-family: 'Mitr'; margin-bottom: 20px; letter-spacing: -1px;
+}
+.c5-wallet-split {
+  display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px;
+}
+.c5-split-label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+.c5-split-val { font-size: 16px; font-weight: 600; font-family: 'Mitr'; }
+
+.c5-month-title { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
+.c5-progress-wrap { margin-bottom: 14px; }
+.c5-user-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.c5-bar-bg { background: var(--border-soft); height: 8px; border-radius: 4px; overflow: hidden; }
+.c5-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease-out; }
+
+/* ==================================================
+   SUMMARY TABBED (IDEA 3)
+================================================== */
+.s3-tabs { display: flex; background: var(--border-soft); border-radius: 12px; margin: 16px 20px; padding: 4px; }
+.s3-tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+.s3-tab.act { color: var(--ink); font-weight: 600; box-shadow: var(--shadow-sm); background: var(--card); }
+.s3-view-area { padding-bottom: 20px; }
+.s3-nav-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 20px 16px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.s3-nav-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--card); border-radius: 10px; box-shadow: var(--shadow-sm); cursor: pointer; color: var(--ink-soft); font-size: 12px; }
+.s3-nav-btn:active { transform: scale(0.95); }
+
+.s3-stat-hero { background: var(--card); margin: 0 20px 16px; border-radius: var(--radius-lg); padding: 24px; text-align: center; box-shadow: var(--shadow-sm); }
+.s3-sh-l { font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+.s3-sh-v { font-size: 40px; font-weight: 600; color: var(--nam); line-height: 1.1; font-family: 'Mitr'; }
+.s3-sh-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-soft); gap: 12px; }
+.s3-box-val { font-size: 20px; font-weight: 600; color: var(--ink); font-family: 'Mitr'; }
+.s3-box-l { font-size: 12px; color: var(--ink-soft); }
+
+.s3-hist-head { padding: 8px 24px 12px; display: flex; justify-content: space-between; align-items: flex-end; color: var(--ink); }
+.s3-hist-count { font-size: 12px; color: var(--ink-soft); font-weight: 400; }
+
+.s3-m-extra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 20px 16px; }
+.s3-m-card { background: var(--card); padding: 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.s3-m-card-i { font-size: 24px; margin-bottom: 8px; }
+.s3-m-card-l { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+.s3-m-card-v { font-size: 20px; font-weight: 600; font-family: 'Mitr'; }
+
+/* ==================================================
+   SEND PAGE (TABBED CLEAN REDESIGN)
+================================================== */
+.s2-tabs { display:flex; background:var(--border-soft); border-radius:12px; margin:20px 20px 0; padding:4px; }
+.s2-tab { flex:1; text-align:center; padding:8px 10px; font-size:13px; font-weight:500; color:var(--ink-soft); cursor:pointer; border-radius:8px; transition:all 0.2s; }
+.s2-tab.act { color:var(--ink); font-weight:600; box-shadow:var(--shadow-sm); background:var(--card); }
+.s1-card { background:var(--card); margin:16px 20px; border-radius:16px; padding:20px; box-shadow:var(--shadow-sm); }
+.s1-btn { background:var(--nam); color:#fff; padding:14px; border:none; border-radius:12px; font-family:'Mitr'; font-size:15px; font-weight:600; text-align:center; cursor:pointer; box-sizing:border-box; }
+.s1-btn:active { transform:scale(0.98); }
+.mock-ta { width:100%; font-family:inherit; font-size:14px; resize:none; box-sizing:border-box; line-height:1.4; color:var(--ink); outline:none; }
+
+/* ==================================================
+   SETTINGS PAGE (PROFILE CENTRIC REDESIGN)
+================================================== */
+.s-prof { display: flex; flex-direction: column; align-items: center; padding: 20px 20px 30px; background: linear-gradient(135deg, var(--card-soft) 0%, var(--bg) 100%); border-bottom: 1px solid var(--border-soft); }
+.s-ava { width: 80px; height: 80px; background: var(--card); border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 12px; border: 3px solid var(--nam); }
+.s-btn-small { background: var(--card-soft); border: none; padding: 6px 12px; border-radius: 12px; font-family: 'Mitr'; font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; transition: 0.2s; }
+.s-btn-small:active { transform: scale(0.95); }
+
+.s-section { padding: 20px; padding-bottom: 0; }
+.s-sec-title { font-weight: 600; font-size: 16px; margin-bottom: 12px; color: var(--ink); }
+.s-card { background: var(--card); border-radius: 16px; border: 1px solid var(--border-soft); overflow: hidden; box-shadow: var(--shadow-sm); }
+.s-row { display: flex; padding: 16px; border-bottom: 1px solid var(--border-soft); align-items: center; gap: 16px; cursor: pointer; transition: background 0.2s; }
+.s-row:hover { background: var(--card-soft); }
+.s-row:last-child { border-bottom: none; }
+.s-icon { font-size: 24px; width: 40px; height: 40px; background: var(--card-soft); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.s-text { flex: 1; }
+.s-title { font-weight: 500; font-size: 15px; color: var(--ink); }
+.s-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.s-input { background: var(--card-soft); border: 1px solid var(--border-soft); padding: 12px; border-radius: 8px; font-family: 'Mitr'; font-size: 14px; outline: none; color: var(--ink); }
+
+/* Switch overriding for Settings */
+.s-row .switch { margin: 0; }
+
+/* Reset padding for the last section so page scroll has space */
+.page #manageList { padding-bottom: 40px; }
+

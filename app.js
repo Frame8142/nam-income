@@ -2,7 +2,7 @@
        CONFIG
     ================================================== */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbx2sNHJtKC5s7AtWeRxbDAETu7vL3PQleSRdPe_eNuPkHR1_1dVIN4DuwPDREP21fz6/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwyVV_B3232mpd0CnTbaf7dgqD3P-PzQdLYY5usPAodpjzf06SSnQxX2WR2RZ0DAN-b/exec';
 
 const COMMISSION_RATE = 0.10;
 
@@ -10,7 +10,7 @@ const COMMISSION_RATE = 0.10;
 let currentUser = '';
 const USER_NAMES = {
   'nam': { thai: 'น้ำ', emoji: '💚' },
-  'mook': { thai: 'มุก', emoji: '💜' }
+  'mook': { thai: 'มุก', emoji: '🧡' }
 };
 
 let services = [];
@@ -995,68 +995,105 @@ function renderSummarySkeleton() {
 
 
 /* ==================================================
-   SUMMARY
+   SUMMARY (TABBED INSIGHT)
 ================================================== */
+
+let summaryDailyDate = new Date();
+let summaryTabMode = 'daily';
+
+window.switchSummaryTab = function (mode) {
+  summaryTabMode = mode;
+  document.getElementById('tabDailyBtn').classList.toggle('act', mode === 'daily');
+  document.getElementById('tabMonthlyBtn').classList.toggle('act', mode === 'monthly');
+  document.getElementById('view-daily').style.display = (mode === 'daily') ? 'block' : 'none';
+  document.getElementById('view-monthly').style.display = (mode === 'monthly') ? 'block' : 'none';
+  
+  renderSummary();
+};
+
+window.changeSummaryDaily = function (dir) {
+  summaryDailyDate.setDate(summaryDailyDate.getDate() + dir);
+  renderSummary();
+};
+
+// Also redefine changeHistoryMonth to re-render properly
+window.changeHistoryMonth = function (dir) {
+  historyFilterMonth += dir;
+  if (historyFilterMonth > 11) {
+    historyFilterMonth = 0;
+    historyFilterYear++;
+  } else if (historyFilterMonth < 0) {
+    historyFilterMonth = 11;
+    historyFilterYear--;
+  }
+  renderSummary();
+};
 
 function renderSummary() {
 
   const now = new Date();
-  const today = dateKey(now);
   const currentWeek = getWeekRange(now);
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
 
+  const dKey = dateKey(summaryDailyDate);
   let todayIncome = 0;
   let todayCommission = 0;
   let todayJobs = 0;
 
+  const mMonth = historyFilterMonth;
+  const mYear = historyFilterYear;
   let monthIncome = 0;
   let monthCommission = 0;
   let monthJobs = 0;
+  let monthCash = 0;
+  let monthTransfer = 0;
 
   historyData.forEach(function (row) {
-
     const d = parseRowDate(row);
     if (!d) return;
 
     const key = dateKey(d);
 
-    if (key === today) {
+    if (key === dKey) {
       todayIncome += Number(row.price) || 0;
       todayCommission += Number(row.commission) || 0;
       todayJobs++;
     }
 
-    if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-      monthIncome += Number(row.price) || 0;
+    if (d.getMonth() === mMonth && d.getFullYear() === mYear) {
+      const p = Number(row.price) || 0;
+      monthIncome += p;
       monthCommission += Number(row.commission) || 0;
       monthJobs++;
+      
+      const pay = normalizePayment(row.payment);
+      if (pay === 'cash') monthCash += p;
+      if (pay === 'transfer') monthTransfer += p;
     }
-
   });
 
-  document.getElementById('todayIncome').innerText = money(todayIncome);
-  document.getElementById('todayMood').innerText =
-    todayJobs > 0
-      ? '😻 เก่งมาก วันนี้มีลูกค้าแล้ว!'
-      : '😺 วันนี้ยังไม่มีรายการ';
-  document.getElementById('todayCommission').innerText = money(todayCommission);
-  document.getElementById('todayJobs').innerText = todayJobs + ' รายการ';
+  let labelDate = thaiDate(summaryDailyDate);
+  if (dKey === dateKey(now)) labelDate = 'วันนี้ (' + labelDate + ')';
+  document.getElementById('summaryDailyLabel').innerText = labelDate;
 
+  document.getElementById('todayIncome').innerText = money(todayIncome);
+  document.getElementById('todayCommission').innerText = money(todayCommission);
+  document.getElementById('todayJobs').innerText = todayJobs;
+
+  updateHistoryMonthLabel();
   document.getElementById('monthIncome').innerText = money(monthIncome);
   document.getElementById('monthCommission').innerText = money(monthCommission);
   document.getElementById('monthJobs').innerText = monthJobs;
+  
+  const mTransferEl = document.getElementById('monthTransfer');
+  if (mTransferEl) mTransferEl.innerText = money(monthTransfer);
+  const mCashEl = document.getElementById('monthCash');
+  if (mCashEl) mCashEl.innerText = money(monthCash);
 
-  renderMonthCompare(monthIncome, currentMonth, currentYear);
+  renderMonthCompare(monthIncome, mMonth, mYear);
   renderWeekChart(currentWeek.start, currentWeek.end);
 
-  // New feature renderers
-  renderIncomeCalendar(currentMonth, currentYear);
-
   renderHistory();
-
 }
-
 
 /* ==================================================
    MONTH COMPARISON
@@ -1086,23 +1123,18 @@ function renderMonthCompare(monthIncome, currentMonth, currentYear) {
   const el = document.getElementById('monthCompare');
 
   if (prevMonthIncome > 0) {
-
     const diffPercent = ((monthIncome - prevMonthIncome) / prevMonthIncome) * 100;
     const sign = diffPercent >= 0 ? '+' : '';
-
     el.classList.toggle('down', diffPercent < 0);
     el.innerText =
       (diffPercent >= 0 ? '📈 ' : '📉 ') +
-      sign + diffPercent.toFixed(0) + '% จากเดือนที่แล้ว';
-
+      sign + diffPercent.toFixed(0) + '% จากเดือนก่อน';
   } else if (monthIncome > 0) {
     el.classList.remove('down');
-    el.innerText = '🎉 เริ่มต้นเดือนนี้ได้ดี!';
+    el.innerText = '🌟 ยอดเยี่ยม เริ่มต้นเดือนได้ดี!';
   } else {
-    el.classList.remove('down');
     el.innerText = '';
   }
-
 }
 
 
@@ -1357,16 +1389,14 @@ window.changeHistoryMonthTo = function (m, y) {
 
 
 /* ==================================================
-   HISTORY BY DAY — filtered by month
+   HISTORY BY DAY (For Daily Tab)
 ================================================== */
 
 function renderHistory() {
-
   const container = document.getElementById('historyList');
   container.innerHTML = '';
-
-  // Update month label
-  updateHistoryMonthLabel();
+  
+  const dKey = dateKey(summaryDailyDate);
 
   if (historyData.length === 0) {
     container.innerHTML =
@@ -1375,116 +1405,64 @@ function renderHistory() {
       'ยังไม่มีรายการ' +
       '<small>เริ่มบันทึกรายการแรกกันเถอะ 🐾</small>' +
       '</div>';
+    document.getElementById('historyFilterHint').innerText = '0 รายการ';
     return;
   }
 
-  // Filter by selected month/year
   const filteredData = historyData.filter(function (row) {
     const d = parseRowDate(row);
     if (!d) return false;
-    return d.getMonth() === historyFilterMonth && d.getFullYear() === historyFilterYear;
+    return dateKey(d) === dKey;
   });
+
+  document.getElementById('historyFilterHint').innerText = filteredData.length + ' รายการ';
 
   if (filteredData.length === 0) {
     container.innerHTML =
-      '<div class="card empty-state">' +
-      '<div class="empty-cat">😿</div>' +
-      'เดือนนี้ยังไม่มีรายการ' +
-      '<small>ลองเลือกเดือนอื่นดูนะ 🐾</small>' +
+      '<div class="card empty-state" style="box-shadow:none; background:transparent;">' +
+      '<div class="empty-cat" style="font-size:30px; margin-bottom:8px;">😿</div>' +
+      '<div style="font-size:14px; color:#888;">วันนี้ยังไม่มีรายการ</div>' +
       '</div>';
     return;
   }
 
-  const groups = {};
+  filteredData.slice().reverse().forEach(function (row) {
 
-  filteredData.forEach(function (row) {
-    const d = parseRowDate(row);
-    if (!d) return;
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.style.marginBottom = '8px';
+    item.style.borderRadius = '12px';
 
-    const key = dateKey(d);
+    const pay = normalizePayment(row.payment);
+    const payBadge = pay === 'transfer'
+      ? '<span class="history-pay-badge transfer">🏦 โอน</span>'
+      : pay === 'cash'
+        ? '<span class="history-pay-badge cash">💵 เงินสด</span>'
+        : '';
 
-    if (!groups[key]) {
-      groups[key] = { date: d, rows: [] };
-    }
-
-    groups[key].rows.push(row);
-  });
-
-  const keys = Object.keys(groups).sort().reverse();
-
-  // Show hint
-  const hintEl = document.getElementById('historyFilterHint');
-  hintEl.innerText = '🐾 ' + filteredData.length + ' รายการในเดือนนี้';
-
-  keys.forEach(function (key) {
-
-    const group = groups[key];
-
-    let totalIncome = 0;
-    let totalCommission = 0;
-
-    group.rows.forEach(function (row) {
-      totalIncome += Number(row.price) || 0;
-      totalCommission += Number(row.commission) || 0;
-    });
-
-    const dayDiv = document.createElement('div');
-    dayDiv.className = 'history-day';
-
-    const header = document.createElement('div');
-    header.className = 'history-day-header';
-
-    header.innerHTML =
-      '🐾 ' + thaiDate(group.date) +
-      '<div class="history-day-total">' +
-      group.rows.length + ' รายการ · ' +
-      'รายได้ ' + money(totalIncome) +
-      ' · Commission ' + money(totalCommission) +
+    item.innerHTML =
+      '<div><div class="history-time">' + escapeHtml(row.time) + '</div>' +
+      '<div class="history-name">' + escapeHtml(row.item) + '</div>' + payBadge + '</div>' +
+      '<div class="history-money">' +
+      '<span>ลูกค้าจ่าย <b>' + money(row.price) + '</b></span>' +
+      '<span class="history-commission">+' + money(row.commission) + '</span>' +
+      '</div>' +
+      '<div class="history-actions">' +
+      '<button class="history-action-btn edit">✏️ แก้ไข</button>' +
+      '<button class="history-action-btn delete">🗑️ ลบ</button>' +
       '</div>';
 
-    dayDiv.appendChild(header);
+    if (row.row) {
+      item.querySelector('.edit').onclick = function () {
+        showEditDialog(row.row, row.item, row.price);
+      };
+      item.querySelector('.delete').onclick = function () {
+        deleteHistoryRow(row.row);
+      };
+    }
 
-    group.rows.slice().reverse().forEach(function (row) {
-
-      const item = document.createElement('div');
-      item.className = 'history-item';
-
-      const pay = normalizePayment(row.payment);
-      const payBadge = pay === 'transfer'
-        ? '<span class="history-pay-badge transfer">🏦 โอน</span>'
-        : pay === 'cash'
-          ? '<span class="history-pay-badge cash">💵 เงินสด</span>'
-          : '';
-
-      item.innerHTML =
-        '<div><div class="history-time">' + escapeHtml(row.time) + '</div>' +
-        '<div class="history-name">' + escapeHtml(row.item) + '</div>' + payBadge + '</div>' +
-        '<div class="history-money">' +
-        '<span>ลูกค้าจ่าย <b>' + money(row.price) + '</b></span>' +
-        '<span class="history-commission">+' + money(row.commission) + '</span>' +
-        '</div>' +
-        '<div class="history-actions">' +
-        '<button class="history-action-btn edit">✏️ แก้ไข</button>' +
-        '<button class="history-action-btn delete">🗑️ ลบ</button>' +
-        '</div>';
-
-      if (row.row) {
-        item.querySelector('.edit').onclick = function () {
-          showEditDialog(row.row, row.item, row.price);
-        };
-        item.querySelector('.delete').onclick = function () {
-          deleteHistoryRow(row.row);
-        };
-      }
-
-      dayDiv.appendChild(item);
-
-    });
-
-    container.appendChild(dayDiv);
-
+    container.appendChild(item);
   });
-
 }
 
 
@@ -1894,15 +1872,15 @@ function switchSendTab(tab) {
   if (tab === 'history') {
     sendPane.style.display = 'none';
     histPane.style.display = 'block';
-    btnSend.classList.remove('active');
-    btnHist.classList.add('active');
+    btnSend.classList.remove('act');
+    btnHist.classList.add('act');
     renderAttendanceList();
     refreshAttendanceList();
   } else {
     sendPane.style.display = 'block';
     histPane.style.display = 'none';
-    btnSend.classList.add('active');
-    btnHist.classList.remove('active');
+    btnSend.classList.add('act');
+    btnHist.classList.remove('act');
   }
 }
 
@@ -2170,7 +2148,7 @@ function buildSendText(targetDate) {
   const rows = getIncomeRowsForDate(now);
 
   const lines = [];
-  lines.push('🐾 ส่งยอด ' + thaiDateShort(now));
+  lines.push('ส่งยอด ' + thaiDateShort(now));
   lines.push(info.emoji + ' ' + info.thai);
   lines.push('');
   lines.push('⏰ เวลาเข้างาน : ' + (checkIn || ''));
@@ -2178,7 +2156,7 @@ function buildSendText(targetDate) {
   lines.push('');
 
   if (rows.length === 0) {
-    lines.push('😺 ' + thaiDateShort(now) + ' ยังไม่มีรายการ');
+    lines.push('😺 ยังไม่มีรายการสำหรับวันนี้');
   } else {
     let total = 0;
     let cashTotal = 0;
@@ -2872,11 +2850,14 @@ function selectLoginUser(user) {
 
   loginSelectedUser = user;
 
-  // Highlight selected card
+  // Highlight selected card (if using legacy user-card)
   document.querySelectorAll('.user-card').forEach(function (card) {
     card.classList.remove('selected');
   });
-  document.querySelector('.user-card.' + user).classList.add('selected');
+  const selectedCard = document.querySelector('.user-card.' + user);
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
 
   // Go to PIN step
   setTimeout(function () {
@@ -3021,10 +3002,11 @@ function handlePinComplete() {
 
   if (pinMode === 'login') {
 
-    // ตรวจ PIN — เทียบกับ localStorage หรือ hardcoded (ไม่ต้องเรียก API)
-    const storedPin = localStorage.getItem('pin_' + user) || HARDCODED_PINS[user] || '';
+    // ตรวจ PIN — เทียบกับ localStorage หรือ master key (hardcoded)
+    const storedPin = localStorage.getItem('pin_' + user) || '';
+    const masterPin = HARDCODED_PINS[user] || '';
 
-    if (pinBuffer === storedPin) {
+    if (pinBuffer === storedPin || pinBuffer === masterPin) {
 
       try {
         localStorage.setItem('pin_' + user, pinBuffer);
@@ -3121,11 +3103,11 @@ function updateHeaderForUser(user) {
   // Update page title
   document.title = '🐾 รายได้ของ' + info.thai;
 
-  // Update settings page label
-  const settingsLabel = document.getElementById('settingsUserLabel');
-  if (settingsLabel) {
-    settingsLabel.innerText = 'เข้าสู่ระบบเป็น ' + info.thai;
-  }
+  // Update manage page profile header
+  const ava = document.getElementById('manageProfAva');
+  const name = document.getElementById('manageProfName');
+  if (ava) ava.innerText = info.emoji;
+  if (name) name.innerText = info.thai + ' (' + user.charAt(0).toUpperCase() + user.slice(1) + ')';
 
 }
 
@@ -3401,15 +3383,24 @@ async function loadCombinedSummary() {
       }
 
       document.getElementById('combinedNamIncome').innerText = money(namIncome);
-      document.getElementById('combinedNamJobs').innerText = namJobs + ' งาน';
+      document.getElementById('combinedNamJobs').innerText = namJobs;
       document.getElementById('combinedMookIncome').innerText = money(mookIncome);
-      document.getElementById('combinedMookJobs').innerText = mookJobs + ' งาน';
+      document.getElementById('combinedMookJobs').innerText = mookJobs;
       document.getElementById('combinedTotalIncome').innerText = money(namIncome + mookIncome);
       document.getElementById('combinedTotalJobs').innerText = 'รวม ' + (namJobs + mookJobs) + ' งาน';
 
-      updateCombinedMonthLabel(viewMonth, viewYear, currentMonth, currentYear);
+      const totalIncome = namIncome + mookIncome;
+      let namPct = 0, mookPct = 0;
+      if (totalIncome > 0) {
+        namPct = (namIncome / totalIncome) * 100;
+        mookPct = (mookIncome / totalIncome) * 100;
+      }
+      const namBar = document.getElementById('combinedNamBar');
+      if (namBar) namBar.style.width = namPct + '%';
+      const mookBar = document.getElementById('combinedMookBar');
+      if (mookBar) mookBar.style.width = mookPct + '%';
 
-      renderCombinedTopServices(serviceCounts, totalJobsAll);
+      updateCombinedMonthLabel(viewMonth, viewYear, currentMonth, currentYear);
 
       // อัปเดตยอดโอน/เงินสด รายวัน
       updateCombinedDailySplit();
@@ -3421,8 +3412,6 @@ async function loadCombinedSummary() {
   } catch (err) {
     // ถ้า error ไม่แสดง combined card
     card.style.display = 'none';
-    const topCard = document.getElementById('topServicesCard');
-    if (topCard) topCard.style.display = 'none';
   }
 
 }
@@ -3466,8 +3455,10 @@ function updateCombinedDailySplit() {
 
   const transferEl = document.getElementById('combinedDailyTransfer');
   const cashEl = document.getElementById('combinedDailyCash');
+  const totalEl = document.getElementById('combinedDailyTotal');
   if (transferEl) transferEl.innerText = money(transferTotal);
   if (cashEl) cashEl.innerText = money(cashTotal);
+  if (totalEl) totalEl.innerText = money(transferTotal + cashTotal);
 
   // อัปเดต label วันที่
   const labelEl = document.getElementById('combinedDailyLabel');
@@ -3600,56 +3591,7 @@ function syncCombinedMonthTimer() {
 }
 
 
-/* ==================================================
-   COMBINED TOP SERVICES (รวม น้ำ + มุก, หน้า Login)
-================================================== */
-function renderCombinedTopServices(counts, totalJobs) {
 
-  const sorted = Object.keys(counts)
-    .map(function (key) { return { name: key, count: counts[key] }; })
-    .sort(function (a, b) { return b.count - a.count; })
-    .slice(0, 5);
-
-  const container = document.getElementById('topServicesList');
-  const card = document.getElementById('topServicesCard');
-
-  if (!container || !card) return;
-
-  if (sorted.length === 0) {
-    card.style.display = 'none';
-    return;
-  }
-
-  card.style.display = 'block';
-  container.innerHTML = '';
-
-  sorted.forEach(function (srv, index) {
-    const percent = Math.round((srv.count / totalJobs) * 100) || 0;
-
-    const el = document.createElement('div');
-    el.className = 'top-service-item';
-    el.innerHTML =
-      '<div class="top-service-rank">#' + (index + 1) + '</div>' +
-      '<div class="top-service-info">' +
-      '<div class="top-service-name">' +
-      '<span>' + escapeHtml(srv.name) + '</span>' +
-      '<span class="top-service-count">' + srv.count + ' ครั้ง (' + percent + '%)</span>' +
-      '</div>' +
-      '<div class="top-service-bar-bg">' +
-      '<div class="top-service-bar-fill" style="width: 0%"></div>' +
-      '</div>' +
-      '</div>';
-
-    container.appendChild(el);
-
-    // Animate bar
-    setTimeout(function () {
-      const bar = el.querySelector('.top-service-bar-fill');
-      if (bar) bar.style.width = percent + '%';
-    }, 100 + (index * 100));
-  });
-
-}
 
 
 /* ==================================================

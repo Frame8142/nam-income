@@ -50,78 +50,86 @@
       <!-- STEP 1: เลือกผู้ใช้ -->
       <div id="loginStep1" class="login-step active">
 
-        <div class="user-selector">
-          <div class="user-card nam" onclick="selectLoginUser('nam')">
-            <div class="user-card-avatar">💚</div>
-            <div class="user-card-name">น้ำ</div>
-            <div class="user-card-label">เข้าสู่ระบบ</div>
+        <div class="banner-wrap">
+          <div class="banner-btn nam" onclick="selectLoginUser('nam')">
+            <div class="banner-content">
+              <div class="banner-emoji">💚</div>
+              <div class="banner-text">
+                <div class="banner-name">น้ำ</div>
+                <div class="banner-sub">เข้าสู่ระบบเพื่อบันทึกงาน</div>
+              </div>
+              <div class="banner-arrow">❯</div>
+            </div>
           </div>
-          <div class="user-card mook" onclick="selectLoginUser('mook')">
-            <div class="user-card-avatar">💜</div>
-            <div class="user-card-name">มุก</div>
-            <div class="user-card-label">เข้าสู่ระบบ</div>
+          
+          <div class="banner-btn mook" onclick="selectLoginUser('mook')">
+            <div class="banner-content">
+              <div class="banner-emoji">🧡</div>
+              <div class="banner-text">
+                <div class="banner-name">มุก</div>
+                <div class="banner-sub">เข้าสู่ระบบเพื่อบันทึกงาน</div>
+              </div>
+              <div class="banner-arrow">❯</div>
+            </div>
           </div>
         </div>
 
 
-        <!-- DASHBOARD รวม 2 คน -->
-        <div id="combinedCard" class="card combined-card" style="margin-top:20px;">
-
-          <div class="title">
-            🏠 รายได้ร้านรวม
-          </div>
-
-          <div class="history-filter" style="margin:-2px 0 12px;">
-            <button class="history-filter-btn" onclick="changeCombinedMonth(-1)">◀</button>
-            <div id="combinedMonthLabel" class="history-filter-label">เดือนนี้</div>
-            <button class="history-filter-btn" onclick="changeCombinedMonth(1)">▶</button>
-          </div>
-
-          <div class="combined-grid">
-            <div class="combined-user-box">
-              <div class="combined-user-name nam">💚 น้ำ</div>
-              <div id="combinedNamIncome" class="combined-user-value">กำลังโหลด...</div>
-              <div id="combinedNamJobs" class="settings-item-sub" style="margin-top:4px;">— งาน</div>
+        <!-- DASHBOARD รวม 2 คน (Bank Wallet) -->
+        <div id="combinedCard" class="c5-wrapper" style="margin-top:20px;">
+          <!-- รายวัน (Wallet) -->
+          <div class="c5-wallet">
+            <div class="c5-wallet-nav">
+              <span style="cursor:pointer; padding:4px;" onclick="changeCombinedDaily(-1)">◀</span>
+              <span id="combinedDailyLabel">📅 วันนี้</span>
+              <span style="cursor:pointer; padding:4px;" onclick="changeCombinedDaily(1)">▶</span>
             </div>
-            <div class="combined-user-box">
-              <div class="combined-user-name mook">💜 มุก</div>
-              <div id="combinedMookIncome" class="combined-user-value">กำลังโหลด...</div>
-              <div id="combinedMookJobs" class="settings-item-sub" style="margin-top:4px;">— งาน</div>
-            </div>
-          </div>
-
-          <!-- ยอดโอน/เงินสด ประจำวัน (รวม 2 คน) — เลื่อนวันแยกอิสระ -->
-          <div class="combined-daily-split" style="margin-bottom:10px; padding:12px; background:var(--card-inner-bg, rgba(0,0,0,0.15)); border-radius:12px;">
-            <div class="history-filter" style="margin:0 0 10px;">
-              <button class="history-filter-btn" onclick="changeCombinedDaily(-1)">◀</button>
-              <div id="combinedDailyLabel" class="history-filter-label" style="font-size:13px;">📅 วันนี้</div>
-              <button class="history-filter-btn" onclick="changeCombinedDaily(1)">▶</button>
-            </div>
-            <div class="combined-pay-split">
-              <div class="combined-pay-box">
-                <div class="combined-pay-label">🏦 โอน (รวม 2 คน)</div>
-                <div id="combinedDailyTransfer" class="combined-pay-value">—</div>
+            
+            <div class="c5-wallet-total" id="combinedDailyTotal">—</div>
+            
+            <div class="c5-wallet-split">
+              <div class="c5-split-item">
+                <span class="c5-split-label">🏦 โอน (รวม)</span>
+                <span class="c5-split-val" id="combinedDailyTransfer">—</span>
               </div>
-              <div class="combined-pay-box">
-                <div class="combined-pay-label">💵 เงินสด (รวม 2 คน)</div>
-                <div id="combinedDailyCash" class="combined-pay-value">—</div>
+              <div class="c5-split-item" style="text-align:right;">
+                <span class="c5-split-label">💵 เงินสด (รวม)</span>
+                <span class="c5-split-val" id="combinedDailyCash">—</span>
               </div>
             </div>
           </div>
 
-          <div class="combined-total">
-            <div class="combined-total-label">💰 รวมรายได้ทั้งหมด</div>
-            <div id="combinedTotalIncome" class="combined-total-value">กำลังโหลด...</div>
-            <div id="combinedTotalJobs" class="settings-item-sub" style="margin-top:2px;">— งาน</div>
+          <!-- รายเดือน (Stats) -->
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div class="c5-month-title" style="margin:0;">สรุปยอดร้าน</div>
+            <div class="c5-nav" style="background:var(--card-soft); border-radius:12px; padding:4px 10px; font-size:13px; display:flex; gap:8px;">
+              <span style="cursor:pointer;" onclick="changeCombinedMonth(-1)">◀</span>
+              <span id="combinedMonthLabel">เดือนนี้</span>
+              <span style="cursor:pointer;" onclick="changeCombinedMonth(1)">▶</span>
+            </div>
           </div>
 
-        </div>
+          <div class="c5-progress-wrap">
+            <div class="c5-user-row">
+              <span style="color:var(--nam);">💚 น้ำ (<span id="combinedNamJobs">0</span>)</span>
+              <span id="combinedNamIncome">฿0</span>
+            </div>
+            <div class="c5-bar-bg"><div id="combinedNamBar" class="c5-bar-fill" style="width: 0%; background:var(--nam);"></div></div>
+          </div>
 
-
-        <!-- TOP SERVICES (รวม 2 คน) -->
-        <div class="card" id="topServicesCard" style="display:none; margin-top:14px;">
-          <div class="title">🏆 บริการยอดนิยม (เดือนนี้)</div>
-          <div id="topServicesList"></div>
+          <div class="c5-progress-wrap">
+            <div class="c5-user-row">
+              <span style="color:var(--mook);">🧡 มุก (<span id="combinedMookJobs">0</span>)</span>
+              <span id="combinedMookIncome">฿0</span>
+            </div>
+            <div class="c5-bar-bg"><div id="combinedMookBar" class="c5-bar-fill" style="width: 0%; background:var(--mook);"></div></div>
+          </div>
+          
+          <div style="text-align:center; margin-top:20px; font-weight:600; color:var(--ink); font-size:18px;">
+            รายได้รวม <span id="combinedTotalIncome">฿0</span>
+          </div>
+          <div id="combinedTotalJobs" style="text-align:center; font-size:13px; color:var(--ink-soft);">— งาน</div>
+          
         </div>
 
       </div>
@@ -193,7 +201,7 @@
     <div class="header-divider"></div>
 
 
-    <!-- ==================================================
+      <!-- ==================================================
      SAVE PAGE
 ================================================== -->
 
@@ -315,124 +323,96 @@
 
 
     <!-- ==================================================
-     SUMMARY PAGE
+     SUMMARY PAGE (TABBED INSIGHT)
 ================================================== -->
 
     <section id="summaryPage" class="page">
-
-
-      <!-- TODAY -->
-      <div class="card summary-main">
-
-        <div class="summary-label">
-          🪙 Commission วันนี้
-        </div>
-
-        <div id="todayCommission" class="summary-income">
-          ฿0
-        </div>
-
-        <div id="todayMood" class="summary-mood">
-          😺 วันนี้ยังไม่มีรายการ
-        </div>
-
-        <div class="summary-row">
-          <span>☀️ รายได้วันนี้</span>
-          <strong id="todayIncome">฿0</strong>
-        </div>
-
-        <div class="summary-row">
-          <span>💅 จำนวนงาน</span>
-          <strong id="todayJobs">0 รายการ</strong>
-        </div>
-
+      
+      <!-- TABS -->
+      <div class="s3-tabs">
+        <div class="s3-tab act" id="tabDailyBtn" onclick="switchSummaryTab('daily')">รายวัน & ประวัติ</div>
+        <div class="s3-tab" id="tabMonthlyBtn" onclick="switchSummaryTab('monthly')">สรุปรายเดือน</div>
       </div>
 
-
-      <!-- WEEK CHART -->
-      <div class="card chart-card">
-
-        <div class="chart-title">
-          📊 รายได้สัปดาห์นี้
+      <!-- VIEW 1: DAILY -->
+      <div id="view-daily" class="s3-view-area act">
+        <div class="s3-nav-row">
+          <div class="s3-nav-btn" onclick="changeSummaryDaily(-1)">◀</div>
+          <div id="summaryDailyLabel" style="font-weight:600;">วันนี้</div>
+          <div class="s3-nav-btn" onclick="changeSummaryDaily(1)">▶</div>
         </div>
 
-        <div class="chart-subtitle">
-          ดูรายได้ของแต่ละวัน
-        </div>
-
-        <div id="weekChart" class="chart"></div>
-
-        <div class="chart-legend">
-          <span class="chart-legend-item">
-            <span class="chart-legend-dot income"></span>
-            รายได้
-          </span>
-          <span class="chart-legend-item">
-            <span class="chart-legend-dot commission"></span>
-            Commission
-          </span>
-        </div>
-
-        <div id="weekTotal" class="week-total"></div>
-
-      </div>
-
-
-      <!-- MONTH -->
-      <div class="card">
-
-        <div class="title">
-          🗓️ เดือนนี้
-        </div>
-
-        <div id="monthCompare" class="month-compare"></div>
-
-        <div class="month-card">
-
-          <div class="month-box">
-            <div class="month-icon">💰</div>
-            <div class="month-label">รายได้</div>
-            <div id="monthIncome" class="month-value">฿0</div>
+        <div class="s3-stat-hero">
+          <div class="s3-sh-l">รายได้รายวัน</div>
+          <div class="s3-sh-v" id="todayIncome">฿0</div>
+          <div class="s3-sh-grid">
+            <div>
+              <div class="s3-box-val" id="todayCommission" style="color:var(--accent);">฿0</div>
+              <div class="s3-box-l">🪙 คอมมิชชั่น</div>
+            </div>
+            <div style="border-left:1px solid var(--border-soft);">
+              <div class="s3-box-val" id="todayJobs">0</div>
+              <div class="s3-box-l">💅 จำนวนงาน</div>
+            </div>
           </div>
+        </div>
 
-          <div class="month-box">
-            <div class="month-icon">🪙</div>
-            <div class="month-label">Commission</div>
-            <div id="monthCommission" class="month-value">฿0</div>
+        <div class="s3-hist-head">
+          <span style="font-weight:600; font-size:15px;">ประวัติรายการ</span>
+          <span class="s3-hist-count" id="historyFilterHint">0 รายการ</span>
+        </div>
+        
+        <!-- HISTORY LIST TARGET -->
+        <div id="historyList"></div>
+      </div>
+
+
+      <!-- VIEW 2: MONTHLY -->
+      <div id="view-monthly" class="s3-view-area" style="display:none;">
+        <div class="s3-nav-row">
+          <div class="s3-nav-btn" onclick="changeHistoryMonth(-1)">◀</div>
+          <div id="historyMonthLabel" style="font-weight:600;">เดือนนี้</div>
+          <div class="s3-nav-btn" onclick="changeHistoryMonth(1)">▶</div>
+        </div>
+
+        <div class="s3-stat-hero">
+          <div class="s3-sh-l">รายได้สุทธิเดือนนี้</div>
+          <div class="s3-sh-v" id="monthIncome">฿0</div>
+          <div id="monthCompare" style="font-size:13px; margin-bottom:12px;"></div>
+          
+          <div class="s3-sh-grid">
+            <div>
+              <div class="s3-box-val" id="monthCommission" style="color:var(--accent);">฿0</div>
+              <div class="s3-box-l">🪙 คอมมิชชั่นรวม</div>
+            </div>
+            <div style="border-left:1px solid var(--border-soft);">
+              <div class="s3-box-val" id="monthJobs">0</div>
+              <div class="s3-box-l">💅 จำนวนงานรวม</div>
+            </div>
           </div>
+        </div>
 
-          <div class="month-box">
-            <div class="month-icon">💅</div>
-            <div class="month-label">จำนวนงาน</div>
-            <div id="monthJobs" class="month-value">0</div>
+        <!-- Extra Month Stats -->
+        <div class="s3-m-extra-grid">
+          <div class="s3-m-card">
+            <div class="s3-m-card-i">🏦</div>
+            <div class="s3-m-card-l">รับเงินโอน</div>
+            <div class="s3-m-card-v" id="monthTransfer" style="color:var(--nam);">฿0</div>
           </div>
-
+          <div class="s3-m-card">
+            <div class="s3-m-card-i">💵</div>
+            <div class="s3-m-card-l">รับเงินสด</div>
+            <div class="s3-m-card-v" id="monthCash" style="color:var(--mook);">฿0</div>
+          </div>
+        </div>
+        
+        <div class="card chart-card" style="margin:16px 24px 20px; display:block;">
+          <div class="chart-title" style="margin-bottom:8px;">📊 รายได้สัปดาห์นี้</div>
+          <div id="weekChart" class="chart"></div>
+          <div id="weekTotal" class="week-total"></div>
         </div>
 
       </div>
-
-
-      <!-- INCOME CALENDAR -->
-      <div class="card" id="calendarCard" style="display:none;">
-        <div class="title">📅 ปฏิทินรายได้</div>
-        <div id="incomeCalendar"></div>
-      </div>
-
-
-      <!-- HISTORY -->
-      <div class="title" style="padding: 0 4px;">
-        📜 ประวัติรายการ
-      </div>
-
-      <div class="history-filter">
-        <button class="history-filter-btn" onclick="changeHistoryMonth(-1)">◀</button>
-        <div id="historyMonthLabel" class="history-filter-label">เดือนนี้</div>
-        <button class="history-filter-btn" onclick="changeHistoryMonth(1)">▶</button>
-      </div>
-      <div id="historyFilterHint" class="history-filter-hint"></div>
-
-      <div id="historyList"></div>
-
 
     </section>
 
@@ -444,119 +424,109 @@
 
     <section id="managePage" class="page">
 
-
-      <!-- SETTINGS -->
-      <div class="card">
-
-        <div class="title">
-          ⚙️ ตั้งค่า
+      <!-- PROFILE HEADER -->
+      <div class="s-prof">
+        <div style="height:20px;"></div>
+        <div class="s-ava" id="manageProfAva">💚</div>
+        <div style="font-size:22px; font-weight:600; color:var(--ink);" id="manageProfName">น้ำ (Nam)</div>
+        <div style="font-size:14px; color:var(--ink-soft);">เข้าสู่ระบบสำเร็จ</div>
+        <div style="margin-top:16px;">
+          <button class="s-btn-small" style="background:#ffebee; color:#d32f2f; padding:8px 16px;" onclick="logoutUser()">🚪 ออกจากระบบ</button>
         </div>
-
-        <div class="settings-item">
-          <div class="settings-item-left">
-            <div class="settings-item-icon">🌓</div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">โหมดกลางคืน</div>
-              <div class="settings-item-sub">เปลี่ยนพื้นหลังเป็นสีเข้ม</div>
-            </div>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="darkSwitch" onchange="toggleDarkMode()">
-            <span class="switch-slider"></span>
-            <span class="switch-emoji sun">☀️</span>
-            <span class="switch-emoji moon">🌙</span>
-          </label>
-        </div>
-
-        <div class="settings-item" onclick="openThemeMenu()">
-          <div class="settings-item-left">
-            <div class="settings-item-icon">🎨</div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">ธีมของฉัน</div>
-              <div class="settings-item-sub" id="themeSettingSub">เลือกภาพวอลเปเปอร์เฉพาะคุณ</div>
-            </div>
-          </div>
-          <div id="themeThumbWrap" class="theme-thumb-wrap">
-            <img id="themeThumb" class="theme-thumb" alt="">
-          </div>
-          <button class="settings-logout-btn" onclick="event.stopPropagation();openThemeMenu()">ธีม</button>
-        </div>
-
-        <div class="settings-item">
-          <div class="settings-item-left">
-            <div class="settings-item-icon">🔐</div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">เปลี่ยน PIN</div>
-              <div class="settings-item-sub">เปลี่ยนรหัส PIN 4 หลัก</div>
-            </div>
-          </div>
-          <button class="settings-logout-btn" onclick="showChangePinFlow()">เปลี่ยน</button>
-        </div>
-
-        <div class="settings-item">
-          <div class="settings-item-left">
-            <div class="settings-item-icon">🔔</div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">แจ้งเตือนบันทึก</div>
-              <div class="settings-item-sub">เตือนทุกวันหลัง 18:00</div>
-            </div>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="notifSwitch" onchange="toggleNotification()">
-            <span class="switch-slider"></span>
-            <span class="switch-emoji sun">🔕</span>
-            <span class="switch-emoji moon">🔔</span>
-          </label>
-        </div>
-
-        <div class="settings-item">
-          <div class="settings-item-left">
-            <div class="settings-item-icon">🚪</div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">ออกจากระบบ</div>
-              <div class="settings-item-sub" id="settingsUserLabel">เข้าสู่ระบบเป็น น้ำ</div>
-            </div>
-          </div>
-          <button class="settings-logout-btn" onclick="logoutUser()">ออกจากระบบ</button>
-        </div>
-
-        <div class="settings-item">
-          <div class="settings-item-left">
-            <div class="settings-item-icon">🔄</div>
-            <div class="settings-item-text">
-              <div class="settings-item-title">อัปเดตแอป</div>
-              <div class="settings-item-sub">กดเมื่อเว็บค้างหรือไม่ยอมอัปเดต</div>
-            </div>
-          </div>
-          <button class="settings-logout-btn" onclick="forceRefreshApp()">อัปเดต</button>
-        </div>
-
       </div>
 
+      <!-- APP SETTINGS -->
+      <div class="s-section">
+        <div class="s-sec-title">⚙️ การตั้งค่าแอปพลิเคชัน</div>
+        <div class="s-card">
+          
+          <div class="s-row" onclick="document.getElementById('darkSwitch').click()">
+             <div class="s-icon">🌙</div>
+             <div class="s-text">
+               <div class="s-title">โหมดกลางคืน</div>
+               <div class="s-sub">เปลี่ยนพื้นหลังเป็นสีเข้ม</div>
+             </div>
+             <div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="darkSwitch" onchange="toggleDarkMode()">
+                  <span class="switch-slider"></span>
+                  <span class="switch-emoji sun">☀️</span>
+                  <span class="switch-emoji moon">🌙</span>
+                </label>
+             </div>
+          </div>
 
-      <div class="card">
+          <div class="s-row" onclick="openThemeMenu()">
+             <div class="s-icon">🎨</div>
+             <div class="s-text">
+               <div class="s-title">ธีมของฉัน</div>
+               <div class="s-sub" id="themeSettingSub">เลือกภาพวอลเปเปอร์</div>
+             </div>
+             <div style="display:flex; align-items:center; gap:8px;">
+               <div id="themeThumbWrap" class="theme-thumb-wrap" style="width:30px; height:30px;">
+                 <img id="themeThumb" class="theme-thumb" alt="">
+               </div>
+               <button class="s-btn-small" onclick="event.stopPropagation();openThemeMenu()">เปลี่ยน</button>
+             </div>
+          </div>
 
-        <div class="title">
-          ➕ เพิ่มบริการใหม่
+          <div class="s-row" onclick="showChangePinFlow()">
+             <div class="s-icon">🔐</div>
+             <div class="s-text">
+               <div class="s-title">เปลี่ยน PIN</div>
+               <div class="s-sub">ตั้งค่ารหัสผ่าน 4 หลักใหม่</div>
+             </div>
+             <div><button class="s-btn-small" onclick="event.stopPropagation();showChangePinFlow()">เปลี่ยน</button></div>
+          </div>
+
+          <div class="s-row" onclick="document.getElementById('notifSwitch').click()">
+             <div class="s-icon">🔔</div>
+             <div class="s-text">
+               <div class="s-title">แจ้งเตือนบันทึก</div>
+               <div class="s-sub">เตือนทุกวันหลัง 18:00</div>
+             </div>
+             <div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="notifSwitch" onchange="toggleNotification()">
+                  <span class="switch-slider"></span>
+                  <span class="switch-emoji sun">🔕</span>
+                  <span class="switch-emoji moon">🔔</span>
+                </label>
+             </div>
+          </div>
+
+          <div class="s-row" onclick="forceRefreshApp()">
+             <div class="s-icon">🔄</div>
+             <div class="s-text">
+               <div class="s-title">อัปเดตแอป</div>
+               <div class="s-sub">กดเมื่อเว็บค้างหรือไม่ล่าสุด</div>
+             </div>
+             <div><button class="s-btn-small" onclick="event.stopPropagation();forceRefreshApp()">อัปเดต</button></div>
+          </div>
+
         </div>
-
-        <input id="newServiceName" class="add-input" placeholder="ชื่อบริการ เช่น ทาสีคริสตัล"
-          style="margin-bottom:10px;width:100%;">
-
-        <select id="newServiceCategory" class="thai-date-select" style="width:100%;"></select>
-
-        <input id="newCategoryInput" class="add-input" placeholder="ชื่อหมวดหมู่ใหม่"
-          style="display:none;margin-top:10px;width:100%;">
-
-        <button class="save-btn" style="margin-top:12px;" onclick="addServiceAction()">
-          ＋ เพิ่มบริการ
-        </button>
-
       </div>
 
+      <!-- SERVICES MANAGEMENT -->
+      <div class="s-section">
+        <div class="s-sec-title">💅 จัดการรายการบริการ</div>
+        
+        <!-- Add Form -->
+        <div class="s-card" style="padding:16px; margin-bottom:20px; background:var(--card-soft);">
+          <div style="font-weight:600; margin-bottom:12px; color:var(--ink);">➕ เพิ่มบริการใหม่</div>
+          <input id="newServiceName" class="s-input" placeholder="ชื่อบริการ เช่น ทาสีคริสตัล" style="width:100%; box-sizing:border-box; margin-bottom:10px;">
+          
+          <select id="newServiceCategory" class="s-input" style="width:100%; box-sizing:border-box; margin-bottom:10px;"></select>
+          
+          <input id="newCategoryInput" class="s-input" placeholder="ชื่อหมวดหมู่ใหม่" style="display:none; width:100%; box-sizing:border-box; margin-bottom:10px;">
+          
+          <button class="save-btn" style="width:100%; margin-top:8px;" onclick="addServiceAction()">＋ เพิ่มบริการ</button>
+        </div>
 
-      <div id="manageList"></div>
+        <!-- Manage List -->
+        <div id="manageList"></div>
 
+      </div>
 
     </section>
 
@@ -567,62 +537,53 @@
 ================================================== -->
 
     <section id="sendPage" class="page">
-
-      <!-- TABS: ส่งยอด | ประวัติ -->
-      <div class="send-tabs">
-        <button id="tabSendBtn" class="send-tab-btn active" onclick="switchSendTab('send')">💸 ส่งยอด</button>
-        <button id="tabHistoryBtn" class="send-tab-btn" onclick="switchSendTab('history')">🕒 ประวัติเข้าออกงาน</button>
+      
+      <!-- TABS -->
+      <div class="s2-tabs">
+        <div class="s2-tab act" id="tabSendBtn" onclick="switchSendTab('send')">💸 ส่งยอด</div>
+        <div class="s2-tab" id="tabHistoryBtn" onclick="switchSendTab('history')">🕒 ประวัติทำงาน</div>
       </div>
 
       <!-- TAB 1: ส่งยอด -->
-      <div id="sendTabPane">
-        <div class="card">
-          <div class="title">📅 วันที่ส่งยอด</div>
-          <input id="sendDateInput" type="date" class="thai-date-select" style="width:100%;"
-            onchange="onSendDateChange()">
-          <div class="send-hint">💡 ปกติเป็นวันนี้ — กดสรุปย้อนหลังได้ 1 วัน (เมื่อวาน)</div>
-        </div>
-        <div class="card">
-          <div class="title">📝 ข้อความส่งยอด</div>
-          <div class="send-textbox-wrap">
-            <textarea id="sendPreviewBox" class="send-textbox" rows="10"
-              placeholder="กดปุ่ม ✨ สรุปยอด เพื่อสร้างข้อความที่นี่ แล้วแก้ไขเพิ่มได้เลย"
-              oninput="updateSendCharCount()"></textarea>
-            <div id="sendCharCount" class="send-char-count">0</div>
+      <div id="sendTabPane" style="padding-bottom:20px;">
+        
+        <div class="s1-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <span style="font-weight:600; color:var(--ink);">📅 วันที่ส่งยอด</span>
+            <input id="sendDateInput" type="date" class="thai-date-select" style="max-width:140px; text-align:right;" onchange="onSendDateChange()">
           </div>
-          <div class="send-actions">
-            <button class="save-btn" onclick="buildSendPreview()">✨ สรุปยอด</button>
-            <div class="send-actions-row">
-              <button class="send-copy-btn" onclick="copyAndSaveAttendance()">📋 คัดลอก</button>
-              <button class="send-line-btn" onclick="shareToLineAndSave()">💬 แชร์ไป LINE</button>
+          
+          <div style="font-weight:600; color:var(--ink); margin-bottom:10px;">⏰ เวลาเข้า-ออกงาน</div>
+          <div style="display:flex; justify-content:space-between; background:var(--bg); padding:8px 12px; border-radius:8px; margin-bottom:8px;">
+            <div class="send-time-selects">
+              <select id="checkInHour" class="send-time-select" onchange="onSendTimeChange()"></select>
+              <span class="send-time-sep">:</span>
+              <select id="checkInMin" class="send-time-select" onchange="onSendTimeChange()"></select>
             </div>
-            <div class="send-hint">💡 กดคัดลอก = คัดลอกข้อความ + บันทึกเวลาเข้าออกงานพร้อมกัน</div>
+            <span style="color:var(--ink-soft); font-size:13px; align-self:center;">(เข้างาน)</span>
           </div>
+          
+          <div style="display:flex; justify-content:space-between; background:var(--bg); padding:8px 12px; border-radius:8px;">
+            <div class="send-time-selects">
+              <select id="checkOutHour" class="send-time-select" onchange="onSendTimeChange()"></select>
+              <span class="send-time-sep">:</span>
+              <select id="checkOutMin" class="send-time-select" onchange="onSendTimeChange()"></select>
+            </div>
+            <span style="color:var(--ink-soft); font-size:13px; align-self:center;">(ออกงาน)</span>
+          </div>
+          <div class="send-time-default" id="sendTimeDefault" style="margin-top:8px; text-align:right;"></div>
         </div>
 
-        <div class="card">
-          <div class="title">⏰ เวลาเข้าออกงาน</div>
-          <div class="send-time-row">
-            <div class="send-time-field">
-              <div class="send-time-label">⏰ เวลาเข้างาน</div>
-              <div class="send-time-selects">
-                <select id="checkInHour" class="send-time-select" onchange="onSendTimeChange()"></select>
-                <span class="send-time-sep">.</span>
-                <select id="checkInMin" class="send-time-select" onchange="onSendTimeChange()"></select>
-                <span class="send-time-unit">น.</span>
-              </div>
-            </div>
-            <div class="send-time-field">
-              <div class="send-time-label">⏰ เวลาออกงาน</div>
-              <div class="send-time-selects">
-                <select id="checkOutHour" class="send-time-select" onchange="onSendTimeChange()"></select>
-                <span class="send-time-sep">.</span>
-                <select id="checkOutMin" class="send-time-select" onchange="onSendTimeChange()"></select>
-                <span class="send-time-unit">น.</span>
-              </div>
-            </div>
+        <div class="s1-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+            <span style="font-weight:600; color:var(--ink);">📝 ข้อความสรุปยอด</span>
+            <span style="color:var(--nam); font-size:13px; font-weight:500; cursor:pointer;" onclick="buildSendPreview()">✨ ดึงยอดล่าสุด</span>
           </div>
-          <div class="send-time-default" id="sendTimeDefault"></div>
+          <textarea id="sendPreviewBox" class="mock-ta" style="background:var(--bg); padding:12px; border-radius:8px; border:1px solid var(--border-soft); height:240px;" placeholder="กดปุ่ม ✨ ดึงยอดล่าสุด" oninput="updateSendCharCount()"></textarea>
+          <div id="sendCharCount" class="send-char-count" style="text-align:right; margin-top:8px; font-size:12px; color:var(--ink-soft);">0</div>
+          
+          <button class="s1-btn" style="width:100%; margin-top:16px;" onclick="copyAndSaveAttendance()">📋 คัดลอกและบันทึกเวลา</button>
+          <button class="s1-btn" style="width:100%; margin-top:8px; background:var(--line);" onclick="shareToLineAndSave()">💬 แชร์ไป LINE</button>
         </div>
       </div>
 
