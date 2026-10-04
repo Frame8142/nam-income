@@ -2719,7 +2719,7 @@ function showEditAttendanceDialog(dateKeyStr) {
     closeModal();
 
     try {
-      await apiPost({
+      const result = await apiPost({
         action: 'updateAttendance',
         date: dateKeyStr,
         checkIn: newIn,
@@ -2728,7 +2728,12 @@ function showEditAttendanceDialog(dateKeyStr) {
         lateMin: late.lateMin,
         fine: late.fine
       });
-    } catch (e) { }
+      if (!result.success) {
+        alert("❌ อัปเดตไม่สำเร็จ: " + result.message);
+      }
+    } catch (e) {
+      alert("❌ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้: " + e.message);
+    }
 
     showToast('แก้ไขเวลาแล้ว ✏️');
     renderAttendanceList();
