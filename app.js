@@ -2884,8 +2884,8 @@ function selectLoginUser(user) {
 
 // PIN ฝังในโค้ด (แก้ค่าตรงนี้ได้เลยถ้าต้องการเปลี่ยน)
 const HARDCODED_PINS = {
-  'nam': '1234',
-  'mook': '1234'
+  'nam': '2433',
+  'mook': '1412'
 };
 
 
@@ -2993,10 +2993,17 @@ function handlePinComplete() {
       return;
     }
 
-    // เก็บ PIN ใน localStorage
+    // เก็บ PIN ใน localStorage เพื่อความเร็วในการเข้าครั้งต่อไป
     try {
       localStorage.setItem('pin_' + user, pinBuffer);
     } catch (e) { }
+
+    // แบ็คอัป PIN ลง Google Sheets ด้วยแบบเบื้องหลัง (ไม่ต้องรอผลลัพธ์)
+    apiPostRaw({
+      action: 'setPin',
+      user: user,
+      newPin: pinBuffer
+    }).catch(e => console.warn('บันทึก PIN สำรองไม่สำเร็จ', e));
 
     completeLogin(user);
     return;
