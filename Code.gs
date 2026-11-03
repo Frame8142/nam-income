@@ -1,19 +1,11 @@
-const SHEET_LIST = 'databaselist';
+﻿const SHEET_LIST = 'databaselist';
 const COMMISSION_RATE = 0.10;
 
 // แมปชื่อผู้ใช้ → ชื่อชีต
 const USER_SHEETS = {
-  'nam': 'databasenam',
-  'mook': 'databasemook'
+  'nam': 'databasenam'
 };
 
-// แมปชื่อผู้ใช้ → แถวใน databaselist (คอลัมน์ C/D)
-// nam = แถว 1, mook = แถว 2 — ใช้ตัวนี้อ้างอิงแถวเสมอ
-// (ไม่เทียบกับชื่อในคอลัมน์ C เพราะคอลัมน์นั้นเป็นภาษาไทยที่กรอกเอง)
-const PIN_ROW_MAP = {
-  'nam': 1,
-  'mook': 2
-};
 
 
 /* =========================
@@ -70,24 +62,6 @@ function doGet(e) {
   }
 
 
-  // API ประวัติรวม (ทั้ง 2 คน)
-  if (action === 'historyAll') {
-
-    return jsonResponse(
-      getHistoryAll()
-    );
-
-  }
-
-
-  // API ดึง PIN
-  if (action === 'getPin') {
-
-    return jsonResponse(
-      getPinData(user)
-    );
-
-  }
 
 
   // API ประวัติเวลางาน (?action=historyAttendance&user=nam&month=9&year=2026)
@@ -213,20 +187,6 @@ function doPost(e) {
   }
 
 
-  // ตั้ง PIN / เปลี่ยน PIN
-  if (action === 'setPin') {
-    try {
-      const result = setPin(
-        user,
-        body.oldPin,
-        body.newPin
-      );
-      return jsonResponse(result);
-    } catch (e) {
-      return jsonResponse({ success: false, message: e.message });
-    }
-  }
-
 
   // เพิ่มบริการ
   if (action === 'addService') {
@@ -298,7 +258,9 @@ function doPost(e) {
         body.lateMin,
         body.fine,
         body.jobs,
-        body.income
+        body.income,
+        body.otMin,
+        body.otPay
       );
       return jsonResponse(result);
     } catch (err) {
@@ -320,7 +282,9 @@ function doPost(e) {
         body.checkOut,
         body.note,
         body.lateMin,
-        body.fine
+        body.fine,
+        body.otMin,
+        body.otPay
       );
       return jsonResponse(result);
     } catch (err) {
@@ -357,102 +321,6 @@ function doPost(e) {
 }
 
 
-/* =========================
-   PIN MANAGEMENT
-   เก็บใน databaselist คอลัมน์ C, D
-   C1 = ชื่อคนที่ 1 (น้ำ), D1 = PIN ของน้ำ
-   C2 = ชื่อคนที่ 2 (มุก), D2 = PIN ของมุก
-========================= */
-
-function getPinData(user) {
-
-  if (!user) {
-    return {
-      success: false,
-      message: 'ไม่ได้ระบุผู้ใช้'
-    };
-  }
-
-  const row = PIN_ROW_MAP[user];
-
-  if (!row) {
-    return {
-      success: false,
-      message: 'ผู้ใช้ไม่ถูกต้อง'
-    };
-  }
-
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_LIST);
-
-  if (!sheet) {
-    throw new Error('ไม่พบชีต databaselist');
-  }
-
-  // อ่านเฉพาะคอลัมน์ D (pin) ของแถวผู้ใช้นี้
-  const pin = String(sheet.getRange(row, 4).getValue() || '').trim();
-
-  return {
-    success: true,
-    hasPin: pin !== '',
-    // ไม่ส่ง PIN กลับมาตรงๆ เพื่อความปลอดภัย
-    // แต่ส่ง hash หรือ flag ก็ได้
-    pin: pin
-  };
-
-}
-
-
-function setPin(user, oldPin, newPin) {
-
-  if (!user) {
-    throw new Error('ไม่ได้ระบุผู้ใช้');
-  }
-
-  // Support legacy signature: setPin(user, pin)
-  let targetPin = newPin;
-  if (!newPin && oldPin) {
-    targetPin = oldPin;
-    oldPin = null;
-  }
-
-  if (!targetPin || String(targetPin).trim().length !== 4) {
-    throw new Error('PIN ต้องเป็น 4 หลัก');
-  }
-
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_LIST);
-
-  if (!sheet) {
-    throw new Error('ไม่พบชีต databaselist');
-  }
-
-  // nam → แถว 1, mook → แถว 2
-  const row = PIN_ROW_MAP[user];
-
-  if (!row) {
-    throw new Error('ผู้ใช้ไม่ถูกต้อง');
-  }
-
-  // Verify old PIN if provided
-  if (oldPin) {
-    const currentPin = sheet.getRange(row, 4).getValue();
-    if (String(currentPin).trim() !== String(oldPin).trim()) {
-      throw new Error('รหัส PIN เดิมไม่ถูกต้อง');
-    }
-  }
-
-  // เขียนแค่ D{row} = PIN — ไม่แตะคอลัมน์ C (ชื่อคนที่กรอกเองอยู่แล้ว)
-  sheet.getRange(row, 4).setValue(
-    String(targetPin).trim()
-  );
-
-  return {
-    success: true,
-    message: 'ตั้งค่า PIN เรียบร้อย'
-  };
-
-}
 
 
 /* =========================
@@ -1111,42 +979,6 @@ function getHistory(user) {
 }
 
 
-/* =========================
-   HISTORY ALL (รวม 2 คน)
-   คืนข้อมูลแยก nam / mook
-========================= */
-
-function getHistoryAll() {
-
-  const result = {};
-
-  const users = Object.keys(USER_SHEETS);
-
-  users.forEach(function(user) {
-
-    try {
-
-      const histResult = getHistory(user);
-
-      result[user] = (histResult && histResult.data) || [];
-
-    } catch (e) {
-
-      result[user] = [];
-
-    }
-
-  });
-
-  return {
-
-    success: true,
-
-    data: result
-
-  };
-
-}
 
 
 /* =========================
@@ -1174,6 +1006,7 @@ function jsonResponse(data) {
    A=ผู้ใช้ | B=คีย์วันที่(yyyy-mm-dd) | C=วันที่(dd/mm/yyyy)
    D=เวลาเข้า | E=เวลาออก | F=สาย(นาที) | G=หัก(บาท)
    H=จำนวนงาน | I=รายได้ | J=โน้ต | K=ข้อความส่งยอด
+   L=OT(นาที) | M=OT(บาท)
 ========================= */
 
 
@@ -1205,8 +1038,16 @@ function getAttendanceSheet(user) {
     sheet.appendRow([
       'ผู้ใช้', 'คีย์วันที่', 'วันที่',
       'เวลาเข้า', 'เวลาออก', 'สาย(นาที)', 'หัก(บาท)',
-      'จำนวนงาน', 'รายได้', 'โน้ต', 'ข้อความส่งยอด'
+      'จำนวนงาน', 'รายได้', 'โน้ต', 'ข้อความส่งยอด',
+      'OT(นาที)', 'OT(บาท)'
     ]);
+  } else {
+    // Migration: เพิ่ม header L/M ถ้ายังไม่มี
+    var headerRow = sheet.getRange(1, 1, 1, 13).getValues()[0];
+    if (!headerRow[11] || String(headerRow[11]).trim() === '') {
+      sheet.getRange(1, 12).setValue('OT(นาที)');
+      sheet.getRange(1, 13).setValue('OT(บาท)');
+    }
   }
 
   return sheet;
@@ -1218,8 +1059,7 @@ function getAttendanceSheet(user) {
 ========================= */
 function setupSheets() {
   getAttendanceSheet('nam');
-  getAttendanceSheet('mook');
-  return "สร้างชีต attendance_nam และ attendance_mook เรียบร้อย";
+  return "สร้างชีต attendance_nam เรียบร้อย";
 }
 
 
@@ -1271,7 +1111,7 @@ function findAttendanceRow(sheet, values, user, dateKey) {
 }
 
 
-function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, lateMin, fine, jobs, income) {
+function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, lateMin, fine, jobs, income, otMin, otPay) {
 
   checkAttUser(user);
 
@@ -1288,7 +1128,7 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
 
   let values = [];
   if (lastRow >= 2) {
-    values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+    values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
   }
 
   const rowData = [
@@ -1302,14 +1142,16 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
     Number(jobs) || 0,
     Number(income) || 0,
     String(note || ''),
-    String(fullText || '')
+    String(fullText || ''),
+    Number(otMin) || 0,
+    Number(otPay) || 0
   ];
 
   const existingRow = findAttendanceRow(sheet, values, user, dateKey);
 
   if (existingRow > 0) {
     // ส่งซ้ำวันเดียวกัน = อัปเดตทับ (ไม่เบิ้ลแถว)
-    sheet.getRange(existingRow, 1, 1, 11).setValues([rowData]);
+    sheet.getRange(existingRow, 1, 1, 13).setValues([rowData]);
     // Force คอลัมน์ B เป็น Plain Text กัน Sheets auto-convert เป็น Date
     sheet.getRange(existingRow, 2).setNumberFormat('@');
   } else {
@@ -1327,7 +1169,7 @@ function saveAttendanceData(user, dateKey, checkIn, checkOut, note, fullText, la
 }
 
 
-function updateAttendanceData(user, dateKey, checkIn, checkOut, note, lateMin, fine) {
+function updateAttendanceData(user, dateKey, checkIn, checkOut, note, lateMin, fine, otMin, otPay) {
 
   checkAttUser(user);
 
@@ -1339,14 +1181,14 @@ function updateAttendanceData(user, dateKey, checkIn, checkOut, note, lateMin, f
     throw new Error('ไม่พบบันทึกเวลานี้');
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
   const row = findAttendanceRow(sheet, values, user, dateKey);
 
   if (!row) {
     throw new Error('ไม่พบบันทึกเวลานี้');
   }
 
-  // แก้เฉพาะ เวลาเข้า/ออก/สาย/หัก (คอลัมน์ D–G) และโน้ต (คอลัมน์ J)
+  // แก้เฉพาะ เวลาเข้า/ออก/สาย/หัก (คอลัมน์ D–G), โน้ต (J), OT (L–M)
   sheet.getRange(row, 4, 1, 4).setValues([[
     String(checkIn || '').trim(),
     String(checkOut || '').trim(),
@@ -1354,6 +1196,7 @@ function updateAttendanceData(user, dateKey, checkIn, checkOut, note, lateMin, f
     Number(fine) || 0
   ]]);
   sheet.getRange(row, 10).setValue(String(note || ''));
+  sheet.getRange(row, 12, 1, 2).setValues([[Number(otMin) || 0, Number(otPay) || 0]]);
 
   return {
     success: true,
@@ -1375,7 +1218,7 @@ function deleteAttendanceData(user, dateKey) {
     throw new Error('ไม่พบบันทึกเวลานี้');
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
   const row = findAttendanceRow(sheet, values, user, dateKey);
 
   if (!row) {
@@ -1411,7 +1254,7 @@ function getAttendanceHistory(user, month, year) {
     return { success: true, data: [] };
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 13).getValues();
   const data = [];
 
   values.forEach(function (r) {
@@ -1450,7 +1293,9 @@ function getAttendanceHistory(user, month, year) {
       jobs: Number(r[7]) || 0,
       income: Number(r[8]) || 0,
       note: String(r[9] || ''),
-      fullText: String(r[10] || '')
+      fullText: String(r[10] || ''),
+      otMin: Number(r[11]) || 0,
+      otPay: Number(r[12]) || 0
     });
 
   });

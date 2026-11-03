@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="th">
 
@@ -30,7 +30,7 @@
     href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=Sarabun:wght@400;600&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=6">
 
 
 </head>
@@ -38,138 +38,6 @@
 
 <body>
 
-
-  <!-- ===== LOGIN SCREEN ===== -->
-  <div id="loginScreen" class="login-screen">
-    <div class="login-container">
-
-      <div class="login-logo">🐾</div>
-      <div class="login-title">รายได้ทำเล็บ</div>
-      <div class="login-subtitle" id="loginSubtitle">เลือกผู้ใช้เพื่อเข้าสู่ระบบ</div>
-
-      <!-- STEP 1: เลือกผู้ใช้ -->
-      <div id="loginStep1" class="login-step active">
-
-        <div class="banner-wrap">
-          <div class="banner-btn nam" onclick="selectLoginUser('nam')">
-            <div class="banner-content">
-              <div class="banner-emoji">💚</div>
-              <div class="banner-text">
-                <div class="banner-name">น้ำ</div>
-                <div class="banner-sub">เข้าสู่ระบบเพื่อบันทึกงาน</div>
-              </div>
-              <div class="banner-arrow">❯</div>
-            </div>
-          </div>
-          
-          <div class="banner-btn mook" onclick="selectLoginUser('mook')">
-            <div class="banner-content">
-              <div class="banner-emoji">🧡</div>
-              <div class="banner-text">
-                <div class="banner-name">มุก</div>
-                <div class="banner-sub">เข้าสู่ระบบเพื่อบันทึกงาน</div>
-              </div>
-              <div class="banner-arrow">❯</div>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- DASHBOARD รวม 2 คน (Bank Wallet) -->
-        <div id="combinedCard" class="c5-wrapper" style="margin-top:20px;">
-          <!-- รายวัน (Wallet) -->
-          <div class="c5-wallet">
-            <div class="c5-wallet-nav">
-              <span style="cursor:pointer; padding:4px;" onclick="changeCombinedDaily(-1)">◀</span>
-              <span id="combinedDailyLabel">📅 วันนี้</span>
-              <span style="cursor:pointer; padding:4px;" onclick="changeCombinedDaily(1)">▶</span>
-            </div>
-            
-            <div class="c5-wallet-total" id="combinedDailyTotal">—</div>
-            
-            <div class="c5-wallet-split">
-              <div class="c5-split-item">
-                <span class="c5-split-label">🏦 โอน (รวม)</span>
-                <span class="c5-split-val" id="combinedDailyTransfer">—</span>
-              </div>
-              <div class="c5-split-item" style="text-align:right;">
-                <span class="c5-split-label">💵 เงินสด (รวม)</span>
-                <span class="c5-split-val" id="combinedDailyCash">—</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- รายเดือน (Stats) -->
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <div class="c5-month-title" style="margin:0;">สรุปยอดร้าน</div>
-            <div class="c5-nav" style="background:var(--card-soft); border-radius:12px; padding:4px 10px; font-size:13px; display:flex; gap:8px;">
-              <span style="cursor:pointer;" onclick="changeCombinedMonth(-1)">◀</span>
-              <span id="combinedMonthLabel">เดือนนี้</span>
-              <span style="cursor:pointer;" onclick="changeCombinedMonth(1)">▶</span>
-            </div>
-          </div>
-
-          <div class="c5-progress-wrap">
-            <div class="c5-user-row">
-              <span style="color:var(--nam);">💚 น้ำ (<span id="combinedNamJobs">0</span>)</span>
-              <span id="combinedNamIncome">฿0</span>
-            </div>
-            <div class="c5-bar-bg"><div id="combinedNamBar" class="c5-bar-fill" style="width: 0%; background:var(--nam);"></div></div>
-          </div>
-
-          <div class="c5-progress-wrap">
-            <div class="c5-user-row">
-              <span style="color:var(--mook);">🧡 มุก (<span id="combinedMookJobs">0</span>)</span>
-              <span id="combinedMookIncome">฿0</span>
-            </div>
-            <div class="c5-bar-bg"><div id="combinedMookBar" class="c5-bar-fill" style="width: 0%; background:var(--mook);"></div></div>
-          </div>
-          
-          <div style="text-align:center; margin-top:20px; font-weight:600; color:var(--ink); font-size:18px;">
-            รายได้รวม <span id="combinedTotalIncome">฿0</span>
-          </div>
-          <div id="combinedTotalJobs" style="text-align:center; font-size:13px; color:var(--ink-soft);">— งาน</div>
-          
-        </div>
-
-      </div>
-
-
-      <!-- STEP 2: ใส่ PIN -->
-      <div id="loginStep2" class="login-step" style="margin-top:12px;">
-
-        <div id="pinLabel" class="pin-label">ใส่ PIN 4 หลัก</div>
-
-        <div class="pin-dots">
-          <div class="pin-dot" id="pinDot0"></div>
-          <div class="pin-dot" id="pinDot1"></div>
-          <div class="pin-dot" id="pinDot2"></div>
-          <div class="pin-dot" id="pinDot3"></div>
-        </div>
-
-        <div class="pin-pad">
-          <button class="pin-key" onclick="pinInput('1')">1</button>
-          <button class="pin-key" onclick="pinInput('2')">2</button>
-          <button class="pin-key" onclick="pinInput('3')">3</button>
-          <button class="pin-key" onclick="pinInput('4')">4</button>
-          <button class="pin-key" onclick="pinInput('5')">5</button>
-          <button class="pin-key" onclick="pinInput('6')">6</button>
-          <button class="pin-key" onclick="pinInput('7')">7</button>
-          <button class="pin-key" onclick="pinInput('8')">8</button>
-          <button class="pin-key" onclick="pinInput('9')">9</button>
-          <button class="pin-key empty"></button>
-          <button class="pin-key" onclick="pinInput('0')">0</button>
-          <button class="pin-key backspace" onclick="pinBackspace()">⌫</button>
-        </div>
-
-        <div id="pinError" class="pin-error-text"></div>
-
-        <button class="pin-back-btn" onclick="pinGoBack()">← เปลี่ยนผู้ใช้</button>
-
-      </div>
-
-    </div>
-  </div>
 
 
   <!-- OFFLINE INDICATOR -->
@@ -189,9 +57,8 @@
 
     <div class="header">
 
-      <div class="header-title-wrap" style="position:relative;">
+      <div class="header-title-wrap">
         <h1 id="headerTitle">รายได้ของน้ำ</h1>
-        <button onclick="softRefresh()" class="header-refresh-btn" title="อัปเดตข้อมูล" style="position:absolute; right:8px; top:8px; background:none; border:none; font-size:22px; cursor:pointer; padding:4px; line-height:1;">🔄</button>
         <p>บันทึกรายได้ทำเล็บของคุณ</p>
         <div id="headerUserBadge" class="header-user-badge">💚 น้ำ</div>
       </div>
@@ -376,18 +243,44 @@
         </div>
 
         <div class="s3-stat-hero">
-          <div class="s3-sh-l">รายได้สุทธิเดือนนี้</div>
-          <div class="s3-sh-v" id="monthIncome">฿0</div>
-          <div id="monthCompare" style="font-size:13px; margin-bottom:12px;"></div>
+          <div class="s3-sh-l">💰 ยอดที่เราจะได้เดือนนี้</div>
+          <div class="s3-sh-v" id="monthNetIncome">฿0</div>
+          <div id="monthNetFormula" style="font-size:12.5px; color:var(--ink-soft); margin-top:4px; margin-bottom:12px;">(คอมมิชชั่น + โอที − หักสาย)</div>
           
+          <!-- แถว 1: คอมมิชชั่น & ยอดขายร้าน -->
           <div class="s3-sh-grid">
             <div>
               <div class="s3-box-val" id="monthCommission" style="color:var(--accent);">฿0</div>
-              <div class="s3-box-l">🪙 คอมมิชชั่นรวม</div>
+              <div class="s3-box-l">🪙 คอมมิชชั่น 10%</div>
             </div>
             <div style="border-left:1px solid var(--border-soft);">
+              <div class="s3-box-val" id="monthShopIncome" style="color:var(--ink);">฿0</div>
+              <div class="s3-box-l">🏪 ยอดขายร้าน</div>
+              <div id="monthCompare" style="font-size:11.5px; margin-top:2px;"></div>
+            </div>
+          </div>
+
+          <!-- แถว 2: โอที & หักสาย -->
+          <div class="s3-sh-grid" style="margin-top:8px;">
+            <div>
+              <div class="s3-box-val" id="monthOtPay" style="color:var(--nam);">฿0</div>
+              <div class="s3-box-l">⏰ โอที</div>
+            </div>
+            <div style="border-left:1px solid var(--border-soft);">
+              <div class="s3-box-val" id="monthLateFine" style="color:#d32f2f;">฿0</div>
+              <div class="s3-box-l">⏰ หักสาย</div>
+            </div>
+          </div>
+
+          <!-- แถว 3: จำนวนงาน & วันทำงาน -->
+          <div class="s3-sh-grid" style="margin-top:8px;">
+            <div>
               <div class="s3-box-val" id="monthJobs">0</div>
               <div class="s3-box-l">💅 จำนวนงานรวม</div>
+            </div>
+            <div style="border-left:1px solid var(--border-soft);">
+              <div class="s3-box-val" id="monthWorkDays">0</div>
+              <div class="s3-box-l">📅 วันทำงาน</div>
             </div>
           </div>
         </div>
@@ -429,10 +322,7 @@
         <div style="height:20px;"></div>
         <div class="s-ava" id="manageProfAva">💚</div>
         <div style="font-size:22px; font-weight:600; color:var(--ink);" id="manageProfName">น้ำ (Nam)</div>
-        <div style="font-size:14px; color:var(--ink-soft);">เข้าสู่ระบบสำเร็จ</div>
-        <div style="margin-top:16px;">
-          <button class="s-btn-small" style="background:#ffebee; color:#d32f2f; padding:8px 16px;" onclick="logoutUser()">🚪 ออกจากระบบ</button>
-        </div>
+        <div style="font-size:14px; color:var(--ink-soft);">💅 ช่างทำเล็บ</div>
       </div>
 
       <!-- APP SETTINGS -->
@@ -470,14 +360,6 @@
              </div>
           </div>
 
-          <div class="s-row" onclick="showChangePinFlow()">
-             <div class="s-icon">🔐</div>
-             <div class="s-text">
-               <div class="s-title">เปลี่ยน PIN</div>
-               <div class="s-sub">ตั้งค่ารหัสผ่าน 4 หลักใหม่</div>
-             </div>
-             <div><button class="s-btn-small" onclick="event.stopPropagation();showChangePinFlow()">เปลี่ยน</button></div>
-          </div>
 
           <div class="s-row" onclick="document.getElementById('notifSwitch').click()">
              <div class="s-icon">🔔</div>
@@ -572,6 +454,7 @@
             <span style="color:var(--ink-soft); font-size:13px; align-self:center;">(ออกงาน)</span>
           </div>
           <div class="send-time-default" id="sendTimeDefault" style="margin-top:8px; text-align:right;"></div>
+          <div id="sendTimeCalcPreview" style="margin-top:10px; padding:10px 14px; background:var(--card-soft); border-radius:10px; font-size:13px; line-height:1.6; border:1px solid var(--border-soft);"></div>
         </div>
 
         <div class="s1-card">
@@ -599,6 +482,16 @@
             <div class="att-month-box">
               <div class="att-month-value" id="attSummaryHours">0 ชม.</div>
               <div class="att-month-label">ชั่วโมงทำงานรวม</div>
+            </div>
+          </div>
+          <div class="att-month-grid" style="margin-top:8px;">
+            <div class="att-month-box">
+              <div class="att-month-value" id="attSummaryOt" style="color:var(--nam);">฿0</div>
+              <div class="att-month-label">⏰ โอทีรวม</div>
+            </div>
+            <div class="att-month-box">
+              <div class="att-month-value" id="attSummaryLate" style="color:#d32f2f;">฿0</div>
+              <div class="att-month-label">⏰ หักสายรวม</div>
             </div>
           </div>
         </div>
@@ -640,6 +533,11 @@
       ส่งงาน
     </button>
 
+        <button id="navRefresh" class="nav-btn" onclick="softRefresh()">
+      <span class="nav-icon">🔄</span>
+      รีเฟรช
+    </button>
+
     <button id="navManage" class="nav-btn" onclick="showPage('manage')">
       <span class="nav-icon">⚙️</span>
       ตั้งค่า
@@ -662,7 +560,7 @@
 
 
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=6"></script>
 
 
 </body>
