@@ -786,34 +786,6 @@ function showSuccessPopup(message) {
     '<div class="modal-icon">🐾✅</div>' +
     '<div class="modal-title">' + escapeHtml(message) + '</div>';
 
-  function updateModalCalc() {
-    const pEl = document.getElementById('modalAttCalcPreview');
-    if (!pEl) return;
-    const inHv = document.getElementById('editAttInHour').value || '';
-    const inMv = document.getElementById('editAttInMin').value || '';
-    const outHv = document.getElementById('editAttOutHour').value || '';
-    const outMv = document.getElementById('editAttOutMin').value || '';
-    const newIn = (inHv && inMv) ? inHv + '.' + inMv : '';
-    const newOut = (outHv && outMv) ? outHv + '.' + outMv : '';
-    const late = calcLate(newIn, currentUser);
-    const ot = calcOt(newOut, currentUser);
-
-    let parts = [];
-    if (newIn) {
-      parts.push(late.fine > 0 ? '⚠️ สาย ' + late.lateMin + ' นาที (-' + money(late.fine) + ')' : '✅ เข้าตรงเวลา');
-    }
-    if (newOut) {
-      parts.push(ot.otPay > 0 ? '🎉 โอที ' + ot.otMin + ' นาที (+' + money(ot.otPay) + ')' : '🕒 ออกตามเวลา');
-    }
-    pEl.innerHTML = parts.length > 0 ? parts.join(' | ') : 'เลือกเวลาเพื่อคำนวณ';
-  }
-
-  ['editAttInHour', 'editAttInMin', 'editAttOutHour', 'editAttOutMin'].forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el) el.onchange = updateModalCalc;
-  });
-  updateModalCalc();
-
   overlay.classList.add('show');
 
   clearTimeout(window._popupTimer);
@@ -838,39 +810,10 @@ function showConfirmDialog(title, text, onConfirm) {
     '<div class="modal-icon">🤔</div>' +
     '<div class="modal-title">' + escapeHtml(title) + '</div>' +
     '<div class="modal-text">' + escapeHtml(text) + '</div>' +
-    '<div id="modalAttCalcPreview" style="margin-top:10px; padding:8px 12px; background:var(--card-soft); border-radius:8px; font-size:12.5px; text-align:center; font-weight:500;"></div>' +
     '<div class="modal-actions">' +
     '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
     '<button class="modal-btn ok" id="modalOkBtn">ยืนยัน</button>' +
     '</div>';
-
-  function updateModalCalc() {
-    const pEl = document.getElementById('modalAttCalcPreview');
-    if (!pEl) return;
-    const inHv = document.getElementById('editAttInHour').value || '';
-    const inMv = document.getElementById('editAttInMin').value || '';
-    const outHv = document.getElementById('editAttOutHour').value || '';
-    const outMv = document.getElementById('editAttOutMin').value || '';
-    const newIn = (inHv && inMv) ? inHv + '.' + inMv : '';
-    const newOut = (outHv && outMv) ? outHv + '.' + outMv : '';
-    const late = calcLate(newIn, currentUser);
-    const ot = calcOt(newOut, currentUser);
-
-    let parts = [];
-    if (newIn) {
-      parts.push(late.fine > 0 ? '⚠️ สาย ' + late.lateMin + ' นาที (-' + money(late.fine) + ')' : '✅ เข้าตรงเวลา');
-    }
-    if (newOut) {
-      parts.push(ot.otPay > 0 ? '🎉 โอที ' + ot.otMin + ' นาที (+' + money(ot.otPay) + ')' : '🕒 ออกตามเวลา');
-    }
-    pEl.innerHTML = parts.length > 0 ? parts.join(' | ') : 'เลือกเวลาเพื่อคำนวณ';
-  }
-
-  ['editAttInHour', 'editAttInMin', 'editAttOutHour', 'editAttOutMin'].forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el) el.onchange = updateModalCalc;
-  });
-  updateModalCalc();
 
   overlay.classList.add('show');
 
@@ -893,39 +836,10 @@ function showEditDialog(row, currentItem, currentPrice) {
     '<div class="modal-title">แก้ไขรายการ</div>' +
     '<input id="editItemInput" class="modal-input" value="' + escapeHtml(currentItem) + '">' +
     '<input id="editPriceInput" class="modal-input" type="number" inputmode="decimal" value="' + currentPrice + '">' +
-    '<div id="modalAttCalcPreview" style="margin-top:10px; padding:8px 12px; background:var(--card-soft); border-radius:8px; font-size:12.5px; text-align:center; font-weight:500;"></div>' +
     '<div class="modal-actions">' +
     '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
     '<button class="modal-btn ok" id="modalOkBtn">บันทึก</button>' +
     '</div>';
-
-  function updateModalCalc() {
-    const pEl = document.getElementById('modalAttCalcPreview');
-    if (!pEl) return;
-    const inHv = document.getElementById('editAttInHour').value || '';
-    const inMv = document.getElementById('editAttInMin').value || '';
-    const outHv = document.getElementById('editAttOutHour').value || '';
-    const outMv = document.getElementById('editAttOutMin').value || '';
-    const newIn = (inHv && inMv) ? inHv + '.' + inMv : '';
-    const newOut = (outHv && outMv) ? outHv + '.' + outMv : '';
-    const late = calcLate(newIn, currentUser);
-    const ot = calcOt(newOut, currentUser);
-
-    let parts = [];
-    if (newIn) {
-      parts.push(late.fine > 0 ? '⚠️ สาย ' + late.lateMin + ' นาที (-' + money(late.fine) + ')' : '✅ เข้าตรงเวลา');
-    }
-    if (newOut) {
-      parts.push(ot.otPay > 0 ? '🎉 โอที ' + ot.otMin + ' นาที (+' + money(ot.otPay) + ')' : '🕒 ออกตามเวลา');
-    }
-    pEl.innerHTML = parts.length > 0 ? parts.join(' | ') : 'เลือกเวลาเพื่อคำนวณ';
-  }
-
-  ['editAttInHour', 'editAttInMin', 'editAttOutHour', 'editAttOutMin'].forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el) el.onchange = updateModalCalc;
-  });
-  updateModalCalc();
 
   overlay.classList.add('show');
 
@@ -1036,7 +950,8 @@ async function loadSummary(forceRefresh) {
       historyData = result.data || [];
       lastSummaryFetch = Date.now();
       renderSummary();
-      ensureAttendanceForMonth(historyFilterMonth, historyFilterYear);
+      await ensureAttendanceForMonth(historyFilterMonth, historyFilterYear);
+      renderSummary();
     }
 
   } catch (error) {
@@ -1163,6 +1078,7 @@ function renderSummary() {
   let monthLateFine = 0;
   let monthWorkDays = attList.length;
   attList.forEach(function (e) {
+    normalizeAttendanceRow(e);
     monthOtPay += Number(e.otPay) || 0;
     monthLateFine += Number(e.fine) || 0;
   });
@@ -1819,39 +1735,10 @@ function showEditServiceDialog(item) {
     '<input id="editServiceName" class="modal-input" value="' + escapeHtml(item.name) + '">' +
     '<select id="editServiceCategory" class="thai-date-select" style="width:100%;margin-bottom:10px;">' + optionsHtml + '</select>' +
     '<input id="editServiceNewCategory" class="modal-input" placeholder="ชื่อหมวดหมู่ใหม่" style="display:none;">' +
-    '<div id="modalAttCalcPreview" style="margin-top:10px; padding:8px 12px; background:var(--card-soft); border-radius:8px; font-size:12.5px; text-align:center; font-weight:500;"></div>' +
     '<div class="modal-actions">' +
     '<button class="modal-btn cancel" id="modalCancelBtn">ยกเลิก</button>' +
     '<button class="modal-btn ok" id="modalOkBtn">บันทึก</button>' +
     '</div>';
-
-  function updateModalCalc() {
-    const pEl = document.getElementById('modalAttCalcPreview');
-    if (!pEl) return;
-    const inHv = document.getElementById('editAttInHour').value || '';
-    const inMv = document.getElementById('editAttInMin').value || '';
-    const outHv = document.getElementById('editAttOutHour').value || '';
-    const outMv = document.getElementById('editAttOutMin').value || '';
-    const newIn = (inHv && inMv) ? inHv + '.' + inMv : '';
-    const newOut = (outHv && outMv) ? outHv + '.' + outMv : '';
-    const late = calcLate(newIn, currentUser);
-    const ot = calcOt(newOut, currentUser);
-
-    let parts = [];
-    if (newIn) {
-      parts.push(late.fine > 0 ? '⚠️ สาย ' + late.lateMin + ' นาที (-' + money(late.fine) + ')' : '✅ เข้าตรงเวลา');
-    }
-    if (newOut) {
-      parts.push(ot.otPay > 0 ? '🎉 โอที ' + ot.otMin + ' นาที (+' + money(ot.otPay) + ')' : '🕒 ออกตามเวลา');
-    }
-    pEl.innerHTML = parts.length > 0 ? parts.join(' | ') : 'เลือกเวลาเพื่อคำนวณ';
-  }
-
-  ['editAttInHour', 'editAttInMin', 'editAttOutHour', 'editAttOutMin'].forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el) el.onchange = updateModalCalc;
-  });
-  updateModalCalc();
 
   overlay.classList.add('show');
 
@@ -2277,6 +2164,50 @@ function calcOt(checkOutStr, user) {
 }
 
 
+function normalizeAttendanceRow(row) {
+  if (!row || typeof row !== 'object') return row;
+  const user = row.user || currentUser || 'nam';
+
+  var dk = String(row.dateKey || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) {
+    var parsed = dk ? new Date(dk) : null;
+    if (parsed && !isNaN(parsed.getTime())) {
+      dk = dateKey(parsed);
+    } else if (row.date) {
+      var d = parseRowDate({ date: row.date });
+      if (d) dk = dateKey(d);
+    }
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dk)) {
+    row.dateKey = dk;
+  }
+
+  // คำนวณสาย fallback ถ้าไม่มีค่า หรือเป็น 0
+  if (row.checkIn) {
+    const late = calcLate(row.checkIn, user);
+    if (!row.fine || Number(row.fine) === 0) {
+      if (late.fine > 0) {
+        row.lateMin = late.lateMin;
+        row.fine = late.fine;
+      }
+    }
+  }
+
+  // คำนวณโอที fallback ถ้าไม่มีค่า หรือเป็น 0 แต่เวลาออกเกินกำหนด (เกิน 20.00 น.)
+  if (row.checkOut) {
+    const ot = calcOt(row.checkOut, user);
+    if (!row.otPay || Number(row.otPay) === 0) {
+      if (ot.otPay > 0) {
+        row.otMin = ot.otMin;
+        row.otPay = ot.otPay;
+      }
+    }
+  }
+
+  return row;
+}
+
+
 function thaiDateShort(date) {
   const shortMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
   return date.getDate() + ' ' + shortMonths[date.getMonth()] + ' ' + String(date.getFullYear() + 543).slice(-2);
@@ -2477,7 +2408,25 @@ function attStoreKey() {
 
 function getAttendanceStore() {
   try {
-    return JSON.parse(localStorage.getItem(attStoreKey()) || '{}');
+    const store = JSON.parse(localStorage.getItem(attStoreKey()) || '{}');
+    let changed = false;
+    Object.keys(store).forEach(function (k) {
+      const row = store[k];
+      if (row && typeof row === 'object') {
+        const oldOt = row.otPay;
+        const oldFine = row.fine;
+        normalizeAttendanceRow(row);
+        if (row.otPay !== oldOt || row.fine !== oldFine) {
+          changed = true;
+        }
+      }
+    });
+    if (changed) {
+      try {
+        localStorage.setItem(attStoreKey(), JSON.stringify(store));
+      } catch (e) { }
+    }
+    return store;
   } catch (e) {
     return {};
   }
@@ -2684,18 +2633,8 @@ async function ensureAttendanceForMonth(month, year) {
       const arr = Array.isArray(result.data) ? result.data : [result.data];
       arr.forEach(function (row) {
         if (!row || typeof row !== 'object') return;
-        var dk = String(row.dateKey || '').trim();
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) {
-          var parsed = dk ? new Date(dk) : null;
-          if (parsed && !isNaN(parsed.getTime())) {
-            dk = dateKey(parsed);
-          } else if (row.date) {
-            var d = parseRowDate({ date: row.date });
-            if (d) dk = dateKey(d);
-          }
-        }
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) return;
-        row.dateKey = dk;
+        normalizeAttendanceRow(row);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(row.dateKey)) return;
         const key = attKeyFor(row.user || currentUser, row.dateKey);
         const prev = store[key] || {};
         store[key] = Object.assign({}, prev, row, {
@@ -2720,24 +2659,9 @@ async function loadAttendanceFromServer() {
       const arr = Array.isArray(result.data) ? result.data : [result.data];
       arr.forEach(function (row) {
         if (!row || typeof row !== 'object') return;
-        // แปลง dateKey ที่อาจเป็น Date string (เช่น "Thu Oct 01 2026...") เป็น yyyy-mm-dd
-        var dk = String(row.dateKey || '').trim();
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) {
-          // เซิร์ฟเวอร์อาจคืน Date string — ลองพาร์สเป็น Date
-          var parsed = dk ? new Date(dk) : null;
-          if (parsed && !isNaN(parsed.getTime())) {
-            dk = dateKey(parsed);
-          } else if (row.date) {
-            // fallback: ลองแปลงจาก dd/mm/yyyy
-            var d = parseRowDate({ date: row.date });
-            if (d) dk = dateKey(d);
-          }
-        }
-        // กันข้อมูลเสีย: ต้องเป็น yyyy-mm-dd จริงถึงเก็บ
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(dk)) return;
-        row.dateKey = dk;
+        normalizeAttendanceRow(row);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(row.dateKey)) return;
         const key = attKeyFor(row.user || currentUser, row.dateKey);
-        // server เป็นหลัก — ทับค่าเก่าในเครื่อง (ยกเว้นเก็บ note ในเครื่องไว้ถ้า server ไม่มี)
         const prev = store[key] || {};
         store[key] = Object.assign({}, prev, row, {
           user: row.user || prev.user || currentUser
@@ -2764,7 +2688,10 @@ function getAttendanceForMonth(user, month, year) {
     if (parts.length !== 3) return;
     const y = Number(parts[0]);
     const m = Number(parts[1]) - 1;
-    if (m === month && y === year) out.push(e);
+    if (m === month && y === year) {
+      normalizeAttendanceRow(e);
+      out.push(e);
+    }
   });
   out.sort(function (a, b) {
     return String(b.dateKey).localeCompare(String(a.dateKey));
@@ -2816,6 +2743,7 @@ function renderAttMonthSummary(list) {
   let totalOtPay = 0;
   let totalFine = 0;
   (list || []).forEach(function (entry) {
+    normalizeAttendanceRow(entry);
     totalOtPay += Number(entry.otPay) || 0;
     totalFine += Number(entry.fine) || 0;
   });
@@ -2885,7 +2813,7 @@ function renderAttendanceList() {
       statusParts.push('<div class="att-status ok">ตรงเวลา ✓</div>');
     }
     if (entry.otPay > 0) {
-      statusParts.push('<div class="att-status ot" style="background:#e8f5e9; color:#2e7d32; border-radius:12px; padding:2px 8px; font-size:12px; font-weight:600;">โอที ' + entry.otMin + ' นาที · +' + money(entry.otPay) + '</div>');
+      statusParts.push('<div class="att-status ot" style="background:#e8f5e9; color:#2e7d32; border-radius:12px; padding:2px 8px; font-size:12px; font-weight:600;">🎉 โอที ' + entry.otMin + ' นาที · +' + money(entry.otPay) + '</div>');
     }
     const statusHtml = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;">' + statusParts.join('') + '</div>';
 
@@ -3334,34 +3262,6 @@ function openThemeMenu() {
     '<button class="modal-btn ok" id="modalOkBtn">เลือกรูป</button>' +
     '</div>';
 
-  function updateModalCalc() {
-    const pEl = document.getElementById('modalAttCalcPreview');
-    if (!pEl) return;
-    const inHv = document.getElementById('editAttInHour').value || '';
-    const inMv = document.getElementById('editAttInMin').value || '';
-    const outHv = document.getElementById('editAttOutHour').value || '';
-    const outMv = document.getElementById('editAttOutMin').value || '';
-    const newIn = (inHv && inMv) ? inHv + '.' + inMv : '';
-    const newOut = (outHv && outMv) ? outHv + '.' + outMv : '';
-    const late = calcLate(newIn, currentUser);
-    const ot = calcOt(newOut, currentUser);
-
-    let parts = [];
-    if (newIn) {
-      parts.push(late.fine > 0 ? '⚠️ สาย ' + late.lateMin + ' นาที (-' + money(late.fine) + ')' : '✅ เข้าตรงเวลา');
-    }
-    if (newOut) {
-      parts.push(ot.otPay > 0 ? '🎉 โอที ' + ot.otMin + ' นาที (+' + money(ot.otPay) + ')' : '🕒 ออกตามเวลา');
-    }
-    pEl.innerHTML = parts.length > 0 ? parts.join(' | ') : 'เลือกเวลาเพื่อคำนวณ';
-  }
-
-  ['editAttInHour', 'editAttInMin', 'editAttOutHour', 'editAttOutMin'].forEach(function(id) {
-    const el = document.getElementById(id);
-    if (el) el.onchange = updateModalCalc;
-  });
-  updateModalCalc();
-
   overlay.classList.add('show');
 
   document.getElementById('modalOkBtn').onclick = function () {
@@ -3512,6 +3412,7 @@ renderPendingBanner();
 resetPayment();
 prefillSendTimes();
 restoreSendDraft();
+refreshAttendanceList();
 
 
 /* ==================================================

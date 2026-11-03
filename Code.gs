@@ -1,4 +1,4 @@
-﻿const SHEET_LIST = 'databaselist';
+const SHEET_LIST = 'databaselist';
 const COMMISSION_RATE = 0.10;
 
 // แมปชื่อผู้ใช้ → ชื่อชีต
@@ -1282,20 +1282,42 @@ function getAttendanceHistory(user, month, year) {
       if (dp.length === 3) displayDate = dp[2] + '/' + dp[1] + '/' + dp[0];
     }
 
+    var inTime = String(r[3] != null ? r[3] : '').trim();
+    var outTime = String(r[4] != null ? r[4] : '').trim();
+    var lateMin = Number(r[5]) || 0;
+    var fine = Number(r[6]) || 0;
+    var otMin = Number(r[11]) || 0;
+    var otPay = Number(r[12]) || 0;
+
+    if (outTime && (!otPay || otPay === 0)) {
+      var calcO = calcAttOt_(outTime);
+      if (calcO.otPay > 0) {
+        otMin = calcO.otMin;
+        otPay = calcO.otPay;
+      }
+    }
+    if (inTime && (!fine || fine === 0)) {
+      var calcL = calcAttLate_(inTime);
+      if (calcL.fine > 0) {
+        lateMin = calcL.lateMin;
+        fine = calcL.fine;
+      }
+    }
+
     data.push({
       user: String(r[0]).trim(),
       dateKey: dk,
       date: displayDate,
-      checkIn: String(r[3] != null ? r[3] : '').trim(),
-      checkOut: String(r[4] != null ? r[4] : '').trim(),
-      lateMin: Number(r[5]) || 0,
-      fine: Number(r[6]) || 0,
+      checkIn: inTime,
+      checkOut: outTime,
+      lateMin: lateMin,
+      fine: fine,
       jobs: Number(r[7]) || 0,
       income: Number(r[8]) || 0,
       note: String(r[9] || ''),
       fullText: String(r[10] || ''),
-      otMin: Number(r[11]) || 0,
-      otPay: Number(r[12]) || 0
+      otMin: otMin,
+      otPay: otPay
     });
 
   });
@@ -1310,4 +1332,51 @@ function getAttendanceHistory(user, month, year) {
     data: data
   };
 
+}
+
+
+function timeStrToMinutes_(str) {
+  if (str == null) return null;
+  var s = String(str).trim().replace(',', '.').replace(':', '.').replace(' ', '.').replace('น', '').trim();
+  if (!s) return null;
+  if (/^\d{3,4}$/.test(s)) {
+    var p = s.length === 3 ? '0' + s : s;
+    var h = Number(p.slice(0, 2));
+    var m = Number(p.slice(2, 4));
+    if (h < 0 || h > 23 || m < 0 || m > 59) return null;
+    return h * 60 + m;
+  }
+  if (/^\d{1,2}$/.test(s)) {
+    var h = Number(s);
+    if (h < 0 || h > 23) return null;
+    return h * 60;
+  }
+  var parts = s.split('.');
+  if (parts.length !== 2) return null;
+  var h = Number(parts[0]);
+  var mStr = parts[1];
+  if (mStr.length === 1) mStr += '0';
+  var m = Number(mStr);
+  if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return null;
+  return h * 60 + m;
+}
+
+function calcAttOt_(checkOutStr) {
+  var schedOut = 20 * 60; // 20.00 น.
+  var actualOut = timeStrToMinutes_(checkOutStr);
+  if (actualOut === null || actualOut <= schedOut) {
+    return { otMin: 0, otPay: 0 };
+  }
+  var ot = actualOut - schedOut;
+  return { otMin: ot, otPay: ot };
+}
+
+function calcAttLate_(checkInStr) {
+  var schedIn = 10 * 60; // 10.00 น.
+  var actualIn = timeStrToMinutes_(checkInStr);
+  if (actualIn === null || actualIn <= schedIn) {
+    return { lateMin: 0, fine: 0 };
+  }
+  var late = actualIn - schedIn;
+  return { lateMin: late, fine: late };
 }
