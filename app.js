@@ -2292,31 +2292,9 @@ function buildSendText(targetDate) {
   lines.push('ส่งยอด ' + thaiDateShort(now));
   lines.push(info.emoji + ' ' + info.thai);
   lines.push('');
-  const inStr = getSendTime('In');
-  const outStr = getSendTime('Out');
-  const late = calcLate(inStr, currentUser);
-  const ot = calcOt(outStr, currentUser);
-
-  let inLine = '⏰ เวลาเข้างาน : ' + (checkIn || '');
-  if (late.fine > 0) {
-    inLine += ' (สาย ' + late.lateMin + ' นาที · หัก ' + money(late.fine) + ')';
-  } else if (checkIn) {
-    inLine += ' (ตรงเวลา)';
-  }
-  lines.push(inLine);
-
-  let outLine = '⏰ เวลาออกงาน : ' + (checkOut || '');
-  if (ot.otPay > 0) {
-    outLine += ' (โอที ' + ot.otMin + ' นาที · +' + money(ot.otPay) + ')';
-  }
-  lines.push(outLine);
-
-  if (late.fine > 0 || ot.otPay > 0) {
-    const parts = [];
-    if (late.fine > 0) parts.push('หักสาย -' + money(late.fine));
-    if (ot.otPay > 0) parts.push('โอที +' + money(ot.otPay));
-    lines.push('⚡ สรุปเวลา: ' + parts.join(' | '));
-  }
+  // แสดงเฉพาะเวลาเข้า-ออกปกติ ไม่โชว์โอทีหรือหักสายในข้อความส่งยอด
+  lines.push('⏰ เวลาเข้างาน : ' + (checkIn || ''));
+  lines.push('⏰ เวลาออกงาน : ' + (checkOut || ''));
   lines.push('');
 
   if (rows.length === 0) {

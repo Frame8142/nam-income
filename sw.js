@@ -3,7 +3,7 @@
    Cache static files for offline support
 ================================================== */
 
-const CACHE_NAME = 'nam-income-v24';
+const CACHE_NAME = 'nam-income-v25';
 
 const ASSETS_TO_CACHE = [
   './',
