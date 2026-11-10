@@ -4142,7 +4142,7 @@
        CONFIG
     ================================================== */
 
-    const API_URL = 'about:invalid#zPythonSafez';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwrCsrXuMYCuyG4hYISyVP5LZWyl1A1bw3NOINjwyVniIGl0kqjPZt1Pm1G8IJlUh_v/exec';
 
     const COMMISSION_RATE = 0.10;
 
@@ -4381,38 +4381,47 @@
       }
     }
 
-    function applyAvatar() {
-      const dataUrl = getSavedAvatar();
+    /* --- Sync avatar to/from server so every device sees the same pic --- */
+    async function saveAvatarToServer(dataUrl) {
+      try {
+        await apiPost({ action: 'saveAvatar', avatar: dataUrl });
+      } catch (e) { /* silent */ }
+    }
+
+    async function loadAvatarFromServer() {
+      try {
+        const res = await apiGet('getAvatar');
+        if (res && res.avatar) {
+          try { localStorage.setItem(avatarStorageKey(), res.avatar); } catch (e) { }
+          applyAvatarUI(res.avatar);
+        }
+      } catch (e) { /* silent */ }
+    }
+
+    function applyAvatarUI(dataUrl) {
       const headerImg = document.getElementById('headerAvatarImg');
       const headerFallback = document.getElementById('headerAvatarFallback');
       const manageImg = document.getElementById('manageProfImg');
       const manageFallback = document.getElementById('manageProfFallback');
 
       if (dataUrl) {
-        if (headerImg) {
-          headerImg.src = dataUrl;
-          headerImg.style.display = 'block';
-        }
+        if (headerImg) { headerImg.src = dataUrl; headerImg.style.display = 'block'; }
         if (headerFallback) headerFallback.style.display = 'none';
-
-        if (manageImg) {
-          manageImg.src = dataUrl;
-          manageImg.style.display = 'block';
-        }
+        if (manageImg) { manageImg.src = dataUrl; manageImg.style.display = 'block'; }
         if (manageFallback) manageFallback.style.display = 'none';
       } else {
-        if (headerImg) {
-          headerImg.removeAttribute('src');
-          headerImg.style.display = 'none';
-        }
+        if (headerImg) { headerImg.removeAttribute('src'); headerImg.style.display = 'none'; }
         if (headerFallback) headerFallback.style.display = 'block';
-
-        if (manageImg) {
-          manageImg.removeAttribute('src');
-          manageImg.style.display = 'none';
-        }
+        if (manageImg) { manageImg.removeAttribute('src'); manageImg.style.display = 'none'; }
         if (manageFallback) manageFallback.style.display = 'block';
       }
+    }
+
+    function applyAvatar() {
+      const dataUrl = getSavedAvatar();
+      applyAvatarUI(dataUrl);
+      /* Also pull from server in background (first load / other device) */
+      loadAvatarFromServer();
     }
 
     function openAvatarMenu() {
@@ -4436,41 +4445,34 @@
       document.getElementById('modalAvatarCloseBtn').onclick = closeModal;
       document.getElementById('modalAvatarPickBtn').onclick = function () {
         closeModal();
-        const input = document.getElementById('avatarFileInput');
-        if (input) {
-          input.value = '';
-          input.click();
-        }
+        var input = document.getElementById('avatarFileInput');
+        if (input) { input.value = ''; input.click(); }
       };
 
-      const resetBtn = document.getElementById('modalAvatarResetBtn');
+      var resetBtn = document.getElementById('modalAvatarResetBtn');
       if (resetBtn) {
         resetBtn.onclick = function () {
           closeModal();
           try { localStorage.removeItem(avatarStorageKey()); } catch (e) { }
-          applyAvatar();
+          saveAvatarToServer('');
+          applyAvatarUI('');
           showToast('ลบรูปโปรไฟล์แล้ว');
         };
       }
     }
 
     function handleAvatarFile() {
-      const input = document.getElementById('avatarFileInput');
-      const file = input && input.files && input.files[0];
+      var input = document.getElementById('avatarFileInput');
+      var file = input && input.files && input.files[0];
       if (!file) return;
 
       compressAvatarImage(file).then(function (dataUrl) {
-        if (!dataUrl) {
-          showToast('รูปนี้ใช้ไม่ได้ ลองเลือกรูปอื่น');
-          return;
+        if (!dataUrl) { showToast('รูปนี้ใช้ไม่ได้ ลองเลือกรูปอื่น'); return; }
+        try { localStorage.setItem(avatarStorageKey(), dataUrl); } catch (e) {
+          showToast('พื้นที่เก็บเต็ม ลองใช้รูปเล็กกว่านี้'); return;
         }
-        try {
-          localStorage.setItem(avatarStorageKey(), dataUrl);
-        } catch (e) {
-          showToast('พื้นที่เก็บเต็ม ลองใช้รูปเล็กกว่านี้');
-          return;
-        }
-        applyAvatar();
+        applyAvatarUI(dataUrl);
+        saveAvatarToServer(dataUrl);
         showToast('อัปเดตรูปโปรไฟล์เรียบร้อย ✨');
       });
     }

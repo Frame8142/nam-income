@@ -94,6 +94,18 @@ function doGet(e) {
   }
 
 
+  // API ดึงรูปโปรไฟล์
+  if (action === 'getAvatar') {
+    try {
+      var props = PropertiesService.getScriptProperties();
+      var avatar = props.getProperty('avatar_' + (user || 'nam')) || '';
+      return jsonResponse({ success: true, avatar: avatar });
+    } catch (err) {
+      return jsonResponse({ success: true, avatar: '' });
+    }
+  }
+
+
   // Default: return API info
   return jsonResponse({
     success: true,
@@ -309,6 +321,23 @@ function doPost(e) {
         success: false,
         message: err.message
       });
+    }
+  }
+
+
+  // บันทึกรูปโปรไฟล์
+  if (action === 'saveAvatar') {
+    try {
+      var props = PropertiesService.getScriptProperties();
+      var avatarData = body.avatar || '';
+      if (avatarData) {
+        props.setProperty('avatar_' + (user || 'nam'), avatarData);
+      } else {
+        props.deleteProperty('avatar_' + (user || 'nam'));
+      }
+      return jsonResponse({ success: true });
+    } catch (err) {
+      return jsonResponse({ success: false, message: err.message });
     }
   }
 
